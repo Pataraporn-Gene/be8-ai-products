@@ -1,0 +1,355 @@
+/* Copied from Beryl8 Design System/colors_and_type.css (tokens + base type). Fonts are loaded via next/font in app/[lang]/layout.tsx. */
+:root {
+  /* ---------- COLOR TOKENS ---------- */
+
+  /* Primary identity — Cyan (signature, 60-70% of visual weight) */
+  --b8-cyan:         #00B8D4;
+  --b8-cyan-bright:  #00C4D6;
+  --b8-cyan-soft:    #5FD0DF;
+  --b8-cyan-tint:    #B6E8EE;
+  --b8-lightcyan-bg: #E8F8F9;
+
+  /* Authority — Navy (chrome, headers, structural ~20-30%) */
+  --b8-navy-deep: #0A1F2E;
+  --b8-navy:      #1A3340;
+  --b8-navy-text: #1A1A2E;
+
+  /* Surfaces, text, lines — aliased from the neutral ramp below.
+     Legacy --b8-* names are kept later in the file for back-compat. */
+
+  /* Semantic — sparingly */
+  --b8-green: #16A34A; /* success */
+  --b8-amber: #D97706; /* warning */
+  --b8-red:   #DC2626; /* error */
+
+  /* ============================================================
+     CYAN RAMP — 50→900, derived from #00B8D4 (the 500)
+     Use the ramp; legacy names below alias into it.
+     ============================================================ */
+  --cyan-50:  #ECFBFD;
+  --cyan-100: #D4F4F8;
+  --cyan-200: #A8E8F0;
+  --cyan-300: #6FD8E5;
+  --cyan-400: #2EC4D7;
+  --cyan-500: #00B8D4;  /* signature */
+  --cyan-600: #009BB3;
+  --cyan-700: #007D90;
+  --cyan-800: #005F6E;
+  --cyan-900: #003D47;
+
+  /* ============================================================
+     NEUTRAL RAMP — 0→950, single source of truth for grays
+     Cool-leaning to match navy, NOT pure neutral.
+     ============================================================ */
+  --neutral-0:   #FFFFFF;
+  --neutral-50:  #F7F9FB;  /* page wash */
+  --neutral-100: #F0F3F6;
+  --neutral-150: #E6EAEF;  /* whisper border */
+  --neutral-200: #DBE0E6;  /* divider */
+  --neutral-300: #C2CAD2;
+  --neutral-400: #9AA3AD;  /* placeholder, disabled */
+  --neutral-500: #6B7682;  /* secondary text */
+  --neutral-600: #4A5560;
+  --neutral-700: #2E3842;  /* body text */
+  --neutral-800: #1A242F;
+  --neutral-900: #0A1F2E;  /* navy-deep, primary text */
+  --neutral-950: #061620;
+
+  /* ============================================================
+     DATA-VIZ PALETTE — monotone sequential ramps.
+     PRINCIPLE: charts read left→right in the SAME hue family.
+     Use the sequential ramp for any quantitative or ordered data
+     (most charts). Use categorical only when categories are
+     genuinely distinct (departments, channels, etc).
+     Avoid mixing unrelated hues in one chart — it adds noise,
+     not meaning.
+     ============================================================ */
+
+  /* Sequential — cyan, deep → light. Use IN ORDER for ranked/ordinal data. */
+  --viz-seq-1: #003D52;  /* deepest — highest value */
+  --viz-seq-2: #005A75;
+  --viz-seq-3: #007D90;
+  --viz-seq-4: #00B8D4;
+  --viz-seq-5: #6FD8E5;
+  --viz-seq-6: #B8ECF2;  /* lightest — lowest value */
+
+  /* Categorical — only when categories are truly distinct.
+     Two families (cyan + slate), each progressing dark → light.
+     Pick consecutive tokens for related series. */
+  --viz-cat-1: #00B8D4;  /* cyan — primary */
+  --viz-cat-2: #007D90;  /* cyan deep */
+  --viz-cat-3: #6FD8E5;  /* cyan light */
+  --viz-cat-4: #1A3340;  /* slate — secondary */
+  --viz-cat-5: #4A5560;  /* slate mid */
+  --viz-cat-6: #9AA3AD;  /* slate light */
+
+  /* Legacy aliases (keep working, but deprecated) */
+  --viz-1: var(--viz-cat-1);
+  --viz-2: var(--viz-cat-4);
+  --viz-3: var(--viz-cat-3);
+  --viz-4: var(--viz-cat-5);
+  --viz-5: var(--viz-cat-2);
+  --viz-6: var(--viz-cat-6);
+
+  /* ---------- SEMANTIC ALIASES ---------- */
+  /* Text — aliased onto the neutral ramp */
+  --fg1:  var(--neutral-900);   /* primary text / headings */
+  --fg2:  var(--neutral-700);   /* body */
+  --fg3:  var(--neutral-500);   /* secondary */
+  --fg4:  var(--neutral-400);   /* placeholders, disabled */
+
+  /* Surfaces — aliased onto the neutral ramp */
+  --bg1:  var(--neutral-0);     /* cards, modals */
+  --bg2:  var(--neutral-50);    /* page wash */
+  --bg3:  var(--cyan-50);       /* subtle cyan tint */
+
+  /* Lines — aliased onto the neutral ramp */
+  --line1: var(--neutral-150);  /* whisper */
+  --line2: var(--neutral-200);  /* divider */
+
+  /* Accent */
+  --accent:        var(--cyan-500);
+  --accent-bright: var(--b8-cyan-bright);
+  --accent-soft:   var(--cyan-100);
+
+  /* Focus ring — single token, used everywhere */
+  --ring:        0 0 0 4px rgba(0,184,212,0.16);
+  --ring-tight:  0 0 0 3px rgba(0,184,212,0.20);
+
+  /* Legacy text/surface names retained as aliases (back-compat) */
+  --b8-text-primary: var(--neutral-900);
+  --b8-text-body:    var(--neutral-700);
+  --b8-gray-text:    var(--neutral-500);
+  --b8-gray-soft:    var(--neutral-400);
+  --b8-bg:           var(--neutral-50);
+  --b8-surface:      var(--neutral-0);
+  --b8-border-soft:  var(--neutral-150);
+  --b8-border:       var(--neutral-200);
+
+  /* ---------- TYPE TOKENS ---------- */
+  --font-display: 'Inter Tight', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body:    'Inter', 'Inter Tight', 'Noto Sans Thai', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-thai:    'Noto Sans Thai', 'Inter', sans-serif;
+
+  /* Sizes (size-driven hierarchy, NOT weight-driven) */
+  --type-mega:       80px;   /* marketing hero */
+  --type-display-lg: 56px;   /* secondary hero */
+  --type-display:    44px;
+  --type-h1:         32px;
+  --type-h2:         24px;
+  --type-h3:         20px;
+  --type-h4:         16px;
+  --type-body-lg:    16px;
+  --type-body:       14px;
+  --type-body-sm:    13px;
+  --type-caption:    12px;
+  --type-tiny:       11px;
+
+  /* Tracking — tightens with size, the Apple way */
+  --track-mega:        -0.034em;
+  --track-display-lg:  -0.028em;
+  --track-display:     -0.022em;
+  --track-h1:          -0.015em;
+  --track-h2:          -0.010em;
+  --track-h3:          -0.005em;
+  --track-body:        -0.005em;
+  --track-eyebrow:      0.10em;
+
+  /* Weights — kept LOW; size carries hierarchy */
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-strong:  600;
+
+  /* ---------- SPACING (4px grid) ---------- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ---------- RADII ---------- */
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   14px;   /* inputs */
+  --radius-xl:   16px;   /* ask wraps */
+  --radius-2xl:  18px;   /* cards-soft */
+  --radius-3xl:  20px;   /* cards-elevated, modals */
+  --radius-pill: 999px;
+
+  /* ---------- ELEVATION ----------
+     Functional names. All shadows use a single neutral ink (navy-deep at low alpha)
+     EXCEPT --shadow-pill, which is the brand-only exception (a cyan CTA at rest
+     casts a faint cyan glow — a deliberate Beryl8 signature, used ONLY here).
+     Two-layer shadow: tight contact (1–2px) + diffuse ambient (16–40px).
+  */
+  --shadow-card-soft:     0 1px 2px rgba(10,31,46,0.04), 0 6px 20px rgba(10,31,46,0.05);
+  --shadow-card-elevated: 0 2px 4px rgba(10,31,46,0.05), 0 14px 36px rgba(10,31,46,0.09);
+  --shadow-modal:         0 2px 4px rgba(10,31,46,0.05), 0 24px 60px rgba(10,31,46,0.16), 0 0 0 1px rgba(10,31,46,0.06);
+  --shadow-popover:       0 1px 2px rgba(10,31,46,0.06), 0 16px 40px rgba(10,31,46,0.18), 0 0 0 1px rgba(10,31,46,0.06);
+  --shadow-icon-circle:   0 1px 2px rgba(10,31,46,0.06), 0 6px 14px rgba(10,31,46,0.10);
+
+  /* Brand-only exception — primary CTA & cyan icon-circle */
+  --shadow-pill:          0 1px 2px rgba(10,31,46,0.06), 0 6px 16px rgba(0,184,212,0.22);
+  --shadow-pill-hover:    0 1px 2px rgba(10,31,46,0.06), 0 10px 24px rgba(0,184,212,0.32);
+
+  /* ---------- MOTION ---------- */
+  --ease-standard: cubic-bezier(0.25, 1, 0.5, 1);   /* cards, buttons, screens */
+  --ease-apple:    cubic-bezier(0.4, 0, 0.2, 1);    /* modals, popovers */
+  --duration-fast:   180ms;
+  --duration-base:   250ms;
+  --duration-modal:  280ms;
+  --duration-screen: 300ms;
+
+  /* ---------- GRADIENTS ---------- */
+  --gradient-cyan:  linear-gradient(135deg, var(--b8-cyan) 0%, var(--b8-cyan-bright) 100%);
+}
+
+/* ============================================================
+   DARK MODE — opt-in.
+   Apply by adding `.dark` to <html> or any container, OR set
+   `data-theme="dark"` on an ancestor. We DO NOT use prefers-color-scheme
+   automatically — Beryl8 dark mode is a deliberate user/surface choice
+   (chosen in product settings or pinned by surface, e.g. presentation
+   stage, late-night Brain).
+
+   Implementation: re-aliases semantic tokens onto inverted points of the
+   neutral ramp. Cyan ramp does not change — cyan-500 still works on dark
+   surfaces; cyan-300/400 are the bright-on-dark accent variants.
+   ============================================================ */
+.dark, [data-theme="dark"] {
+  /* Surfaces — climbing the dark ramp gives elevation */
+  --bg1:   #11202C;          /* card / surface */
+  --bg2:   #0A1822;          /* page wash (deeper than navy-900) */
+  --bg3:   rgba(0,184,212,.08); /* subtle cyan tint */
+
+  /* Text — on dark, fg1 = pure cool white, fg2 = soft white */
+  --fg1:  #F2F5F8;
+  --fg2:  #C7CFD8;
+  --fg3:  #8B95A1;
+  --fg4:  #5E6873;
+
+  /* Lines — barely-there hairlines */
+  --line1: rgba(255,255,255,0.06);
+  --line2: rgba(255,255,255,0.10);
+
+  /* Accent stays cyan but tilts brighter for legibility on dark */
+  --accent:        var(--cyan-400);
+  --accent-bright: var(--cyan-300);
+  --accent-soft:   rgba(0,184,212,.16);
+
+  /* Focus ring — same color, slightly stronger alpha */
+  --ring:        0 0 0 4px rgba(46,196,215,0.28);
+  --ring-tight:  0 0 0 3px rgba(46,196,215,0.32);
+
+  /* Elevation — switch from drop shadow to soft glow + hairline.
+     Dark UIs read elevation as light getting brighter, not deeper. */
+  --shadow-card-soft:     0 0 0 1px rgba(255,255,255,0.05), 0 8px 24px rgba(0,0,0,0.32);
+  --shadow-card-elevated: 0 0 0 1px rgba(255,255,255,0.06), 0 16px 40px rgba(0,0,0,0.42);
+  --shadow-modal:         0 0 0 1px rgba(255,255,255,0.06), 0 24px 64px rgba(0,0,0,0.55);
+  --shadow-popover:       0 0 0 1px rgba(255,255,255,0.06), 0 16px 40px rgba(0,0,0,0.50);
+  --shadow-pill:          0 1px 2px rgba(0,0,0,0.4), 0 6px 18px rgba(0,184,212,0.30);
+  --shadow-pill-hover:    0 1px 2px rgba(0,0,0,0.4), 0 10px 26px rgba(0,184,212,0.42);
+  --shadow-icon-circle:   0 0 0 1px rgba(255,255,255,0.06), 0 6px 16px rgba(0,0,0,0.42);
+}
+
+/* Optional: respect system preference if a surface opts in via [data-theme="auto"] */
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] {
+    --bg1: #11202C;  --bg2: #0A1822;  --bg3: rgba(0,184,212,.08);
+    --fg1: #F2F5F8;  --fg2: #C7CFD8;  --fg3: #8B95A1;  --fg4: #5E6873;
+    --line1: rgba(255,255,255,0.06);  --line2: rgba(255,255,255,0.10);
+    --accent: var(--cyan-400); --accent-bright: var(--cyan-300); --accent-soft: rgba(0,184,212,.16);
+    --ring: 0 0 0 4px rgba(46,196,215,0.28);
+    --shadow-card-soft: 0 0 0 1px rgba(255,255,255,0.05), 0 8px 24px rgba(0,0,0,0.32);
+    --shadow-card-elevated: 0 0 0 1px rgba(255,255,255,0.06), 0 16px 40px rgba(0,0,0,0.42);
+    --shadow-modal: 0 0 0 1px rgba(255,255,255,0.06), 0 24px 64px rgba(0,0,0,0.55);
+    --shadow-popover: 0 0 0 1px rgba(255,255,255,0.06), 0 16px 40px rgba(0,0,0,0.50);
+    --shadow-pill: 0 1px 2px rgba(0,0,0,0.4), 0 6px 18px rgba(0,184,212,0.30);
+    --shadow-icon-circle: 0 0 0 1px rgba(255,255,255,0.06), 0 6px 16px rgba(0,0,0,0.42);
+  }
+}
+
+/* ============================================================
+   Base typography — Apple-style, size-driven
+   ============================================================ */
+
+html, body {
+  font-family: var(--font-body);
+  font-size: var(--type-body);
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--track-body);
+  line-height: 1.5;
+  color: var(--fg2);
+  background: var(--bg2);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings — Inter Tight, never bold */
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-display);
+  color: var(--fg1);
+  font-weight: var(--weight-medium);
+}
+
+h1 {
+  font-size: var(--type-h1);
+  font-weight: var(--weight-strong);
+  letter-spacing: var(--track-h1);
+  line-height: 1.2;
+}
+h2 {
+  font-size: var(--type-h2);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--track-h2);
+  line-height: 1.3;
+}
+h3 {
+  font-size: var(--type-h3);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--track-h3);
+  line-height: 1.4;
+}
+h4 {
+  font-size: var(--type-h4);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--track-h3);
+  line-height: 1.5;
+}
+
+p { line-height: 1.6; }
+
+/* ---------- Type utility classes ---------- */
+.text-display {
+  font-family: var(--font-display);
+  font-size: var(--type-display);
+  font-weight: var(--weight-strong);
+  letter-spacing: var(--track-display);
+  line-height: 1.05;
+  color: var(--fg1);
+}
+.text-lg     { font-size: var(--type-body-lg); line-height: 1.5; }
+.text-base   { font-size: var(--type-body); }
+.text-sm     { font-size: var(--type-body-sm); }
+.text-xs     { font-size: var(--type-caption); }
+.text-tiny   { font-size: var(--type-tiny); }
+
+.text-eyebrow {
+  font-size: var(--type-tiny);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--track-eyebrow);
+  text-transform: uppercase;
+  line-height: 1.4;
+  color: var(--fg4);
+}
+
+/* Color helpers */
+.text-primary { color: var(--fg1); }
+.text-body    { color: var(--fg2); }
+.text-muted   { color: var(--fg3); }
+.text-soft    { color: var(--fg4); }
+.text-cyan    { color: var(--accent); }
+.text-navy    { color: var(--b8-navy-deep); }

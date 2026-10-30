@@ -1,0 +1,69 @@
+@import "tailwindcss";
+/* Brand tokens + base type sit in the base layer so Tailwind utilities can still override them. */
+@import "./styles/beryl8.css" layer(base);
+
+:root {
+  --font-display: var(--font-inter-tight), var(--font-inter), var(--font-noto-thai), system-ui, sans-serif;
+  --font-body: var(--font-inter), var(--font-noto-thai), system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-fg1: var(--fg1);
+  --color-fg2: var(--fg2);
+  --color-fg3: var(--fg3);
+  --color-fg4: var(--fg4);
+  --color-bg1: var(--bg1);
+  --color-bg2: var(--bg2);
+  --color-line1: var(--line1);
+  --color-line2: var(--line2);
+  --color-accent: var(--accent);
+  --color-cyan-50: var(--cyan-50);
+  --color-cyan-100: var(--cyan-100);
+  --color-cyan-700: var(--cyan-700);
+  --color-navy: var(--b8-navy-deep);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+  --ease-standard: var(--ease-standard);
+}
+
+@layer components {
+  .eyebrow {
+    font-size: var(--type-tiny);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--track-eyebrow);
+    text-transform: uppercase;
+    line-height: 1.4;
+    color: var(--fg3);
+  }
+
+  .card-soft {
+    background: var(--bg1);
+    border: 1px solid var(--line1);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-card-soft);
+    transition:
+      transform var(--duration-base) var(--ease-standard),
+      box-shadow var(--duration-base) var(--ease-standard);
+  }
+  .card-soft.hoverable:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-card-elevated);
+  }
+  .card-soft.hoverable:active {
+    transform: translateY(0);
+    transition-duration: 50ms;
+  }
+
+
+  .glass {
+    background: rgba(255, 255, 255, 0.86);
+    backdrop-filter: saturate(1.4) blur(18px);
+    -webkit-backdrop-filter: saturate(1.4) blur(18px);
+  }
+
+  *:focus-visible {
+    outline: none;
+    box-shadow: var(--ring-tight);
+    border-radius: 8px;
+  }
+}
