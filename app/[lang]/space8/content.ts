@@ -147,7 +147,7 @@ const en = {
     talkLine: "Mind, Boss and Fon started a Private Talk",
     talkPrivate: "Private",
     talkPeople: "3 / 8 people",
-    talkTitle: "Private Talk for small-group topics",
+    talkTitle: "Private Talk for small-group chats",
     talkBody:
       "Start a voice and video huddle with up to 8 people nearby. Nobody outside can hear, and the talk ends as soon as someone leaves, so nobody stays in a call by accident.",
     statuses: ["Available", "Busy", "Away"],
@@ -203,7 +203,7 @@ const en = {
     recPill: "Available",
     recTitle: "Record meeting rooms to Meet8",
     recBody:
-      "Press record in the dock while you're in a meeting room. The whole room's audio becomes a new meeting in the Meet8 account of whoever started it, which transcribes it and summarizes what was agreed.",
+      "Press record in the bottom bar while you're in a meeting room. The whole room's audio becomes a new meeting in the Meet8 account of whoever started it, which transcribes it and summarizes what was agreed.",
     flow: [
       { title: "Enter a room", body: "Record only appears inside rooms" },
       { title: "Press record", body: "Everyone sees the red dot" },
@@ -245,7 +245,7 @@ const en = {
     perPerson: "per person / month",
     standard: {
       name: "Standard",
-      for: "For teams who want a shared office to meet in every day",
+      for: "For teams that meet in one shared office every day",
       price: "฿199",
       items: [
         "Five ready-made maps",
@@ -259,7 +259,7 @@ const en = {
     },
     premium: {
       name: "Premium",
-      for: "For teams who meet often and want help from AI",
+      for: "For teams that meet often and want AI help",
       price: "฿349",
       items: [
         "Everything in Standard",
@@ -287,7 +287,7 @@ const en = {
   },
   faq: {
     eyebrow: "Frequently asked",
-    h2: "Questions",
+    h2: "Common questions",
     items: [
       {
         q: "What is a virtual office?",
@@ -356,7 +356,7 @@ const th: Space8Content = {
     homeLabel: "กลับไปที่โซลูชัน AI ของ BE8",
     news: "ใหม่: อัดประชุมเข้า Meet8",
     menuLabel: "เมนูหลัก",
-    links: { office: "ฟีเจอร์", templates: "แผนที่", pricing: "ราคา", faq: "คำถาม" },
+    links: { office: "ฟีเจอร์", templates: "แผนที่", pricing: "ราคา", faq: "คำถามที่พบบ่อย" },
     login: "เข้าสู่ระบบ",
     cta: "เริ่มใช้งาน",
   },
@@ -439,8 +439,8 @@ const th: Space8Content = {
     cta: "สร้าง Space ของทีม",
   },
   compare: {
-    h2: "ถ้าทำงานทางไกลแล้วไม่รู้สึกว่าห่างกันล่ะ",
-    lede: "Space8 ทำให้การทำงานจากคนละที่ใกล้เคียงกับการอยู่ออฟฟิศเดียวกัน",
+    h2: "ทำงานคนละที่ แต่เหมือนอยู่ออฟฟิศเดียวกัน",
+    lede: "ทีมอยู่คนละที่ แต่ยังเห็นและได้ยินกันตลอดวัน",
     oldTitle: "เครื่องมือแบบเดิม",
     oldItems: [
       "อีกหนึ่งลิงก์ประชุม",
@@ -462,8 +462,8 @@ const th: Space8Content = {
   },
   focus: {
     eyebrow: "มีให้ใช้แล้ว",
-    h2: "คุมสมาธิของตัวเองได้",
-    lede: "เลือกเองว่าจะให้ใครเข้าถึง จะคุยกับใครเป็นวงส่วนตัว และบอกทีมเมื่อกำลังโฟกัส",
+    h2: "เลือกได้ว่าจะให้ใครทักตอนไหน",
+    lede: "เลือกได้ว่าจะคุยส่วนตัวกับใคร และบอกทีมเมื่อต้องการโฟกัสงาน",
     ghostChip: "Ghost",
     press: "กด",
     ghostTitle: "เดินผ่านคนที่ยืนขวางทาง",
@@ -472,7 +472,7 @@ const th: Space8Content = {
     talkLine: "มายด์ บอส และฝน เริ่ม Private Talk",
     talkPrivate: "วงส่วนตัว",
     talkPeople: "3 / 8 คน",
-    talkTitle: "Private Talk สำหรับเรื่องเฉพาะกลุ่ม",
+    talkTitle: "Private Talk คุยเฉพาะกลุ่มเล็ก",
     talkBody:
       "เปิดวงคุยเสียงและภาพกับคนใกล้ตัวได้สูงสุด 8 คน คนนอกวงไม่ได้ยิน และเมื่อมีคนออก วงจะจบทันที ไม่มีใครค้างอยู่ในวงโดยไม่รู้ตัว",
     statuses: ["ว่าง", "ติดธุระ", "ไม่อยู่"],
@@ -504,7 +504,7 @@ const th: Space8Content = {
   },
   avatars: {
     eyebrow: "ตัวละคร",
-    h2: "เป็นตัวเองในแบบที่อยากให้ทีมเห็น",
+    h2: "สร้างตัวละครที่เหมือนคุณ",
     body: "เลือกตัวละครสำเร็จรูปหกแบบเป็นจุดเริ่ม แล้วปรับได้ทีละส่วน รูปลักษณ์เดียวกันจะใช้ทั้งบนแผนที่ ป้ายชื่อ และรายชื่อในทุก Space ที่คุณอยู่ บันทึกชุดที่ชอบไว้สลับใช้ได้สามชุด",
     slots: [
       "สีผิว",
@@ -527,20 +527,20 @@ const th: Space8Content = {
     recPill: "มีแล้ว",
     recTitle: "อัดห้องประชุมเข้า Meet8",
     recBody:
-      "กดอัดใน dock ระหว่างอยู่ในห้องประชุม เสียงของทั้งห้องจะไปเป็นประชุมใหม่ใน Meet8 ของคนที่กดเริ่ม ซึ่งถอดเสียงและสรุปเรื่องที่ตกลงกันให้",
+      "กดอัดที่แถบด้านล่างระหว่างอยู่ในห้องประชุม เสียงของทั้งห้องจะไปเป็นประชุมใหม่ใน Meet8 ของคนที่กดเริ่ม ซึ่งถอดเสียงและสรุปเรื่องที่ตกลงกันให้",
     flow: [
       { title: "เข้าห้องประชุม", body: "ปุ่มอัดขึ้นเฉพาะในห้อง" },
       { title: "กดอัด", body: "ทุกคนเห็นจุดแดงตลอด" },
       { title: "ได้สรุป", body: "ถอดเสียงและสรุปใน Meet8" },
     ],
     recFine:
-      "เชื่อมบัญชีครั้งเดียวที่ Settings > General > Meet8 ห้องหนึ่งอัดได้ทีละหนึ่งการอัด ห้องว่างแล้วหยุดอัดเอง",
+      "เชื่อมบัญชีครั้งเดียวที่ Settings > General > Meet8 แต่ละห้องอัดได้ทีละรายการ และหยุดอัดเองเมื่อไม่มีใครอยู่ในห้อง",
     agentPill: "มีบางส่วน",
     agentTitle: "AI agent บนแผนที่",
     agentBody:
       "สร้างผู้ช่วยส่วนตัวหรือผู้ช่วยประจำ Space ให้ยืนบนแผนที่ คลิกที่ตัวละครเพื่อคุย แต่ละคนเห็นเฉพาะบทสนทนาของตัวเอง ตอนนี้ agent ตอบคำถามได้ แต่ยังทำงานแทนใครไม่ได้",
     vis: {
-      private: "เจ้าของคนเดียวที่รู้ว่ามี agent นี้",
+      private: "เฉพาะเจ้าของที่รู้ว่ามี agent นี้",
       visible: "ทุกคนเห็นชื่อและสถานะ แต่คุยได้เฉพาะเจ้าของ",
       shared: "สมาชิกคุยได้ หรือจำกัดเฉพาะรายชื่อที่เลือก",
     },
@@ -559,8 +559,8 @@ const th: Space8Content = {
   },
   pricing: {
     eyebrow: "ราคา",
-    h2: "แพ็กเกจที่โตไปกับทีม",
-    lede: "คิดราคาตามจำนวนสมาชิกใน Space ทุกแพ็กเกจได้แผนที่ ตัวละคร เสียงและวิดีโอครบ",
+    h2: "จ่ายต่อคน ต่อเดือน",
+    lede: "คิดราคาตามจำนวนสมาชิกใน Space ทุกแพ็กเกจมีแผนที่ ตัวละคร และการคุยด้วยเสียงและวิดีโอ",
     recommended: "แนะนำ",
     perPerson: "ต่อคน ต่อเดือน",
     standard: {
@@ -600,14 +600,14 @@ const th: Space8Content = {
         "ตั้งค่าเครือข่ายสำหรับไฟร์วอลล์องค์กร",
         "ช่วยตั้งระบบและอบรมทีม",
       ],
-      cta: "ติดต่อฝ่ายขาย",
+      cta: "ติดต่อทีมขาย",
     },
     noteBold: "ราคาตัวอย่าง",
     noteRest: " ใช้วางโครงหน้าเท่านั้น ยังไม่ใช่ราคาขายจริง และยังไม่รวม VAT 7%",
   },
   faq: {
     eyebrow: "คำถามที่พบบ่อย",
-    h2: "คำถาม",
+    h2: "คำถามที่ลูกค้าถามบ่อย",
     items: [
       {
         q: "ออฟฟิศเสมือนคืออะไร",

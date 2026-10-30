@@ -51,7 +51,7 @@ export const DEMO: Record<DemoKey, DemoExample> = {
   },
   sales: {
     h: { en: "Specs, pricing rules and proposals", th: "สเปก กฎราคา และเอกสารเสนอขาย" },
-    p: { en: "Internal teams find product specs, pricing rules and proposal materials quickly.", th: "ทีมภายในค้นสเปกสินค้า กฎการตั้งราคา และเอกสารเสนอขายได้อย่างรวดเร็ว" },
+    p: { en: "Internal teams find product specs, pricing rules and proposal materials quickly.", th: "ทีมภายในค้นสเปกสินค้า กฎการตั้งราคา และเอกสารเสนอขายได้เร็ว" },
     q: { en: "What discount can I offer on a three-year contract?", th: "สัญญาสามปีให้ส่วนลดได้เท่าไหร่" },
     a: { en: "You can offer up to 15% on a three-year contract without approval {1}. Anything above that needs sign-off from the sales director {1}. This quarter's list prices are in the current price list {2}.", th: "สัญญาสามปีให้ส่วนลดได้ถึง 15% โดยไม่ต้องขออนุมัติ {1} ถ้าเกินกว่านั้นต้องให้ผู้อำนวยการฝ่ายขายอนุมัติ {1} ราคาตั้งของไตรมาสนี้ดูได้จากรายการราคาล่าสุด {2}" },
     src: [
@@ -116,15 +116,15 @@ const en = {
   facts: [
     { b: "Sources on every answer", span: "Each answer links to where it came from" },
     { b: "Your own documents", span: "Answers from what each department already keeps" },
-    { b: "Respects access rights", span: "People only get answers from what they're allowed to see" },
+    { b: "Respects permissions", span: "People only get answers from what they're allowed to see" },
     { b: "Thai and English", span: "Ask and get answers in either language" },
   ],
   shotNote: "Screenshots are from Meet8, shown with sample data.",
   marquee: ["Answers with sources", "HR", "IT helpdesk", "Sales", "Company intranet", "Meeting prep", "During meetings", "Meeting recap", "Thai and English", "Connects through Connect8"],
   tryit: {
     eyebrow: "Take a look",
-    h2: "Ask is already part of Meet8",
-    p: "These screens come from Meet8, where people already ask questions about each meeting.",
+    h2: "Ask already works inside Meet8",
+    p: "These screens are from Meet8, where people already ask questions about each meeting.",
     tabsAria: "View screens",
     tabs: { recap: "Recap", answer: "Answer", prep: "Prep" },
     alts: {
@@ -165,7 +165,7 @@ const en = {
     before: {
       k: "Before the meeting",
       h: "Check the details before it starts",
-      p: "Ask about the meeting details and attached files before the meeting starts.",
+      p: "Ask about the meeting and its attached files, so you walk in prepared.",
       alt: "The question box on a prep page, scoped to the Customer Onboarding Kickoff",
     },
   },
@@ -177,7 +177,7 @@ const en = {
       { h: "What it can read", p: "Choose which documents each page can use. A public page answers only from public content, while internal pages can also use internal documents." },
       { h: "Answer rules", p: "Set the topics it should not answer, the notices it must show, when to pass a question to a staff member and who can see what." },
       { h: "Cost and connections", p: "Choose the AI service that fits your budget, and connect to your CRM, help desk or internal systems through Connect8." },
-      { h: "Easy to set up and run", p: "Each department manages its own documents, access rights and answer style. Adding Ask8 to a new page doesn't need a large development project." },
+      { h: "Easy to set up and run", p: "Each department manages its own documents, permissions and answer style. Adding Ask8 to a new page doesn't need a large development project." },
     ],
   },
   footer: { copy: "Ask8" },
@@ -197,7 +197,7 @@ const th: Ask8Content = {
     h1: "ได้คำตอบ",
     h1em: "โดยไม่ต้องออกจากหน้าที่ใช้อยู่",
     lead:
-      "Ask8 คือ Collab8 ฉบับย่อที่ติดตั้งในเว็บไซต์ แอป หรือหน่วยงานใดก็ได้ ทีมของคุณถามคำถามและได้คำตอบจากเอกสารของบริษัทเอง โดยไม่ต้องเปิดโปรแกรมอื่นเพิ่ม",
+      "Ask8 คือ Collab8 ฉบับย่อที่ติดตั้งในเว็บไซต์ แอป หรือหน่วยงานใดก็ได้ ทีมของคุณถามคำถามและได้คำตอบจากเอกสารของบริษัทเอง ไม่ต้องเปิดเครื่องมืออื่น",
     cta1: "ลองเดโม",
     cta2: "ดูใน Meet8",
     mini: ["ทุกคำตอบบอกแหล่งที่มา", "ใช้งานได้ในหน้าที่ทีมเปิดใช้อยู่แล้ว"],
@@ -217,8 +217,8 @@ const th: Ask8Content = {
   marquee: ["คำตอบพร้อมแหล่งที่มา", "ฝ่ายบุคคล", "ฝ่ายไอที", "ฝ่ายขาย", "อินทราเน็ต", "เตรียมประชุม", "ระหว่างประชุม", "สรุปประชุม", "ไทยและอังกฤษ", "เชื่อมต่อผ่าน Connect8"],
   tryit: {
     eyebrow: "ลองดู",
-    h2: "Ask เป็นส่วนหนึ่งของ Meet8 แล้ว",
-    p: "ภาพเหล่านี้มาจาก Meet8 ซึ่งถามเรื่องในแต่ละการประชุมได้แล้ว",
+    h2: "Meet8 ถามได้อยู่แล้ว",
+    p: "หน้าจอเหล่านี้มาจาก Meet8 ที่ให้ถามเรื่องในแต่ละการประชุมได้อยู่แล้ว",
     tabsAria: "ดูหน้าจอ",
     tabs: { recap: "สรุปประชุม", answer: "คำตอบ", prep: "เตรียมประชุม" },
     alts: {
@@ -231,7 +231,7 @@ const th: Ask8Content = {
   demo: {
     eyebrow: "ข้อมูลของคุณ",
     h2: "คำตอบจากเอกสารและข้อมูลของบริษัทคุณเอง",
-    p: "Ask8 อ่านเอกสาร คำถามที่พบบ่อย นโยบาย และข้อมูลที่แต่ละหน่วยงานมีอยู่แล้ว และตอบให้ตรงกับหน้าที่ผู้ใช้ถามคำถาม",
+    p: "Ask8 อ่านเอกสาร คำถามที่พบบ่อย นโยบาย และข้อมูลที่แต่ละหน่วยงานมีอยู่แล้ว แล้วตอบตามหน้าที่ผู้ใช้ถามอยู่",
     tabsAria: "หน่วยงาน",
     tabs: { hr: "ฝ่ายบุคคล", it: "ฝ่ายไอที", sales: "ฝ่ายขาย", intranet: "อินทราเน็ต", meeting: "การประชุม" },
     answer: "คำตอบ",
@@ -253,13 +253,13 @@ const th: Ask8Content = {
     after: {
       k: "หลังประชุม",
       h: "ย้อนดูการตัดสินใจได้ทุกเมื่อ",
-      p: "หน้าสรุปการประชุมรวมบันทึกคำพูด สรุป และช่องถามไว้ในหน้าเดียว พร้อมคำถามแนะนำให้เริ่มถาม",
+      p: "หน้าสรุปการประชุมรวมบันทึกการประชุม สรุป และช่องถามไว้ในหน้าเดียว พร้อมคำถามแนะนำให้เริ่มถาม",
       alt: "ช่องถามในหน้าสรุปการประชุมพร้อมคำตอบและคำถามแนะนำ",
     },
     before: {
       k: "ก่อนประชุม",
       h: "เช็กรายละเอียดก่อนเริ่มประชุม",
-      p: "ถามเรื่องรายละเอียดการประชุมและไฟล์ที่แนบไว้ได้ก่อนเริ่มประชุม",
+      p: "ถามเรื่องการประชุมและไฟล์ที่แนบไว้ได้ล่วงหน้า จะได้เข้าประชุมแบบเตรียมตัวมาแล้ว",
       alt: "ช่องถามในหน้าเตรียมประชุม จำกัดขอบเขตอยู่ที่การประชุม Customer Onboarding Kickoff",
     },
   },
@@ -268,7 +268,7 @@ const th: Ask8Content = {
     h2: "ตั้งค่าให้ตรงกับการทำงานของแต่ละหน่วยงาน",
     p: "แต่ละจุดที่ติดตั้งมีแหล่งข้อมูล กฎ และการเชื่อมต่อของตัวเอง",
     items: [
-      { h: "ข้อมูลที่ใช้ได้", p: "เลือกได้ว่าแต่ละหน้าใช้เอกสารชุดไหน หน้าสาธารณะตอบจากเนื้อหาสาธารณะเท่านั้น ส่วนหน้าภายในใช้เอกสารภายในได้ด้วย" },
+      { h: "ข้อมูลที่อ่านได้", p: "เลือกได้ว่าแต่ละหน้าใช้เอกสารชุดไหน หน้าสาธารณะตอบจากเนื้อหาสาธารณะเท่านั้น ส่วนหน้าภายในใช้เอกสารภายในได้ด้วย" },
       { h: "กฎการตอบ", p: "กำหนดหัวข้อที่ไม่ตอบ ข้อความที่ต้องแสดงทุกครั้ง เมื่อไหร่ต้องส่งต่อให้เจ้าหน้าที่ และใครเห็นข้อมูลอะไรได้บ้าง" },
       { h: "ค่าใช้จ่ายและการเชื่อมต่อ", p: "เลือกบริการ AI ที่เหมาะกับงบประมาณ และเชื่อมต่อกับ CRM ระบบรับเรื่อง หรือระบบภายในผ่าน Connect8" },
       { h: "ติดตั้งและดูแลง่าย", p: "แต่ละหน่วยงานดูแลเอกสาร สิทธิ์การเข้าถึง และรูปแบบการตอบของตัวเอง การเพิ่ม Ask8 ในหน้าใหม่ไม่ต้องทำโปรเจกต์พัฒนาใหญ่" },

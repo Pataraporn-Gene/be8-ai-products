@@ -17,7 +17,7 @@ const en = {
   hero: {
     title: "Reach customers on every channel",
     accent: "Consent checked before every message",
-    lede: "Your marketing team collects contacts, builds segments, creates content and sends via Email, LINE OA, SMS, WhatsApp and Push, all from Pulse8. Before any message goes out, the system always checks consent, the suppression list and your quota first.",
+    lede: "Collect contacts, build segments, create content and send by Email, LINE OA, SMS, WhatsApp and Push, all from Pulse8. Before anything goes out, Pulse8 checks consent, the suppression list and your quota.",
     ctaPrimary: "See what it can do",
     ctaSecondary: "View plans and pricing",
     ticks: [
@@ -47,10 +47,10 @@ const en = {
     },
     {
       h: "Thai throughout",
-      p: "Switch the interface between Thai and English, Thai time by default, and correct segment counting for Thai SMS.",
+      p: "Thai and English interface, Thai time by default, and Thai SMS segments counted the way providers bill them.",
     },
   ],
-  footnote: "Screens on this page are recreated from the Pulse8 UI with sample data, not customer data.",
+  footnote: "The screens on this page are mockups of Pulse8 with sample data, not customer data.",
   marquee: {
     label: "Key features",
     items: [
@@ -119,9 +119,9 @@ const en = {
       last30: "Last 30 days",
       openedLine: "Opened: LINE",
       notOpenedSms: "Not opened: SMS",
-      note: "Every sending step automatically passes subscription, suppression list and quota checks.",
+      note: "Every step that sends is checked against consent, the suppression list and your quota.",
       caption:
-        "Build Journeys left to right. Start from a form, a LINE follow, Salesforce data, an API event or a scheduled segment, then mix sends on any channel with waits, splits and A/B tests in a single flow.",
+        "Build Journeys left to right. Start from a form, a LINE follow, Salesforce data, an API event or a scheduled segment, then mix sends on any channel with waits, splits and A/B tests in one flow.",
     },
     email: {
       label: "Birthday promotion email setup, with an A/B subject line test and pre-send content checks",
@@ -156,7 +156,7 @@ const en = {
       checks2: ["64 KB, under Gmail's clipping limit", "No layout-breaking issues found in Outlook, Gmail, Apple Mail"],
       passed: "Checks passed. Ready to schedule.",
       caption:
-        "Before you schedule, Pulse8 checks the unsubscribe link, personalization, broken links, images, size and anything that renders incorrectly in major email clients. Errors stop the send; warnings only let you know.",
+        "Before you schedule, Pulse8 checks the unsubscribe link, personalization, broken links, images, size and anything that displays wrong in major email apps. Errors stop the send; warnings only let you know.",
     },
     line: {
       label: "LINE Flex message send page for the Member Day coupon, with a mobile preview and rich menu",
@@ -187,7 +187,7 @@ const en = {
       created: "Created by Napa · 9 Nov 14:20",
       waiting: "Waiting for an approver on the Marketing team",
       caption:
-        "Full LINE support through the Messaging API: send Flex messages to segments, set rich menus, auto-reply, and link LINE accounts to contacts with LINE Login.",
+        "Send Flex messages to segments through the Messaging API, set rich menus and auto-replies, and link LINE accounts to contacts with LINE Login.",
     },
     reports: {
       label: "30-day overview report with sends, open rate, click rate and a breakdown by channel",
@@ -204,7 +204,7 @@ const en = {
       head: ["Channel", "Sent", "Delivered", "Opened", "Clicked", "Unsubscribed"],
       channels: ["LINE", "Email", "SMS"],
       caption:
-        "Every report uses the same open and click definitions. View by channel, send or Journey, and see which kinds of subject lines got more opens across your organization's own past sends.",
+        "Every report counts opens and clicks the same way. View by channel, send or Journey, and see which kinds of subject lines got more opens in your past sends.",
     },
   },
   secnav: {
@@ -212,12 +212,12 @@ const en = {
     links: { features: "Features", cases: "Use cases", plans: "Plans", security: "Security", specs: "Specs", faq: "FAQ" },
   },
   how: {
-    h2: "From contact list to measurable messages",
+    h2: "From contact list to campaign results",
     tablistLabel: "How it works",
     steps: ["Collect contacts", "Segment", "Create and send", "Measure"],
     s1: {
-      h3: "Bring contacts from everywhere into a single profile",
-      p: "Import CSV or Excel files and map columns yourself, or add contacts automatically from forms, LINE follows, the API, SFTP and Salesforce. Every channel for one person lives in a single contact.",
+      h3: "Bring contacts from everywhere into one profile",
+      p: "Import CSV or Excel files and map columns yourself, or add contacts automatically from forms, LINE follows, the API, SFTP and Salesforce. Each person's channels are kept in one contact.",
       ticks: [
         "Phone numbers are saved in one standard format",
         "Per-channel consent is stored with its source and timestamp",
@@ -237,8 +237,8 @@ const en = {
       skipped: "12 skipped · invalid phone",
     },
     s2: {
-      h3: "Build segments with AND/OR conditions",
-      p: "Segments support AND/OR conditions nested across multiple levels, reading contact data, data tables and the predictive scores Pulse8 calculates nightly from your organization's own data.",
+      h3: "Build segments with your own rules",
+      p: "Combine rules with AND/OR, nested as deep as you need, using contact data, data tables and the predictive scores Pulse8 calculates nightly from your own data.",
       ticks: [
         "Per-person likelihood scores for opens, clicks, retention and conversion",
         "See how many people are in the group before saving",
@@ -263,8 +263,8 @@ const en = {
       p: "Drag and drop emails and landing pages, build LINE Flex messages, add dynamic blocks that change per person, then send once, schedule, or place it as a Journey step. Organizations that want a manager to approve first can turn approvals on.",
       ticks: [
         "Approved content is locked and can't be edited until approval is requested again",
-        "Send tests to your internal team without counting as messages",
-        "Images are picked automatically from the set people click most",
+        "Test sends to your team don't count as messages",
+        "Pulse8 picks the image people click most from a set you provide",
       ],
       label:
         "Sample content approval status for the birthday promotion, from creation and approval request to approval and lock",
@@ -279,7 +279,7 @@ const en = {
     },
     s4: {
       h3: "Know what works, from your own data",
-      p: "Reports by channel, send and Journey use the same open and click definitions on every page. Pulse8 also reviews past subject lines to see which traits get more opens, so your team can pick what to test next.",
+      p: "Reports by channel, send and Journey count opens and clicks the same way. Pulse8 also reviews past subject lines to see which traits get more opens, so your team can pick what to test next.",
       ticks: [
         "Shows the confidence level of each insight",
         "Spot people who get email so often they've stopped reading",
@@ -315,7 +315,7 @@ const en = {
     },
     web: {
       tag: "Website and product recommendations",
-      h3: "Know what customers browse on your site, then recommend in email",
+      h3: "See what customers browse, then recommend products in email",
       p: "Install the Web SDK on your site to record product views, add-to-carts and purchases, then use recommendation recipes such as category best-sellers, recently viewed or frequently bought together, in email and on the web.",
       label:
         "Sample web events for one customer and an email recommendation block with 3 items from the frequently-bought-together recipe",
@@ -335,8 +335,8 @@ const en = {
     },
     integ: {
       tag: "Integrations",
-      h3: "Connect once, the whole team benefits",
-      p: "Pull data from Salesforce every 15 minutes, send segments as audiences to Meta, Google Ads and LINE with emails and phone numbers hashed before sending, and open a REST API and webhooks to other systems. Credentials for every connection are encrypted.",
+      h3: "Connect once, use it across the team",
+      p: "Pull data from Salesforce every 15 minutes, send segments as audiences to Meta, Google Ads and LINE with emails and phone numbers hashed before sending, and offer a REST API and webhooks for other systems. Credentials for every connection are encrypted.",
       label: "Sample connection list: Salesforce, Meta, Google Ads, LINE OA and ThaiBulkSMS",
       head: ["Connection", "Used for", "Status"],
       active: "Active",
@@ -350,7 +350,7 @@ const en = {
     },
   },
   cases: {
-    h2: "Works for every team that talks to customers",
+    h2: "For every team that talks to customers",
     items: [
       {
         h: "Marketing",
@@ -358,7 +358,7 @@ const en = {
       },
       {
         h: "CRM",
-        p: "Set up welcome, birthday and win-back Journeys that run every day, without sending each round by hand.",
+        p: "Set up welcome, birthday and win-back Journeys once and let them run daily.",
       },
       {
         h: "Sales",
@@ -371,7 +371,7 @@ const en = {
     ],
   },
   plans: {
-    h2: "Choose the plan that fits your organization",
+    h2: "Choose your plan",
     p: "Every plan includes every feature. Plans differ in contacts, messages per month, users and concurrent active Journeys.",
     compareH: "Compare plans",
   },
@@ -402,7 +402,7 @@ const en = {
       "Help setting up your first Journeys and segments",
       "Support per contract",
     ],
-    contactSales: "Please contact sales",
+    contactSales: "Request a quote",
     priceBySize: "Priced by size and agreed services",
     planAria: "{name} plan",
     badge: "Recommended for most teams",
@@ -481,7 +481,7 @@ const en = {
       limit: "- {value} {label}",
       all: "- Every feature and every channel: Email, LINE OA, SMS, WhatsApp, Push",
       ent: [
-        "Priced by size and agreed services. Please contact sales.",
+        "Priced by size and agreed services. Contact sales.",
         "- Contact and message quota per contract",
         "- Beryl8 helps connect channels and migrate existing data",
       ],
@@ -493,15 +493,15 @@ const en = {
     items: [
       {
         h: "Consent checked before every message",
-        p: "Every send passes per-channel subscription checks, the suppression list (bounces, complaints or manual additions) and frequency caps. Consent records store the source, purpose, IP and timestamp.",
+        p: "Every send is checked for per-channel consent, the suppression list (bounces, complaints or manual additions) and frequency caps. Consent records store the source, purpose, IP and timestamp.",
       },
       {
-        h: "Support for data subject requests",
+        h: "Handle PDPA data requests",
         p: "Log requests to access, delete or restrict the use of data, and export data as downloadable files with an expiry date. Deletion keeps only the address on the suppression list so it is never messaged again.",
       },
       {
-        h: "Each organization's data is fully isolated",
-        p: "Each organization's data is kept separate from every other organization's. Login details for every connection are encrypted, and the keys are stored in Google Secret Manager.",
+        h: "Your data stays separate from other customers'",
+        p: "No organization can see another's data. Login details for every connection are encrypted, and the keys are stored in Google Secret Manager.",
       },
       {
         h: "Control who can do what",
@@ -552,7 +552,7 @@ const en = {
       },
       {
         q: "What happens when I reach my quota?",
-        a: "Pulse8 never creates messages beyond your quota. A send whose recipients exceed the remaining quota is not sent at all, the API returns an error, and the Journey records the reason at that step. Quota resets at the start of every month (07:00 on the 1st, Thai time), or you can upgrade instantly on the Plan and usage page.",
+        a: "Pulse8 never sends past your quota. If a send has more recipients than the quota you have left, none of it goes out, the API returns an error, and the Journey logs the reason at that step. Quota resets at the start of every month (07:00 on the 1st, Thai time), or you can upgrade right away on the Plan and usage page.",
       },
       {
         q: "Are SMS, LINE and WhatsApp delivery fees included in the price?",
@@ -572,7 +572,7 @@ const en = {
       },
       {
         q: "Is the interface available in Thai?",
-        a: "Yes. Every page is available in Thai and English, switchable from the side menu. Thai content renders correctly, and Thai SMS segments are counted the way Thai SMS is actually billed.",
+        a: "Yes. Every page is available in Thai and English, switchable from the side menu. Thai content renders correctly, and Thai SMS segments are counted the way providers bill them.",
       },
     ],
   },
@@ -596,12 +596,12 @@ const th: Pulse8Content = {
   hero: {
     title: "ส่งถึงลูกค้าทุกช่องทาง",
     accent: "เช็กความยินยอมก่อนทุกข้อความ",
-    lede: "ทีมการตลาดเก็บรายชื่อ แบ่งกลุ่ม สร้างคอนเทนต์ แล้วส่งทาง Email, LINE OA, SMS, WhatsApp และ Push ได้จาก Pulse8 ที่เดียว ก่อนข้อความทุกฉบับจะออก ระบบตรวจการยินยอม รายชื่อห้ามส่ง และโควตาให้ก่อนเสมอ",
+    lede: "เก็บรายชื่อ แบ่งกลุ่ม สร้างคอนเทนต์ แล้วส่งทาง Email, LINE OA, SMS, WhatsApp และ Push ได้จาก Pulse8 ที่เดียว ก่อนส่งทุกครั้ง ระบบจะเช็กความยินยอม รายชื่อที่ห้ามติดต่อ และโควตาให้",
     ctaPrimary: "ดูว่าทำอะไรได้บ้าง",
     ctaSecondary: "ดูแพ็กเกจและราคา",
     ticks: [
       "ทุกฟีเจอร์เปิดให้ทุกแพ็กเกจ แพ็กเกจต่างกันที่โควตาเท่านั้น",
-      "ส่งผ่านบัญชี LINE OA, SMS และอีเมลของลูกค้าเอง ค่าส่งจ่ายตรงกับผู้ให้บริการ",
+      "ส่งผ่านบัญชี LINE OA, SMS และอีเมลของคุณเอง ค่าส่งจ่ายตรงกับผู้ให้บริการ",
     ],
     pill: "ส่งเฉพาะคนที่ยินยอม",
     stageLabel:
@@ -610,15 +610,15 @@ const th: Pulse8Content = {
     checkTitle: "ตรวจก่อนส่ง · LINE คูปองสมาชิกใหม่",
     checks: [
       ["", "4,118 คน", " ยินยอมรับข่าวสารทาง LINE"],
-      ["ตัดออก ", "36 คน", " ที่อยู่ในรายชื่อห้ามส่ง"],
+      ["ตัดออก ", "36 คน", " ที่อยู่ในรายชื่อที่ห้ามติดต่อ"],
       ["โควตาเดือนนี้เหลือ ", "37,520", " จาก 150,000 ข้อความ"],
     ],
   },
   facts: [
     { h: "ทุกช่องทางในที่เดียว", p: "Email, LINE OA, SMS, WhatsApp, Push และ in-app message ใน Journey เดียวกัน" },
-    { h: "PDPA ตั้งแต่ก่อนส่ง", p: "ตรวจการยินยอมรายช่องทางและรายชื่อห้ามส่งทุกข้อความ เก็บหลักฐานความยินยอมไว้ให้" },
-    { h: "ใช้บัญชีของคุณเอง", p: "เชื่อม LINE OA, ThaiBulkSMS หรือ Twilio, SMTP และ WhatsApp ของลูกค้า ไม่มีค่าส่งบวกเพิ่ม" },
-    { h: "ไทยทั้งระบบ", p: "หน้าจอสลับไทยและอังกฤษ เวลาไทยเป็นค่าเริ่มต้น นับ segment ของ SMS ภาษาไทยให้ถูก" },
+    { h: "PDPA ตั้งแต่ก่อนส่ง", p: "ตรวจการยินยอมรายช่องทางและรายชื่อที่ห้ามติดต่อทุกข้อความ เก็บหลักฐานความยินยอมไว้ให้" },
+    { h: "ใช้บัญชีของคุณเอง", p: "เชื่อม LINE OA, ThaiBulkSMS หรือ Twilio, SMTP และ WhatsApp ของคุณเอง ไม่บวกค่าส่งเพิ่ม" },
+    { h: "รองรับภาษาไทยเต็มที่", p: "หน้าจอสลับไทยและอังกฤษได้ เวลาไทยเป็นค่าเริ่มต้น และนับ SMS ภาษาไทยตรงกับที่ผู้ให้บริการคิดเงิน" },
   ],
   footnote: "หน้าจอในหน้านี้จำลองจาก UI ของ Pulse8 ด้วยข้อมูลตัวอย่าง ไม่ใช่ข้อมูลลูกค้า",
   marquee: {
@@ -629,7 +629,7 @@ const th: Pulse8Content = {
       "A/B test หัวเรื่องอีเมล",
       "ส่งตามเวลาที่แต่ละคนเปิดบ่อย",
       "คะแนนคาดการณ์รายคน",
-      "Landing page และฟอร์มเก็บ consent",
+      "Landing page และฟอร์มขอความยินยอม",
       "ส่ง audience ไป Meta, Google และ LINE",
       "Sync กับ Salesforce",
       "REST API และ webhook",
@@ -689,9 +689,9 @@ const th: Pulse8Content = {
       last30: "30 วันที่ผ่านมา",
       openedLine: "เปิดแล้ว: LINE",
       notOpenedSms: "ยังไม่เปิด: SMS",
-      note: "ทุกขั้นที่ส่งข้อความผ่านการตรวจ subscription, รายชื่อห้ามส่ง และโควตาอัตโนมัติ",
+      note: "ทุกขั้นที่ส่งข้อความจะถูกเช็กความยินยอม รายชื่อที่ห้ามติดต่อ และโควตาให้อัตโนมัติ",
       caption:
-        "วาง Journey จากซ้ายไปขวา เริ่มได้จากฟอร์ม, การ follow LINE, ข้อมูลจาก Salesforce, API event หรือ segment ตามรอบเวลา แล้วผสมขั้นส่งทุกช่องทางกับขั้นรอ แยกเส้นทาง และ A/B ในเส้นเดียว",
+        "สร้าง Journey จากซ้ายไปขวา เริ่มได้จากฟอร์ม, การ follow LINE, ข้อมูลจาก Salesforce, API event หรือ segment ตามรอบเวลา แล้วผสมขั้นส่งทุกช่องทางกับขั้นรอ แยกเส้นทาง และ A/B ในเส้นเดียว",
     },
     email: {
       label: "หน้าตั้งค่าการส่งอีเมลโปรวันเกิด พร้อม A/B test หัวเรื่องและผลตรวจคอนเทนต์ก่อนส่ง",
@@ -706,7 +706,7 @@ const th: Pulse8Content = {
       totalVal: "8,214 คน",
       deliverable: "ส่งได้จริง",
       deliverableVal: "7,902 คน",
-      deliverableNote: " · ยกเลิกรับ 241 · ห้ามส่ง 71",
+      deliverableNote: " · ยกเลิกรับ 241 · ห้ามติดต่อ 71",
       type: "ประเภท",
       typeVal: "Commercial · มีลิงก์ยกเลิกรับ",
       subjectH: "หัวเรื่อง · A/B test 20% แล้วส่งฉบับที่ชนะ",
@@ -722,7 +722,7 @@ const th: Pulse8Content = {
       checks2: ["ขนาด 64 KB ไม่เกินที่ Gmail ตัด", "Outlook, Gmail, Apple Mail ไม่พบจุดที่ทำให้ layout พัง"],
       passed: "ผ่านการตรวจ ตั้งเวลาส่งได้",
       caption:
-        "ก่อนตั้งเวลาส่ง Pulse8 ตรวจลิงก์ยกเลิกรับ personalization ลิงก์เสีย รูป ขนาด และจุดที่อีเมลแสดงผิดในโปรแกรมอีเมลหลัก ข้อผิดพลาดจะหยุดการส่ง ส่วนคำเตือนแค่แจ้งให้รู้",
+        "ก่อนตั้งเวลาส่ง Pulse8 ตรวจลิงก์ยกเลิกรับ personalization ลิงก์เสีย รูป ขนาด และจุดที่อีเมลแสดงผิดในโปรแกรมอีเมลหลัก ถ้าพบข้อผิดพลาดจะส่งไม่ได้ ส่วนคำเตือนแค่แจ้งให้รู้",
     },
     line: {
       label: "หน้าส่ง LINE Flex message คูปอง Member Day พร้อมตัวอย่างบนมือถือและ rich menu",
@@ -753,7 +753,7 @@ const th: Pulse8Content = {
       created: "สร้างโดย นภา · 9 พ.ย. 14:20",
       waiting: "รอผู้อนุมัติในทีม Marketing",
       caption:
-        "LINE ใช้งานเต็มรูปแบบผ่าน Messaging API ส่ง Flex message ถึง segment ตั้ง rich menu ตอบกลับอัตโนมัติ และผูกบัญชี LINE กับผู้ติดต่อด้วย LINE Login",
+        "ส่ง Flex message ถึง segment ผ่าน Messaging API ตั้ง rich menu และตอบกลับอัตโนมัติ พร้อมผูกบัญชี LINE กับผู้ติดต่อด้วย LINE Login",
     },
     reports: {
       label: "หน้ารายงานภาพรวม 30 วัน พร้อมตัวเลขการส่ง อัตราเปิด อัตราคลิก และตารางแยกตามช่องทาง",
@@ -770,7 +770,7 @@ const th: Pulse8Content = {
       head: ["ช่องทาง", "ส่งแล้ว", "ส่งถึง", "เปิด", "คลิก", "ยกเลิกรับ"],
       channels: ["LINE", "อีเมล", "SMS"],
       caption:
-        "ทุกหน้ารายงานใช้นิยามการเปิดและการคลิกชุดเดียวกัน ดูได้ตามช่องทาง ตามการส่ง ตาม Journey และดูหัวเรื่องแบบไหนที่คนเปิดมากกว่าจากการส่งที่ผ่านมาขององค์กรเอง",
+        "ทุกรายงานนับการเปิดและการคลิกด้วยวิธีเดียวกัน ดูได้ตามช่องทาง ตามการส่ง ตาม Journey และดูว่าหัวเรื่องแบบไหนมีคนเปิดมากกว่าจากการส่งที่ผ่านมา",
     },
   },
   secnav: {
@@ -789,8 +789,8 @@ const th: Pulse8Content = {
     tablistLabel: "ขั้นตอนการทำงาน",
     steps: ["เก็บรายชื่อ", "แบ่งกลุ่ม", "สร้างและส่ง", "วัดผล"],
     s1: {
-      h3: "รวมรายชื่อจากทุกที่ ไว้เป็นคนเดียวกัน",
-      p: "นำเข้าไฟล์ CSV หรือ Excel จับคู่คอลัมน์เอง หรือรับเข้ามาเรื่อยๆ จากฟอร์ม, การ follow LINE, API, SFTP และ Salesforce ทุกช่องทางของคนหนึ่งคนอยู่ในผู้ติดต่อเดียว",
+      h3: "รวมรายชื่อจากทุกที่ไว้ในโปรไฟล์เดียว",
+      p: "นำเข้าไฟล์ CSV หรือ Excel จับคู่คอลัมน์เอง หรือรับเข้ามาเรื่อยๆ จากฟอร์ม, การ follow LINE, API, SFTP และ Salesforce ทุกช่องทางของลูกค้าแต่ละคนรวมอยู่ในผู้ติดต่อเดียว",
       ticks: [
         "เบอร์โทรถูกจัดรูปแบบให้เหมือนกันก่อนบันทึก",
         "ความยินยอมรายช่องทางเก็บพร้อมแหล่งที่มาและเวลา",
@@ -811,11 +811,11 @@ const th: Pulse8Content = {
     },
     s2: {
       h3: "แบ่งกลุ่มด้วยเงื่อนไขที่ซ้อนกันได้",
-      p: "Segment ใช้เงื่อนไข และ/หรือ ซ้อนกันได้หลายชั้น อ่านทั้งข้อมูลผู้ติดต่อ data table และคะแนนคาดการณ์ที่ Pulse8 คำนวณทุกคืนจากข้อมูลขององค์กรเอง",
+      p: "ตั้งเงื่อนไข และ/หรือ ซ้อนกันได้หลายชั้น ใช้ได้ทั้งข้อมูลผู้ติดต่อ data table และคะแนนคาดการณ์ที่ Pulse8 คำนวณทุกคืนจากข้อมูลของคุณเอง",
       ticks: [
         "คะแนนโอกาสเปิด คลิก อยู่ต่อ และ conversion รายคน",
         "เห็นจำนวนคนในกลุ่มก่อนบันทึก",
-        "ใช้ segment เดียวกันได้ทั้งการส่ง Journey และ audience โฆษณา",
+        "ใช้ segment เดียวกันได้ทั้งตอนส่ง ใน Journey และกับ audience โฆษณา",
       ],
       label: "ตัวอย่าง segment สมาชิกที่น่าจะกลับมาซื้อ ใช้เงื่อนไขวันซื้อล่าสุด คะแนนคาดการณ์ และจังหวัด",
       title: "สมาชิกที่น่าจะกลับมาซื้อ",
@@ -836,8 +836,8 @@ const th: Pulse8Content = {
       p: "ลากวางอีเมลและ landing page, ทำ LINE Flex, ใส่ dynamic block ที่เปลี่ยนตามคน แล้วส่งครั้งเดียว ตั้งเวลา หรือวางเป็นขั้นใน Journey องค์กรที่ต้องการให้หัวหน้าอนุมัติก่อนก็เปิดได้",
       ticks: [
         "คอนเทนต์ที่อนุมัติแล้วจะถูกล็อก แก้ไม่ได้จนกว่าจะขอใหม่",
-        "ส่งฉบับทดสอบถึงทีมภายในโดยไม่นับเป็นข้อความ",
-        "รูปภาพเลือกเองอัตโนมัติจากชุดรูปที่คนคลิกมากที่สุด",
+        "ส่งฉบับทดสอบถึงทีมได้ ไม่นับเป็นข้อความ",
+        "ระบบเลือกรูปที่คนคลิกมากที่สุดจากชุดรูปที่คุณเตรียมไว้",
       ],
       label: "ตัวอย่างสถานะการอนุมัติคอนเทนต์ โปรวันเกิด จากสร้าง ขออนุมัติ ถึงอนุมัติและล็อก",
       title: "อีเมล · โปรวันเกิด พ.ย.",
@@ -850,8 +850,8 @@ const th: Pulse8Content = {
       usedIn: ["ใช้อยู่ใน ", "การส่ง 1 รายการ", " และ ", 'Journey "ต้อนรับสมาชิกใหม่"'],
     },
     s4: {
-      h3: "รู้ว่าอะไรได้ผล จากข้อมูลขององค์กรเอง",
-      p: "รายงานแยกตามช่องทาง การส่ง และ Journey ใช้นิยามการเปิดและคลิกเดียวกันทุกหน้า Pulse8 ยังดูหัวเรื่องที่ผ่านมาว่าลักษณะแบบไหนที่คนเปิดมากกว่า เพื่อให้ทีมเลือกไปทดสอบต่อ",
+      h3: "รู้ว่าอะไรได้ผล จากข้อมูลของคุณเอง",
+      p: "รายงานแยกตามช่องทาง การส่ง และ Journey นับการเปิดและคลิกด้วยวิธีเดียวกัน Pulse8 ยังดูหัวเรื่องที่ส่งไปแล้วว่าแบบไหนมีคนเปิดมากกว่า เพื่อให้ทีมเลือกไปทดสอบต่อ",
       ticks: [
         "บอกระดับความมั่นใจของแต่ละข้อสังเกต",
         "เห็นคนที่ได้รับอีเมลถี่เกินไปจนเริ่มไม่อ่าน",
@@ -963,7 +963,7 @@ const th: Pulse8Content = {
       "ช่วยวาง Journey และ segment ชุดแรก",
       "Support ตามสัญญา",
     ],
-    contactSales: "กรุณาติดต่อทีมขาย",
+    contactSales: "ขอใบเสนอราคา",
     priceBySize: "ราคาตามขนาดและบริการที่ตกลง",
     planAria: "แพ็กเกจ {name}",
     badge: "แนะนำสำหรับทีมส่วนใหญ่",
@@ -998,7 +998,7 @@ const th: Pulse8Content = {
       { t: "g", label: "คอนเทนต์และหน้าเว็บ" },
       { t: "y", label: "Email และ landing page แบบลากวาง" },
       { t: "y", label: "Dynamic block, ชุดรูปที่เลือกเอง และ personalization script" },
-      { t: "y", label: "ฟอร์มเก็บ consent และ preference center" },
+      { t: "y", label: "ฟอร์มขอความยินยอมและ preference center" },
       { t: "y", label: "Web SDK และสินค้าแนะนำ" },
       { t: "g", label: "ข้อมูลและการวัดผล" },
       { t: "y", label: "Segment, data table และ Data Designer" },
@@ -1011,7 +1011,7 @@ const th: Pulse8Content = {
       { t: "y", label: "Audience ไป Meta, Google Ads และ LINE" },
       { t: "y", label: "REST API และ webhook" },
       { t: "g", label: "ความปลอดภัยและ PDPA" },
-      { t: "y", label: "หลักฐานความยินยอม รายชื่อห้ามส่ง และคำขอของเจ้าของข้อมูล" },
+      { t: "y", label: "หลักฐานความยินยอม รายชื่อที่ห้ามติดต่อ และคำขอของเจ้าของข้อมูล" },
       { t: "y", label: "สิทธิ์ราย module, อนุมัติก่อนส่ง, 2FA และ audit log" },
       { t: "g", label: "บริการ" },
       { t: "ent", label: "ช่วยเชื่อมช่องทางและย้ายข้อมูลเดิม" },
@@ -1033,7 +1033,7 @@ const th: Pulse8Content = {
     copyShort: "คัดลอก",
     copied: "คัดลอกแล้ว",
     toastOk: "คัดลอกสรุปราคาแล้ว วางในแชตหรืออีเมลได้เลย",
-    toastFail: "เบราว์เซอร์ไม่อนุญาตให้คัดลอก ลองเปิดไฟล์ผ่าน https หรือกดค้างที่ราคาเพื่อคัดลอกเอง",
+    toastFail: "เบราว์เซอร์ไม่อนุญาตให้คัดลอก ลองเปิดหน้านี้ผ่าน https หรือกดค้างที่ราคาเพื่อคัดลอกเอง",
     text: {
       title: "Pulse8 แพ็กเกจ {name}",
       price: "ราคา {price} {per} (ยังไม่รวม VAT 7%)",
@@ -1041,7 +1041,7 @@ const th: Pulse8Content = {
       limit: "- {label} {value}",
       all: "- ทุกฟีเจอร์และทุกช่องทาง: Email, LINE OA, SMS, WhatsApp, Push",
       ent: [
-        "ราคาตามขนาดและบริการที่ตกลง กรุณาติดต่อทีมขาย",
+        "ราคาตามขนาดและบริการที่ตกลง ติดต่อทีมขาย",
         "- โควตารายชื่อและข้อความตามสัญญา",
         "- Beryl8 ช่วยเชื่อมช่องทางและย้ายข้อมูลเดิม",
       ],
@@ -1053,15 +1053,15 @@ const th: Pulse8Content = {
     items: [
       {
         h: "เช็กความยินยอมก่อนส่งทุกข้อความ",
-        p: "ทุกการส่งผ่านการตรวจ subscription รายช่องทาง รายชื่อห้ามส่ง (ตีกลับ ร้องเรียน หรือเพิ่มเอง) และขีดจำกัดความถี่ หลักฐานความยินยอมเก็บแหล่งที่มา วัตถุประสงค์ IP และเวลา",
+        p: "ทุกการส่งจะถูกเช็กสถานะการรับข่าวสารรายช่องทาง รายชื่อที่ห้ามติดต่อ (ตีกลับ ร้องเรียน หรือเพิ่มเอง) และขีดจำกัดความถี่ บันทึกความยินยอมเก็บแหล่งที่มา วัตถุประสงค์ IP และเวลา",
       },
       {
         h: "รองรับคำขอของเจ้าของข้อมูล",
-        p: "บันทึกคำขอเข้าถึง ลบ และระงับการใช้ข้อมูล ออกไฟล์ข้อมูลให้ดาวน์โหลดแบบมีวันหมดอายุ การลบเก็บไว้เพียงที่อยู่ในรายชื่อห้ามส่ง เพื่อไม่ให้ส่งซ้ำ",
+        p: "บันทึกคำขอเข้าถึง ลบ และระงับการใช้ข้อมูล ออกไฟล์ข้อมูลให้ดาวน์โหลดแบบมีวันหมดอายุ การลบเก็บไว้เพียงที่อยู่ในรายชื่อที่ห้ามติดต่อ เพื่อไม่ให้ส่งซ้ำ",
       },
       {
         h: "ข้อมูลแต่ละองค์กรแยกขาดกัน",
-        p: "ข้อมูลของแต่ละองค์กรแยกจากกันอย่างเด็ดขาด ข้อมูลล็อกอินของทุกการเชื่อมต่อถูกเข้ารหัส และเก็บกุญแจไว้ใน Google Secret Manager",
+        p: "ไม่มีองค์กรไหนเห็นข้อมูลของอีกองค์กร ข้อมูลล็อกอินของทุกการเชื่อมต่อถูกเข้ารหัส และเก็บกุญแจไว้ใน Google Secret Manager",
       },
       {
         h: "คุมว่าใครทำอะไรได้",
@@ -1105,12 +1105,12 @@ const th: Pulse8Content = {
         a: "1 ข้อความคือการส่งถึงผู้ติดต่อ 1 คนใน 1 ครั้ง นับรวมทุกช่องทาง SMS ที่ยาวหลาย segment ก็นับเป็น 1 ข้อความ ส่วนฉบับทดสอบที่ส่งถึงทีมภายในและ in-app message ไม่นับ",
       },
       {
-        q: "ส่งครบโควตาแล้วจะเป็นอย่างไร",
-        a: "Pulse8 ไม่สร้างข้อความที่เกินโควตา การส่งที่มีผู้รับเกินโควตาที่เหลือจะไม่ส่งเลยทั้งชุด API ตอบกลับว่าเกินโควตา และ Journey บันทึกเหตุผลไว้ในขั้นนั้น โควตาเริ่มใหม่ทุกต้นเดือน (07:00 น. วันที่ 1 เวลาไทย) หรืออัปเกรดแพ็กเกจได้ทันทีในหน้าแพ็กเกจและการใช้งาน",
+        q: "ถ้าใช้โควตาหมดจะเป็นอย่างไร",
+        a: "Pulse8 ไม่ส่งเกินโควตา ถ้าผู้รับมากกว่าโควตาที่เหลือ จะไม่ส่งเลยทั้งชุด API จะตอบกลับว่าเกินโควตา และ Journey จะบันทึกเหตุผลไว้ในขั้นนั้น โควตาเริ่มใหม่ทุกต้นเดือน (07:00 น. วันที่ 1 เวลาไทย) หรืออัปเกรดแพ็กเกจได้ทันทีในหน้าแพ็กเกจและการใช้งาน",
       },
       {
         q: "ค่าส่ง SMS, LINE และ WhatsApp รวมในราคาไหม",
-        a: "ไม่รวม Pulse8 ส่งผ่านบัญชีของลูกค้าเอง ค่า SMS จ่ายกับ ThaiBulkSMS หรือ Twilio ค่าข้อความ LINE จ่ายตามแพ็กเกจ LINE OA ค่า WhatsApp จ่ายกับ Meta และค่าอีเมลจ่ายกับผู้ให้บริการ SMTP ที่เลือก",
+        a: "ไม่รวม Pulse8 ส่งผ่านบัญชีของคุณเอง ค่า SMS จ่ายกับ ThaiBulkSMS หรือ Twilio ค่าข้อความ LINE จ่ายตามแพ็กเกจ LINE OA ค่า WhatsApp จ่ายกับ Meta และค่าอีเมลจ่ายกับผู้ให้บริการ SMTP ที่เลือก",
       },
       {
         q: "ต้องมีบัญชีอะไรบ้างก่อนเริ่ม",
@@ -1118,7 +1118,7 @@ const th: Pulse8Content = {
       },
       {
         q: "รองรับ PDPA อย่างไร",
-        a: "เก็บความยินยอมแยกรายช่องทางพร้อมหลักฐาน ตรวจทุกข้อความก่อนส่ง มีหน้ายกเลิกรับและ preference center ให้ลูกค้าเลือกเอง ฟอร์มเก็บ consent ได้ตอนสมัคร และมีบันทึกคำขอเข้าถึง ลบ และระงับข้อมูล การใช้ข้อมูลเพื่อทำ audience โฆษณาต้องได้รับความยินยอมแยกต่างหาก",
+        a: "เก็บความยินยอมแยกรายช่องทางพร้อมหลักฐาน ตรวจทุกข้อความก่อนส่ง มีหน้ายกเลิกรับและ preference center ให้ลูกค้าเลือกเอง ฟอร์มสมัครขอความยินยอมได้เลย และมีบันทึกคำขอเข้าถึง ลบ และระงับข้อมูล การใช้ข้อมูลเพื่อทำ audience โฆษณาต้องได้รับความยินยอมแยกต่างหาก",
       },
       {
         q: "เปลี่ยนไปแพ็กเกจที่เล็กลงได้ไหม",
@@ -1126,7 +1126,7 @@ const th: Pulse8Content = {
       },
       {
         q: "หน้าจอเป็นภาษาไทยไหม",
-        a: "เป็น ทุกหน้ามีทั้งภาษาไทยและอังกฤษ สลับได้จากเมนูด้านข้าง คอนเทนต์ภาษาไทยแสดงผลถูกต้อง และ SMS ภาษาไทยนับจำนวนข้อความตามที่ SMS ภาษาไทยคิดจริง",
+        a: "เป็น ทุกหน้ามีทั้งภาษาไทยและอังกฤษ สลับได้จากเมนูด้านข้าง คอนเทนต์ภาษาไทยแสดงผลถูกต้อง และ SMS ภาษาไทยนับจำนวนข้อความตรงกับที่ผู้ให้บริการคิดค่าส่ง",
       },
     ],
   },

@@ -10,10 +10,10 @@ export type Localized = Record<Locale, string>;
 const dictionaries = {
   en: {
     siteTitle: "BE8 AI Solutions",
-    siteDescription: "AI solutions by Beryl8, built for Thai and ASEAN enterprises.",
+    siteDescription: "AI solutions from Beryl8 for companies in Thailand and ASEAN.",
     eyebrow: "Beryl8 AI Lab",
     heroLead: "AI Solutions",
-    heroAccent: "built for enterprise.",
+    heroAccent: "for enterprise.",
     heroBody:
       "Ten AI solutions for your business: meeting notes, AI agents, phone calls, analytics, system connections, a virtual office, marketing, team chat with agents, Q&A inside your pages, and customer data. Open one to see how it works.",
     productsHeading: "The solution suite",
@@ -34,11 +34,11 @@ const dictionaries = {
     heroLead: "โซลูชัน AI",
     heroAccent: "สำหรับองค์กร",
     heroBody:
-      "สิบโซลูชัน AI สำหรับธุรกิจ ได้แก่ บันทึกการประชุม AI Agent โทรศัพท์ วิเคราะห์ข้อมูล เชื่อมระบบ ออฟฟิศเสมือน การตลาด แชตทีมที่มี Agent ถาม-ตอบในหน้าที่ใช้อยู่ และข้อมูลลูกค้า เลือกดูได้ทีละโซลูชัน",
+      "สิบโซลูชัน AI สำหรับธุรกิจ ได้แก่ บันทึกการประชุม AI Agent โทรศัพท์ วิเคราะห์ข้อมูล เชื่อมระบบ ออฟฟิศเสมือน การตลาด แชตทีมที่มี Agent ถาม-ตอบในหน้าที่ใช้อยู่ และข้อมูลลูกค้า เปิดดูแต่ละโซลูชันได้เลย",
     productsHeading: "โซลูชันทั้งหมด",
     productCount: (n: number) => `${n} โซลูชัน`,
     openPage: "ดูรายละเอียด",
-    openSite: "เข้าชมเว็บไซต์",
+    openSite: "ไปที่เว็บไซต์",
     mockup: "ตัวอย่าง",
     live: "เวอร์ชันทดลอง",
     footerAbout:

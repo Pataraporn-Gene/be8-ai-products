@@ -6,13 +6,13 @@ type Item = { h: string; p: string };
 
 const en = {
   meta: {
-    title: "Collab8 · A chat workspace for your team and its AI agents",
+    title: "Collab8 · Team chat with AI agents",
     description:
-      "Rooms where people and AI agents work together. Each agent works in its own isolated workspace, risky actions wait for approval, and admins decide what agents may do and which knowledge they can search.",
+      "Chat rooms where people and AI agents work together. Each agent gets its own workspace, risky actions wait for approval, and admins set what agents can do and which documents they can search.",
   },
   header: {
     menuAria: "Main menu",
-    menu: { how: "How it works", features: "Features", control: "Control", faq: "Help" },
+    menu: { how: "How it works", features: "Features", control: "Control", faq: "FAQ" },
     cta: "See how it works",
   },
   hero: {
@@ -20,10 +20,10 @@ const en = {
     h1: "Where your team and its AI agents",
     h1em: "work in the same room.",
     lead:
-      "Collab8 is a chat workspace. Mention an agent in a channel the way you would mention a colleague, and it picks up the task in its own isolated workspace. Admins decide what agents may do, which knowledge they can search, and who can see what.",
+      "Collab8 is team chat with AI agents built in. Mention an agent in a channel like you would a colleague, and it takes the task in its own workspace. Admins set what agents can do, which documents they can search and who sees what.",
     cta1: "See how it works",
     cta2: "How it stays safe",
-    mini: ["People and agents in one thread", "Every agent works in its own isolated workspace"],
+    mini: ["People and agents in one thread", "Each agent works in its own workspace"],
   },
   chat: {
     org: "Beryl8",
@@ -48,16 +48,16 @@ const en = {
       dest: "Destination: this session's workspace only",
       approve: "Approve",
       session: "Approve for this session",
-      deny: "Refuse",
+      deny: "Deny",
     },
     composer: "Message #hr-helpdesk, or @mention an agent",
     mock: "Illustrative screen with sample data",
   },
   facts: [
     { b: "Rooms for people and agents", span: "Channels, DMs and projects with threads and @mentions" },
-    { b: "An isolated workspace per session", span: "Isolated cloud containers in production, local containers in development" },
-    { b: "Keys stay out of reach", span: "Workspaces hold a placeholder. A gateway adds the real key when a request leaves." },
-    { b: "Tamper-evident audit log", span: "A log you can check for changes from inside the product" },
+    { b: "An isolated workspace per session", span: "Separate cloud containers in production, local ones in development" },
+    { b: "Keys never reach the agent", span: "Workspaces hold a placeholder. A gateway adds the real key when a request leaves." },
+    { b: "Tamper-evident audit log", span: "Check the log for edits from inside the product" },
   ],
   how: {
     eyebrow: "How it works",
@@ -65,18 +65,18 @@ const en = {
     steps: [
       {
         h: "Mention an agent",
-        p: "Write in a room or a DM. A message goes to the agent you @mention, the agent of a DM, or the agent already working that thread. A message that names nobody in a shared room reaches nobody.",
+        p: "Write in a room or a DM. A message goes to the agent you @mention, the agent of a DM, or the agent already working that thread. A message that names nobody in a shared room reaches no agent.",
       },
       {
         h: "The agent works in its own workspace",
         p: "Collab8 starts a session for the thread in its own isolated container. The agent can use Claude or Gemini models, connectors, room memory and the knowledge bases an admin attached to it.",
       },
       {
-        h: "Every action is checked",
-        p: "Each action the agent takes is checked against the files and places it would really touch. It is let through, refused, or held for a person to approve, and an approval covers only what the approver was shown.",
+        h: "Actions are checked first",
+        p: "Collab8 checks what each action would really touch. It is allowed, refused, or held for a person to approve. An approval covers only what the approver was shown.",
       },
       {
-        h: "The answer arrives complete",
+        h: "The answer arrives in one piece",
         p: "The reply and any files it made arrive in the thread together, never half finished and never twice. Follow-ups in the same thread continue the same session.",
       },
     ] as Item[],
@@ -99,7 +99,7 @@ const en = {
       },
       {
         h: "Memory that stays in the room",
-        p: "Each room keeps a memory per agent, so a team does not repeat itself. Anyone can open it to see what the agent remembers.",
+        p: "Each room keeps a memory per agent, so the team doesn’t have to repeat itself. Anyone can open it to see what the agent remembers.",
       },
       {
         h: "Files, images and slides",
@@ -118,8 +118,8 @@ const en = {
     items: [
       { h: "Approvals for risky actions", p: "Sensitive actions wait for a person. The card shows the file and destination, and an approval can be given once or for the rest of the session." },
       { h: "Room policy", p: "Owners and admins set a room's retention window, who may approve its agents' work, and the scope that caps every agent in it." },
-      { h: "Private rooms stay hidden", p: "A room you are not in, and every admin screen, appears not to exist. If you try something you are not allowed to do in a room you can see, you are told so." },
-      { h: "Audit log you can verify", p: "Agent, knowledge, member, approval and gate events are recorded in a tamper-evident log, with an integrity check and filters by agent, channel and event type." },
+      { h: "Private rooms stay hidden", p: "A room you’re not in, and every admin screen, simply doesn’t show up. If you try something you’re not allowed to do in a room you can see, you’re told so." },
+      { h: "Audit log you can verify", p: "Agent, knowledge, member, approval and permission-check events are recorded in a tamper-evident log, with an integrity check and filters by agent, channel and event type." },
       { h: "Usage and budgets", p: "See sessions and usage per agent. If an agent is over budget it will not start, and the person who asked is told why." },
       { h: "Keys never enter an agent workspace", p: "Agent workspaces hold a placeholder. A gateway adds the real model key when a request leaves." },
     ] as Item[],
@@ -128,7 +128,7 @@ const en = {
     h2: "Four workspace roles",
     rows: [
       { dt: "Owner", dd: "Runs the workspace, including agents, knowledge, usage and the audit log." },
-      { dt: "Admin", dd: "Same admin surfaces as an owner: agents, usage, audit log and knowledge bases." },
+      { dt: "Admin", dd: "Same admin screens as an owner: agents, usage, audit log and knowledge bases." },
       { dt: "Member", dd: "Talks in rooms they belong to, mentions agents and approves where policy allows." },
       { dt: "Guest", dd: "May talk in a room they were added to, but cannot reshape it." },
     ],
@@ -146,7 +146,7 @@ const en = {
     ],
   },
   faq: {
-    h2: "Questions",
+    h2: "Frequently asked questions",
     items: [
       {
         q: "Can an agent see every room?",
@@ -177,13 +177,13 @@ export type Collab8Content = typeof en;
 
 const th: Collab8Content = {
   meta: {
-    title: "Collab8 · พื้นที่แชตสำหรับทีมและ AI Agent",
+    title: "Collab8 · แชตทีมที่มี AI Agent",
     description:
-      "ห้องที่คนและ AI Agent ทำงานร่วมกัน Agent แต่ละตัวทำงานในพื้นที่ทำงานแยกของตัวเอง การกระทำที่เสี่ยงต้องรอการอนุมัติ และแอดมินกำหนดได้ว่า Agent ทำอะไรได้และค้นความรู้ชุดไหนได้",
+      "ห้องแชตที่คนกับ AI Agent ทำงานด้วยกัน Agent แต่ละตัวมีพื้นที่ทำงานแยก งานเสี่ยงต้องรออนุมัติ และแอดมินกำหนดได้ว่า Agent ทำอะไรได้ ค้นเอกสารชุดไหนได้",
   },
   header: {
     menuAria: "เมนูหลัก",
-    menu: { how: "การทำงาน", features: "ฟีเจอร์", control: "การควบคุม", faq: "ช่วยเหลือ" },
+    menu: { how: "การทำงาน", features: "ฟีเจอร์", control: "การควบคุม", faq: "FAQ" },
     cta: "ดูการทำงาน",
   },
   hero: {
@@ -191,10 +191,10 @@ const th: Collab8Content = {
     h1: "ที่ที่ทีมและ AI Agent",
     h1em: "ทำงานอยู่ในห้องเดียวกัน",
     lead:
-      "Collab8 คือพื้นที่แชต แท็ก Agent ในช่องเหมือนแท็กเพื่อนร่วมงาน แล้ว Agent จะรับงานต่อในพื้นที่ทำงานแยกของตัวเอง แอดมินกำหนดได้ว่า Agent ทำอะไรได้ ค้นความรู้ชุดไหนได้ และใครเห็นอะไร",
+      "Collab8 คือแชตทีมที่มี AI Agent อยู่ด้วย แท็ก Agent ในช่องเหมือนแท็กเพื่อนร่วมงาน แล้ว Agent จะรับงานไปทำในพื้นที่ทำงานของตัวเอง แอดมินกำหนดได้ว่า Agent ทำอะไรได้ ค้นเอกสารชุดไหนได้ และใครเห็นอะไร",
     cta1: "ดูการทำงาน",
     cta2: "ปลอดภัยอย่างไร",
-    mini: ["คนและ Agent อยู่ในเธรดเดียวกัน", "Agent ทุกตัวทำงานในพื้นที่ทำงานแยกของตัวเอง"],
+    mini: ["คนและ Agent อยู่ในเธรดเดียวกัน", "Agent แต่ละตัวมีพื้นที่ทำงานแยก"],
   },
   chat: {
     org: "Beryl8",
@@ -216,7 +216,7 @@ const th: Collab8Content = {
       tag: "รออนุมัติ",
       title: "expense-agent ขอเขียนไฟล์",
       file: "ไฟล์: claims/mali-2026-10.xlsx",
-      dest: "ปลายทาง: workspace ของ session นี้เท่านั้น",
+      dest: "ปลายทาง: พื้นที่ทำงานของ session นี้เท่านั้น",
       approve: "อนุมัติ",
       session: "อนุมัติตลอด session นี้",
       deny: "ปฏิเสธ",
@@ -226,9 +226,9 @@ const th: Collab8Content = {
   },
   facts: [
     { b: "ห้องสำหรับคนและ Agent", span: "ช่อง DM และโปรเจกต์ พร้อมเธรดและการแท็ก @" },
-    { b: "หนึ่ง session หนึ่งพื้นที่ทำงานแยก", span: "คอนเทนเนอร์แยกบนคลาวด์ในระบบจริง และคอนเทนเนอร์ในเครื่องตอนพัฒนา" },
-    { b: "คีย์อยู่นอกเอื้อม", span: "พื้นที่ทำงานถือแค่ค่าแทน ส่วนเกตเวย์จะใส่คีย์จริงตอนส่งคำขอออกไป" },
-    { b: "บันทึกการใช้งานที่ตรวจการแก้ไขได้", span: "ตรวจได้จากในระบบว่ามีการแก้ไขบันทึกหรือไม่" },
+    { b: "พื้นที่ทำงานแยกต่อ session", span: "คอนเทนเนอร์แยกบนคลาวด์ในระบบจริง และคอนเทนเนอร์ในเครื่องตอนพัฒนา" },
+    { b: "คีย์ไม่ถึงมือ Agent", span: "พื้นที่ทำงานถือแค่ค่าแทน ส่วนเกตเวย์จะใส่คีย์จริงตอนส่งคำขอออกไป" },
+    { b: "ประวัติการใช้งานที่ตรวจการแก้ไขได้", span: "ตรวจในระบบได้เลยว่ามีการแก้ไขประวัติหรือไม่" },
   ],
   how: {
     eyebrow: "การทำงาน",
@@ -236,15 +236,15 @@ const th: Collab8Content = {
     steps: [
       {
         h: "แท็ก Agent",
-        p: "พิมพ์ในห้องหรือ DM ข้อความจะไปถึง Agent ที่แท็กด้วย @ Agent ของ DM หรือ Agent ที่กำลังทำเธรดนั้นอยู่ ข้อความที่ไม่ระบุใครในห้องรวมจะไม่ถึง Agent ตัวไหน",
+        p: "พิมพ์ในห้องหรือ DM ข้อความจะไปถึง Agent ที่แท็กด้วย @ Agent ของ DM หรือ Agent ที่กำลังทำเธรดนั้นอยู่ ถ้าไม่แท็กใครในห้องรวม ข้อความจะไม่ถึง Agent ตัวไหน",
       },
       {
         h: "Agent ทำงานในพื้นที่ของตัวเอง",
-        p: "Collab8 เริ่ม session ให้เธรดนั้นในคอนเทนเนอร์แยกของตัวเอง Agent ใช้โมเดล Claude หรือ Gemini, connector, ความจำของห้อง และคลังความรู้ที่แอดมินผูกไว้ได้",
+        p: "Collab8 เริ่ม session ให้เธรดนั้นในคอนเทนเนอร์แยกของตัวเอง Agent ใช้โมเดล Claude หรือ Gemini, connector, ความจำของห้อง และคลังความรู้ที่แอดมินเชื่อมไว้ให้ได้",
       },
       {
-        h: "ตรวจทุกการกระทำ",
-        p: "ทุกการกระทำของ Agent จะถูกตรวจว่าแตะไฟล์หรือที่ไหนจริง ๆ อาจผ่าน ถูกปฏิเสธ หรือรอให้คนอนุมัติ และการอนุมัติใช้ได้เฉพาะสิ่งที่ผู้อนุมัติเห็นเท่านั้น",
+        h: "ตรวจก่อนทำทุกครั้ง",
+        p: "ระบบตรวจว่าสิ่งที่ Agent จะทำไปแตะไฟล์หรือที่ไหนจริง ๆ แล้วปล่อยผ่าน ปฏิเสธ หรือรอให้คนอนุมัติ การอนุมัติครอบคลุมเฉพาะสิ่งที่ผู้อนุมัติเห็น",
       },
       {
         h: "คำตอบมาครบในครั้งเดียว",
@@ -258,7 +258,7 @@ const th: Collab8Content = {
     items: [
       {
         h: "ห้อง DM และเธรด",
-        p: "ช่อง ข้อความส่วนตัว และห้องโปรเจกต์ พร้อมปักหมุด รีแอ็กชัน ไฟล์แนบ และพรีวิวรูป แขก (guest) คุยในห้องได้แต่ปรับโครงห้องไม่ได้",
+        p: "ช่อง ข้อความส่วนตัว และห้องโปรเจกต์ พร้อมปักหมุด รีแอ็กชัน ไฟล์แนบ และพรีวิวรูป แขก (guest) คุยในห้องได้ แต่เปลี่ยนการตั้งค่าห้องไม่ได้",
       },
       {
         h: "Agent ที่คุณกำหนดเอง",
@@ -289,17 +289,17 @@ const th: Collab8Content = {
     items: [
       { h: "อนุมัติก่อนทำสิ่งเสี่ยง", p: "การกระทำที่อ่อนไหวต้องรอคนอนุมัติ การ์ดแสดงไฟล์และปลายทาง และอนุมัติได้ครั้งเดียวหรือตลอด session" },
       { h: "นโยบายห้อง", p: "เจ้าของและแอดมินกำหนดช่วงเก็บข้อมูล คนที่อนุมัติงานของ Agent ได้ และขอบเขตที่จำกัด Agent ทุกตัวในห้อง" },
-      { h: "ห้องส่วนตัวถูกซ่อนไว้", p: "ห้องที่คุณไม่ได้อยู่ และหน้าแอดมินทั้งหมด จะเหมือนไม่มีอยู่ ส่วนห้องที่คุณเห็นอยู่ ถ้าลองทำสิ่งที่ไม่มีสิทธิ์ ระบบจะแจ้งว่าไม่มีสิทธิ์" },
-      { h: "บันทึกที่ตรวจสอบได้", p: "เหตุการณ์ของ Agent ความรู้ สมาชิก การอนุมัติ และการตรวจสิทธิ์ ถูกบันทึกในรูปแบบที่ตรวจการแก้ไขได้ มีปุ่มตรวจความสมบูรณ์ และกรองตาม Agent ช่อง หรือชนิดเหตุการณ์ได้" },
-      { h: "การใช้งานและงบ", p: "ดู session และปริมาณการใช้ต่อ Agent ถ้า Agent เกินงบ ระบบจะไม่เริ่มทำงาน และบอกเหตุผลกับคนที่ถาม" },
+      { h: "ห้องส่วนตัวถูกซ่อนไว้", p: "ห้องที่คุณไม่ได้อยู่ และหน้าแอดมินทั้งหมด จะเหมือนไม่มีอยู่ ส่วนห้องที่คุณเห็นอยู่ ถ้าลองทำสิ่งที่ไม่มีสิทธิ์ ระบบจะบอกว่าทำไม่ได้" },
+      { h: "ประวัติการใช้งานที่ตรวจสอบได้", p: "บันทึกเหตุการณ์ของ Agent ความรู้ สมาชิก การอนุมัติ และการตรวจสิทธิ์ ไว้ในรูปแบบที่ตรวจได้ว่าถูกแก้ไขหรือไม่ มีปุ่มตรวจความสมบูรณ์ และกรองตาม Agent ช่อง หรือชนิดเหตุการณ์ได้" },
+      { h: "การใช้งานและงบ", p: "ดู session และปริมาณการใช้ต่อ Agent ถ้า Agent ใช้เกินงบ จะไม่เริ่มทำงาน และระบบบอกเหตุผลกับคนที่ถาม" },
       { h: "คีย์ไม่เข้าพื้นที่ทำงานของ Agent", p: "พื้นที่ทำงานของ Agent ถือแค่ค่าแทน ส่วนเกตเวย์จะใส่คีย์โมเดลจริงตอนส่งคำขอออกไป" },
     ],
   },
   roles: {
-    h2: "สี่บทบาทใน workspace",
+    h2: "สี่บทบาทในพื้นที่ทำงาน",
     rows: [
-      { dt: "Owner", dd: "ดูแล workspace ทั้งหมด รวมถึง Agent ความรู้ การใช้งาน และ audit log" },
-      { dt: "Admin", dd: "เข้าหน้าแอดมินได้เท่ากับ owner ได้แก่ Agent การใช้งาน audit log และคลังความรู้" },
+      { dt: "Owner", dd: "ดูแลพื้นที่ทำงานทั้งหมด รวมถึง Agent ความรู้ การใช้งาน และประวัติการใช้งาน" },
+      { dt: "Admin", dd: "เข้าหน้าแอดมินได้เท่ากับ owner ได้แก่ Agent การใช้งาน ประวัติการใช้งาน และคลังความรู้" },
       { dt: "Member", dd: "คุยในห้องที่เป็นสมาชิก แท็ก Agent และอนุมัติได้ตามที่นโยบายอนุญาต" },
       { dt: "Guest", dd: "คุยในห้องที่ถูกเพิ่มเข้าไปได้ แต่ปรับโครงห้องไม่ได้" },
     ],
@@ -333,7 +333,7 @@ const th: Collab8Content = {
       },
       {
         q: "ส่งออกข้อมูลได้ไหม",
-        a: "ได้ ส่งออก workspace พร้อมข้อความและไฟล์เป็นไฟล์เดียว",
+        a: "ได้ ส่งออกพื้นที่ทำงานพร้อมข้อความและไฟล์ได้เป็นไฟล์เดียว",
       },
       {
         q: "นี่คือผลิตภัณฑ์จริงแล้วหรือยัง",

@@ -26,7 +26,7 @@ const en = {
   },
   header: {
     menuAria: "Main menu",
-    menu: { features: "Product", cases: "Use cases", plans: "Pricing", faq: "Help" },
+    menu: { features: "Product", cases: "Use cases", plans: "Pricing", faq: "FAQ" },
   },
   hero: {
     eyebrow: "Insight8 Studio by Beryl8",
@@ -133,7 +133,7 @@ const en = {
       author: {
         label: "Refine",
         h: "Click Open and keep editing in the authoring workspace",
-        p: "Analysts drag fields onto Columns and Rows, switch chart types from Show Me, or rearrange the layout, just like work they built themselves.",
+        p: "Analysts drag fields onto Columns and Rows, switch chart types from Show Me, or rearrange the layout, as if they had built them from scratch.",
         list: [
           "Full Filters, Marks card and Show Me",
           "Explain Data flags values that differ from what is expected",
@@ -143,7 +143,7 @@ const en = {
       },
       govern: {
         label: "Govern",
-        h: "BI teams and admins govern from one place",
+        h: "BI teams and admins manage it all in one place",
         p: "Turn AI capabilities on or off one by one, choose which data sources the agent can use, manage access with projects and permissions, and check Impact to see which workbooks and metrics use each field.",
         list: [
           "Passwords and keys encrypted with Cloud KMS",
@@ -156,7 +156,7 @@ const en = {
   },
   more: {
     eyebrow: "Beyond dashboards",
-    h2: "The same data, put to work across the team",
+    h2: "The same data, useful to the whole team",
     chat: {
       k: "Atrium",
       h: "Team chat where you can call the agent into the room",
@@ -172,12 +172,12 @@ const en = {
     conn: {
       k: "Connections",
       h: "Connect once, and the whole team can use it",
-      p: "Admins set up site connections for selected groups, and no one sees the password. Passwords are encrypted and never shown. Databases on a private network connect through an SSH tunnel (Beta), and fixed outgoing IP addresses are ready for your firewall allowlist.",
+      p: "Admins set up site connections for selected groups. Passwords are encrypted and never shown to anyone. Databases on a private network connect through an SSH tunnel (Beta), and fixed outgoing IP addresses are ready for your firewall allowlist.",
       alt: "Connections page showing the Retail Data Warehouse site connection with Extract enabled, plus Test, Network and Audience and schemas buttons",
     },
   },
   cases: {
-    h2: "For every team that needs answers from data",
+    h2: "For any team that needs answers from data",
     items: [
       {
         h: "Sales leadership",
@@ -199,7 +199,7 @@ const en = {
   },
   plans: {
     eyebrow: "Plans",
-    h2: "Choose the right plan for your organization",
+    h2: "Choose a plan",
     p: "Every plan includes unlimited users, priced by total agent questions across the organization per month",
     perYear: "/ year",
     monthly: "Avg. {x} per month",
@@ -311,7 +311,7 @@ const en = {
   },
   trust: {
     eyebrow: "Security and privacy",
-    h2: "Built for the questions IT will ask",
+    h2: "Answers to the questions IT will ask",
     items: [
       {
         b: "The agent sees only what the asker sees",
@@ -336,9 +336,9 @@ const en = {
     rows: [
       {
         dt: "Hosting",
-        dd: "Google Cloud: Cloud Run behind IAP and Cloud SQL Postgres, a dedicated stack per organization in region asia-southeast1",
+        dd: "Google Cloud: Cloud Run behind IAP and Cloud SQL Postgres, a separate environment per organization in region asia-southeast1",
       },
-      { dt: "AI model", dd: "Gemini 4 Argon on Vertex AI by default; switchable to Claude Haiku 5.5 per stack" },
+      { dt: "AI model", dd: "Gemini 4 Argon on Vertex AI by default; switchable to Claude Haiku 5.5 per organization" },
       {
         dt: "Agent runtime",
         dd: "gVisor sandbox on Cloud Run, limited to Insight8 tools, 4 concurrent questions per instance",
@@ -348,12 +348,12 @@ const en = {
         dt: "Data connectors",
         dd: "CSV/Excel, PostgreSQL, MySQL, SQL Server, BigQuery, Salesforce, Insight8 Connect, plus Oracle, Snowflake, Redshift and Databricks (all four in Beta)",
       },
-      { dt: "Visualisation", dd: "Vega-Lite, sandboxed React components and Show Me, including Radial and Sankey" },
+      { dt: "Visualization", dd: "Vega-Lite, sandboxed React components and Show Me, including Radial and Sankey" },
       {
         dt: "Language and locale",
         dd: "Ask in and display Thai, with THB and Thai province maps supported (interface in English)",
       },
-      { dt: "Devices", dd: "Designed for desktop; below 1024px the authoring workspace is view-only" },
+      { dt: "Devices", dd: "Built for desktop; below 1024px the authoring workspace is view-only" },
     ],
   },
   faq: {
@@ -404,7 +404,7 @@ const en = {
     copyFail: "Couldn't copy, try again",
   },
   summary: {
-    custom: "Insight8 Studio · Customize: agent quota and stack per contract. Please contact sales.",
+    custom: "Insight8 Studio · Customize: agent quota and system size per contract. Please contact sales.",
     main: "Insight8 Studio · {name}: {y} per year (avg. {m} per month) · Unlimited users · {q} agent questions per month · Additional questions {x} each{setup} · {server} · Excludes VAT · Draft pricing, pending confirmation",
     setup: " · {x} one-time setup",
     serverIncl: "Server included",
@@ -418,23 +418,23 @@ const th: Insight8Content = {
   meta: {
     title: "Insight8 Studio · แพ็กเกจและราคา",
     description:
-      "คนในองค์กรพิมพ์สิ่งที่อยากรู้ agent จะอ่าน data source ที่คนนั้นมีสิทธิ์ เขียน SQL และสร้าง dashboard ลง workbook ให้ ส่วนทีม BI ยังดูแล connection และสิทธิ์การเข้าถึงได้ครบ",
+      "คนในองค์กรพิมพ์สิ่งที่อยากรู้ Agent จะอ่านเฉพาะข้อมูลที่คนนั้นมีสิทธิ์เห็น เขียน SQL และสร้าง dashboard ให้ ส่วนทีม BI ยังคุม connection และสิทธิ์การเข้าถึงเหมือนเดิม",
   },
   header: {
     menuAria: "เมนูหลัก",
-    menu: { features: "ผลิตภัณฑ์", cases: "การใช้งาน", plans: "ราคา", faq: "ช่วยเหลือ" },
+    menu: { features: "ผลิตภัณฑ์", cases: "การใช้งาน", plans: "ราคา", faq: "คำถามที่พบบ่อย" },
   },
   hero: {
     eyebrow: "Insight8 Studio by Beryl8",
     h1: "พิมพ์คำถามธรรมดา",
     h1em: "ได้ dashboard ที่ทีมแก้ต่อได้จริง",
     lead:
-      "คนในองค์กรพิมพ์สิ่งที่อยากรู้ agent จะอ่าน data source ที่คนนั้นมีสิทธิ์ เขียน SQL และสร้าง dashboard ลง workbook ให้ ส่วนทีม BI ยังดูแล connection และสิทธิ์การเข้าถึงได้ครบ",
+      "คนในองค์กรพิมพ์สิ่งที่อยากรู้ Agent จะอ่านเฉพาะข้อมูลที่คนนั้นมีสิทธิ์เห็น เขียน SQL และสร้าง dashboard ให้ ส่วนทีม BI ยังคุม connection และสิทธิ์การเข้าถึงเหมือนเดิม",
     cta1: "ดูว่าทำอะไรได้บ้าง",
     cta2: "ดูแพ็กเกจและราคา",
     mini: [
-      "ไม่จำกัดผู้ใช้ทุกแพ็กเกจ คิดตามจำนวนคำถามถึง agent ของทั้งองค์กร",
-      "ค่าเริ่มต้นคือไม่เก็บสำเนาข้อมูลจากระบบของลูกค้า",
+      "ผู้ใช้ไม่จำกัดทุกแพ็กเกจ คิดราคาตามจำนวนคำถามที่ถาม Agent รวมทั้งองค์กร",
+      "โดยปกติไม่เก็บสำเนาข้อมูลจากระบบของคุณ",
     ],
     dashAlt:
       "dashboard ภาพรวมยอดขาย Thai Retail POS ไตรมาส 3 ที่ agent สร้าง มี KPI ยอดขายสุทธิ กำไรขั้นต้น จำนวนบิล เทียบปีก่อน และกราฟยอดขายรายเดือน",
@@ -504,7 +504,7 @@ const th: Insight8Content = {
       ask: {
         label: "ถาม",
         h: "พิมพ์คำถาม แล้วถามต่อได้เรื่อยๆ",
-        p: "พิมพ์ที่กล่องคำถามหน้า Home หรือในบทสนทนา agent ไล่ดู data source ที่ผู้ถามมีสิทธิ์ เขียนคำสั่งค้นข้อมูลและตรวจก่อนรัน แล้วตอบเป็นกราฟพร้อมคำอธิบาย",
+        p: "พิมพ์ที่กล่องคำถามหน้า Home หรือในบทสนทนา agent ดู data source ที่ผู้ถามมีสิทธิ์เข้าถึง เขียนคำสั่งค้นข้อมูลและตรวจก่อนรัน แล้วตอบเป็นกราฟพร้อมคำอธิบาย",
         list: [
           "ทุกคำสั่งค้นข้อมูลของ agent ใช้สิทธิ์ของผู้ถาม",
           "แนบไฟล์หรือ @mention data source ในแชตได้",
@@ -515,7 +515,7 @@ const th: Insight8Content = {
       dash: {
         label: "ได้ dashboard",
         h: "ได้ dashboard ที่แก้ต่อได้ทุก tile",
-        p: "agent สร้าง dashboard เป็น sheet บน shelf ครบทั้ง KPI, กราฟ และ filter บน masthead ไม่ใช่ภาพนิ่ง ทุกคนที่เปิดดูเห็นข้อมูลตามสิทธิ์ของตัวเอง",
+        p: "agent สร้าง dashboard เป็น sheet บน shelf มี KPI กราฟ และ filter บน masthead ครบ ไม่ใช่ภาพนิ่ง ทุกคนที่เปิดดูเห็นข้อมูลตามสิทธิ์ของตัวเอง",
         list: [
           "query ใหม่ทุกครั้งที่เปิด ฐานข้อมูล live อย่าง PostgreSQL และ BigQuery refresh ทุก 1 นาทีระหว่างเปิดค้าง",
           "ดูได้ว่า dashboard ใช้ข้อมูลจาก source ไหน",
@@ -537,7 +537,7 @@ const th: Insight8Content = {
       govern: {
         label: "ควบคุม",
         h: "ทีม BI และ admin ดูแลจากที่เดียว",
-        p: "เปิดปิดความสามารถ AI ได้ทีละตัว เลือก data source ที่ agent ใช้ได้ จัดสิทธิ์ด้วย project และ permission แล้วดู Impact ว่า field ไหนถูกใช้ใน workbook และ metric ใด",
+        p: "เปิดปิดความสามารถ AI ได้ทีละตัว เลือก data source ที่ agent ใช้ได้ จัดสิทธิ์การเข้าถึงด้วย project แล้วดู Impact ว่า field ไหนถูกใช้ใน workbook และ metric ใด",
         list: [
           "รหัสผ่านและคีย์เข้ารหัสด้วย Cloud KMS",
           "มี IP ขาออกคงที่ให้ลูกค้าอนุญาตผ่าน firewall",
@@ -586,20 +586,20 @@ const th: Insight8Content = {
   },
   plans: {
     eyebrow: "แพ็กเกจ",
-    h2: "เลือกแพ็กเกจที่เหมาะกับองค์กร",
-    p: "ผู้ใช้ไม่จำกัดทุกแพ็กเกจ คิดตามจำนวนคำถามถึง agent ที่ใช้รวมทั้งองค์กรต่อเดือน",
+    h2: "เลือกแพ็กเกจ",
+    p: "ผู้ใช้ไม่จำกัดทุกแพ็กเกจ คิดราคาตามจำนวนคำถามที่ถาม Agent รวมทั้งองค์กรต่อเดือน",
     perYear: "/ ปี",
     monthly: "เฉลี่ย {x} ต่อเดือน",
     setup: "+ ค่า Setup {x} ครั้งเดียว",
     recTag: "แนะนำ · คุ้มกว่าต่อคำถาม",
-    contact: "กรุณาติดต่อทีมขาย",
+    contact: "ติดต่อทีมขาย",
     standard: {
       for: "สำหรับองค์กรที่ข้อมูลอยู่ในฐานข้อมูล, BigQuery หรือไฟล์ CSV/Excel",
       btn: "เลือก Standard",
       lbl: "รวมในแพ็กเกจ",
       list: [
         "ผู้ใช้ไม่จำกัด",
-        "{q} คำถามถึง agent ต่อเดือน",
+        "ถาม Agent ได้ {q} คำถามต่อเดือน",
         "Studio agent, authoring workspace และ Show Me",
         "Pulse, subscription และ data alert",
         "PostgreSQL, MySQL, SQL Server, BigQuery, CSV",
@@ -611,7 +611,7 @@ const th: Insight8Content = {
       btn: "เลือก Premium",
       lbl: "ทุกอย่างใน Standard และ",
       list: [
-        "{q} คำถามถึง agent ต่อเดือน",
+        "ถาม Agent ได้ {q} คำถามต่อเดือน",
         "Salesforce และ Insight8 Connect แอปกว่า 100 ตัว",
         "Extract ราย connection (เลือกเก็บสำเนาข้อมูลได้)",
         "จำกัดข้อมูลรายคน: row-level security, groups และ user attributes",
@@ -656,7 +656,7 @@ const th: Insight8Content = {
     rows: [
       { g: "การใช้งาน" },
       { l: "จำนวนผู้ใช้", s: "ไม่จำกัด", p: "ไม่จำกัด", c: "ไม่จำกัด" },
-      { l: "คำถามถึง agent ต่อเดือน (ทั้งองค์กร)", s: "q:standard", p: "q:premium", c: "ตามสัญญา" },
+      { l: "คำถามที่ถาม Agent ต่อเดือน (ทั้งองค์กร)", s: "q:standard", p: "q:premium", c: "ตามสัญญา" },
       { l: "ซื้อคำถามเพิ่ม", s: "extra:standard", p: "extra:premium", c: "ตามสัญญา" },
       { g: "AI agent" },
       { l: "Studio agent: ถามแล้วได้ dashboard", s: true, p: true },
@@ -691,14 +691,14 @@ const th: Insight8Content = {
       { l: "Knowledge: agent อ่านเอกสาร PDF + FAQ", s: false, p: true },
       { l: "Beryl8 สร้าง agent และนำเข้าเอกสารให้", s: false, p: false, c: true },
       { g: "การติดตั้ง" },
-      { l: "สภาพแวดล้อมแยกต่อองค์กรบน Google Cloud", s: true, p: true },
+      { l: "ระบบแยกเฉพาะองค์กรบน Google Cloud", s: true, p: true },
       { l: "ฐานข้อมูลแบบ high-availability และพื้นที่ทำงานของ agent 2 ชุด", s: false, p: true },
       { l: "ขนาดระบบใหญ่กว่า Premium ตามสัญญา", s: false, p: false, c: true },
     ],
   },
   trust: {
     eyebrow: "ความปลอดภัยและความเป็นส่วนตัว",
-    h2: "สร้างมาเพื่อคำถามที่ทีม IT จะถาม",
+    h2: "คำตอบสำหรับสิ่งที่ทีม IT มักถาม",
     items: [
       {
         b: "Agent เห็นเท่าที่ผู้ถามเห็น",
@@ -723,9 +723,9 @@ const th: Insight8Content = {
     rows: [
       {
         dt: "Hosting",
-        dd: "Google Cloud: Cloud Run หลัง IAP และ Cloud SQL Postgres แยก stack ต่อองค์กร region asia-southeast1",
+        dd: "Google Cloud: Cloud Run หลัง IAP และ Cloud SQL Postgres แยกระบบต่อองค์กร region asia-southeast1",
       },
-      { dt: "AI model", dd: "Gemini 4 Argon บน Vertex AI เป็นค่าเริ่มต้น เปลี่ยนเป็น Claude Haiku 5.5 ได้ราย stack" },
+      { dt: "AI model", dd: "Gemini 4 Argon บน Vertex AI เป็นค่าเริ่มต้น เปลี่ยนเป็น Claude Haiku 5.5 ได้แยกตามองค์กร" },
       {
         dt: "Agent runtime",
         dd: "sandbox gVisor บน Cloud Run ใช้ได้เฉพาะ tools ของ Insight8 รับ 4 คำถามพร้อมกันต่อ instance",
@@ -735,7 +735,7 @@ const th: Insight8Content = {
         dt: "Data connectors",
         dd: "CSV/Excel, PostgreSQL, MySQL, SQL Server, BigQuery, Salesforce, Insight8 Connect และ Oracle, Snowflake, Redshift, Databricks (Beta ทั้ง 4 ตัว)",
       },
-      { dt: "Visualisation", dd: "Vega-Lite, React component ใน sandbox และ Show Me รวม Radial และ Sankey" },
+      { dt: "Visualization", dd: "Vega-Lite, React component ใน sandbox และ Show Me รวม Radial และ Sankey" },
       {
         dt: "ภาษาและพื้นที่",
         dd: "ถามและแสดงข้อมูลภาษาไทยได้ รองรับ THB และแผนที่จังหวัดไทย (หน้าจอเป็นภาษาอังกฤษ)",
@@ -759,7 +759,7 @@ const th: Insight8Content = {
         a: "ข้อมูลจากระบบต้นทางไม่ถูกเก็บโดยค่าเริ่มต้น ทุกคำสั่งค้นข้อมูลอ่านจากระบบของคุณ สิ่งที่ระบบเก็บคือไฟล์ที่อัปโหลด, ข้อมูลจาก connection ที่เจ้าของเปิด Extract, ประวัติตัวเลขของ Pulse metric, ภาพ thumbnail และ snapshot ของ subscription และข้อความคำตอบของ agent ซึ่งอาจมีตัวเลขจากข้อมูล ผลลัพธ์ของ query ถูกส่งให้ model เพื่อใช้ตอบคำถาม",
       },
       {
-        q: "agent จะเห็นข้อมูลที่ผู้ใช้ไม่มีสิทธิ์ไหม",
+        q: "Agent เห็นข้อมูลที่ผู้ใช้ไม่มีสิทธิ์ดูไหม",
         a: "ไม่เห็น agent ใช้สิทธิ์ของคนที่ถามในทุก query ทั้ง permission ของ data source และการจำกัดข้อมูลรายแถว จึงเห็นได้เท่าที่คนนั้นเห็น",
       },
       {
@@ -785,14 +785,14 @@ const th: Insight8Content = {
     perYear: "{x} /ปี",
     avg: "เฉลี่ย {x} /เดือน",
     setup: "+ Setup {x} ครั้งเดียว",
-    contact: "กรุณาติดต่อทีมขาย",
+    contact: "ติดต่อทีมขาย",
     copy: "คัดลอกสรุปราคา",
     copied: "คัดลอกแล้ว",
     copyFail: "คัดลอกไม่ได้ ลองอีกครั้ง",
   },
   summary: {
-    custom: "Insight8 Studio · Customize: โควตา agent และ stack ตามสัญญา กรุณาติดต่อทีมขาย",
-    main: "Insight8 Studio · {name}: {y} ต่อปี (เฉลี่ย {m} ต่อเดือน) · ผู้ใช้ไม่จำกัด · {q} คำถามถึง agent ต่อเดือน · ซื้อเพิ่ม {x} ต่อคำถาม{setup} · {server} · ยังไม่รวม VAT · ราคาร่าง รอยืนยัน",
+    custom: "Insight8 Studio · Customize: โควตา agent และขนาดระบบตามสัญญา ติดต่อทีมขาย",
+    main: "Insight8 Studio · {name}: {y} ต่อปี (เฉลี่ย {m} ต่อเดือน) · ผู้ใช้ไม่จำกัด · ถาม Agent ได้ {q} คำถามต่อเดือน · ซื้อเพิ่ม {x} ต่อคำถาม{setup} · {server} · ยังไม่รวม VAT · ราคาร่าง รอยืนยัน",
     setup: " · Setup {x} ครั้งเดียว",
     serverIncl: "รวมค่า Server แล้ว",
     serverExcl: "ไม่รวมค่า Server",

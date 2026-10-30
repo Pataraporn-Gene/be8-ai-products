@@ -81,7 +81,7 @@ const en = {
   meta: {
     title: "MEET8 (Second Brain) · Every meeting recorded, written up and searchable",
     description:
-      "Record and transcribe meetings in Thai, English or both, get decisions and action items written up for you, and look up anything said in past meetings.",
+      "Record and transcribe meetings in Thai, English or both. Decisions and action items are written up for you, and past meetings are searchable.",
   },
   brand: "MEET8 (Second Brain)",
   menuLabel: "Main menu",
@@ -89,13 +89,13 @@ const en = {
     { href: "#features", label: "Product" },
     { href: "#cases", label: "Use cases" },
     { href: "#plans", label: "Pricing" },
-    { href: "#faq", label: "Help" },
+    { href: "#faq", label: "FAQ" },
   ],
   hero: {
     eyebrow: "MEET8 (Second Brain)",
     h1: "Every meeting recorded,",
     h1Em: "written up and searchable",
-    lead: "Record and transcribe meetings in Thai, English or both, get decisions and action items written up for you, and look up anything said in past meetings, with a link to the exact moment it was said.",
+    lead: "Record and transcribe meetings in Thai, English or both. Decisions and action items are written up for you, and you can search past meetings with a link to the exact moment something was said.",
     ctaPrimary: "See how it works",
     ctaSecondary: "View plans and pricing",
     mini: ["Unlimited users on every plan", "Web, macOS, iOS and Google Meet"],
@@ -108,8 +108,8 @@ const en = {
   facts: [
     { b: "Thai + English", span: "Handles speakers who switch languages mid-sentence" },
     { b: "Answers with sources", span: "Links to the moment in the transcript" },
-    { b: "Respects access rights", span: "Only searches meetings you're allowed to see" },
-    { b: "Data stays in the region", span: "Google Cloud asia-southeast1" },
+    { b: "Follows your permissions", span: "Only searches meetings you're allowed to see" },
+    { b: "Data stays in Singapore", span: "Google Cloud asia-southeast1" },
   ],
   shotNote: "Screenshots are from the live product, shown with sample data.",
   marquee: [
@@ -118,11 +118,11 @@ const en = {
     "Prep Brief before meetings",
     "PDF meeting minutes",
     "Team chat with a built-in assistant",
-    "Manager visibility by reporting line",
+    "Managers see their team's meetings",
   ],
   tryit: {
     eyebrow: "Take a look",
-    h2: "The screens your team will use every day",
+    h2: "The screens your team will use",
     tabsLabel: "View screens",
     alt: "Sample product screen",
     urlHost: "second-brain.beryl8.com",
@@ -150,7 +150,7 @@ const en = {
         key: "live",
         num: "01",
         label: "Record",
-        h: "Press record, and every word is captured",
+        h: "Press record and every word is captured",
         p: "Start recording from the web, the desktop app, mobile or Google Meet. The transcript fills in as people talk.",
         list: [
           "Handles Thai and English in the same sentence",
@@ -184,7 +184,7 @@ const en = {
         p: "Ask a question the way you'd ask a colleague. The answer links back to the point in the transcript where it was said.",
         list: [
           "Searches every meeting you have access to",
-          "Every answer links to its source",
+          "Each answer links to the moment it was said",
           "Ask privately or in a team channel",
         ],
         img: "ask-close.jpg",
@@ -210,7 +210,7 @@ const en = {
   },
   more: {
     eyebrow: "More than meeting notes",
-    h2: "What's said in meetings, available to the whole team",
+    h2: "What was said in meetings, available to the whole team",
     chat: {
       k: "Team chat",
       h3: "Ask questions right in your team chat",
@@ -219,7 +219,7 @@ const en = {
     },
     prep: {
       k: "Before the meeting",
-      h3: "Walk into every meeting prepared",
+      h3: "Walk in prepared",
       p: "The Prep Brief pulls together open items, questions you're likely to get and notes from related meetings.",
       alt: "Prep Brief with likely questions and suggested answers",
     },
@@ -231,7 +231,7 @@ const en = {
     },
   },
   cases: {
-    h2: "Built for every kind of meeting",
+    h2: "Works for any kind of meeting",
     items: [
       { h3: "Client meetings", p: "Keep a record of every agreement and client concern, without relying on memory." },
       {
@@ -247,13 +247,13 @@ const en = {
   },
   plans: {
     eyebrow: "Plans",
-    h2: "Choose the plan that fits your organization",
+    h2: "Choose a plan",
     p: "Unlimited users on every plan. Pricing is based on total transcription hours used across the organization.",
     perYear: "/ year",
     standard: {
       price: P.stdYear,
       sub: `Avg. ${P.stdMonth} per month`,
-      for: "For teams that want every meeting recorded, summarized and searchable.",
+      for: "For teams that want every meeting recorded and searchable.",
       cta: "Select Standard",
       listLabel: "Included in this plan",
       list: [
@@ -287,7 +287,7 @@ const en = {
       listLabel: "Everything in Premium, plus",
       list: [
         "Transcription hours per contract",
-        "Custom assistants built for your workflows",
+        "Custom assistants for your workflows",
         "SSO and integration with your CRM and internal systems",
         "Dedicated support with an SLA",
       ],
@@ -322,7 +322,7 @@ const en = {
       { label: "Google Calendar and Outlook", std: true, prem: true, cus: true },
       { label: "Web, macOS and iOS apps and Chrome extension", std: true, prem: true, cus: true },
       { label: "Connect to other AI tools (MCP)", std: false, prem: true, cus: true, beta: true },
-      { group: "Privacy & Security" },
+      { group: "Privacy and security" },
       { label: "Encryption in transit and at rest", std: true, prem: true, cus: true },
       { label: "Owners and attendees see their meetings", std: true, prem: true, cus: true },
       { label: "Managers can see their team's meetings", std: false, prem: true, cus: true },
@@ -330,7 +330,7 @@ const en = {
       { label: "Your own private environment and database", std: true, prem: true, cus: true },
       { label: "Data stored in Singapore (asia-southeast1)", std: true, prem: true, cus: true },
       { group: "Customize only" },
-      { label: "Custom assistants built for your workflows", std: false, prem: false, cus: true },
+      { label: "Custom assistants for your workflows", std: false, prem: false, cus: true },
       { label: "SSO, CRM and internal system integration", std: false, prem: false, cus: true },
       { label: "Dedicated support with an SLA", std: false, prem: false, cus: true },
     ] as CompareRow[],
@@ -419,7 +419,7 @@ const th: Meet8Content = {
   meta: {
     title: "MEET8 (Second Brain) · ทุกการประชุม บันทึก สรุป และค้นหาได้",
     description:
-      "บันทึกและถอดเสียงการประชุมภาษาไทย อังกฤษ หรือทั้งสองภาษา ได้สรุปมติและงานที่ต้องทำให้อัตโนมัติ และค้นสิ่งที่เคยพูดในการประชุมย้อนหลังได้",
+      "บันทึกและถอดเสียงการประชุมได้ทั้งภาษาไทยและอังกฤษ ระบบสรุปมติและงานที่ต้องทำให้ และค้นย้อนหลังได้",
   },
   brand: "MEET8 (Second Brain)",
   menuLabel: "เมนูหลัก",
@@ -427,13 +427,13 @@ const th: Meet8Content = {
     { href: "#features", label: "ผลิตภัณฑ์" },
     { href: "#cases", label: "การใช้งาน" },
     { href: "#plans", label: "ราคา" },
-    { href: "#faq", label: "ช่วยเหลือ" },
+    { href: "#faq", label: "คำถามที่พบบ่อย" },
   ],
   hero: {
     eyebrow: "MEET8 (Second Brain)",
     h1: "ทุกการประชุม บันทึกไว้",
     h1Em: "สรุปให้ และค้นหาได้",
-    lead: "บันทึกและถอดเสียงการประชุมภาษาไทย อังกฤษ หรือทั้งสองภาษา ได้สรุปมติและงานที่ต้องทำให้อัตโนมัติ และค้นสิ่งที่เคยพูดในการประชุมย้อนหลังได้ พร้อมลิงก์ไปยังช่วงเวลาที่พูดจริง",
+    lead: "บันทึกและถอดเสียงการประชุมได้ทั้งภาษาไทยและอังกฤษ ระบบสรุปมติและงานที่ต้องทำให้ และค้นย้อนหลังได้ พร้อมลิงก์ไปยังช่วงที่พูดจริง",
     ctaPrimary: "ดูวิธีการทำงาน",
     ctaSecondary: "ดูแพ็กเกจและราคา",
     mini: ["ผู้ใช้ไม่จำกัดทุกแพ็กเกจ", "เว็บ, macOS, iOS และ Google Meet"],
@@ -445,9 +445,9 @@ const th: Meet8Content = {
   },
   facts: [
     { b: "ไทย + อังกฤษ", span: "รองรับผู้พูดที่สลับภาษากลางประโยค" },
-    { b: "ตอบพร้อมแหล่งที่มา", span: "ลิงก์ไปยังช่วงเวลาในทรานสคริปต์" },
-    { b: "เคารพสิทธิ์การเข้าถึง", span: "ค้นเฉพาะการประชุมที่คุณมีสิทธิ์เห็น" },
-    { b: "ข้อมูลอยู่ในภูมิภาค", span: "Google Cloud asia-southeast1" },
+    { b: "ตอบพร้อมแหล่งที่มา", span: "ลิงก์ไปยังช่วงที่พูดในบันทึกการประชุม" },
+    { b: "ค้นตามสิทธิ์การเข้าถึง", span: "ค้นเฉพาะการประชุมที่คุณมีสิทธิ์เห็น" },
+    { b: "ข้อมูลเก็บในสิงคโปร์", span: "Google Cloud asia-southeast1" },
   ],
   shotNote: "ภาพหน้าจอมาจากระบบจริง แสดงด้วยข้อมูลตัวอย่าง",
   marquee: [
@@ -456,7 +456,7 @@ const th: Meet8Content = {
     "Prep Brief ก่อนประชุม",
     "รายงานการประชุม PDF",
     "แชตทีมพร้อมผู้ช่วยในตัว",
-    "ผู้บริหารเห็นตามสายบังคับบัญชา",
+    "ผู้จัดการเห็นการประชุมของทีม",
   ],
   tryit: {
     eyebrow: "ลองดู",
@@ -488,8 +488,8 @@ const th: Meet8Content = {
         key: "live",
         num: "01",
         label: "บันทึก",
-        h: "กดอัดครั้งเดียว ได้ทุกคำที่พูด",
-        p: "เริ่มบันทึกได้จากเว็บ แอปบนเครื่อง มือถือ หรือ Google Meet ทรานสคริปต์ขึ้นสดระหว่างที่ทุกคนพูด",
+        h: "กดบันทึก ได้ทุกคำที่พูด",
+        p: "เริ่มบันทึกได้จากเว็บ แอปบนเครื่อง มือถือ หรือ Google Meet ข้อความถอดเสียงขึ้นสดระหว่างที่ทุกคนพูด",
         list: [
           "รองรับไทยและอังกฤษในประโยคเดียวกัน",
           "แยกผู้พูดและเวลาให้ทุกบรรทัด",
@@ -504,7 +504,7 @@ const th: Meet8Content = {
         num: "02",
         label: "สรุป",
         h: "จบประชุม ได้สรุปทันที",
-        p: "ระบบดึงมติ งานที่ต้องทำ ผู้รับผิดชอบ และกำหนดส่งให้อัตโนมัติ ทุกคนทำงานจากบันทึกชุดเดียวกัน โดยไม่ต้องมีใครนั่งเขียนสรุป",
+        p: "ระบบดึงมติ งานที่ต้องทำ ผู้รับผิดชอบ และกำหนดส่งให้ ทุกคนใช้บันทึกชุดเดียวกัน ไม่ต้องมีใครนั่งเขียนสรุป",
         list: [
           "บทสรุปผู้บริหาร: สถานการณ์ ปัญหา และขั้นตอนถัดไป",
           "มติสำคัญพร้อมเหตุผล",
@@ -519,10 +519,10 @@ const th: Meet8Content = {
         num: "03",
         label: "ถามย้อนหลัง",
         h: "ถามได้ทุกการประชุม พร้อมดูแหล่งที่มา",
-        p: "ถามเหมือนถามเพื่อนร่วมงาน คำตอบมีลิงก์กลับไปยังจุดในทรานสคริปต์ที่มีคนพูดจริง",
+        p: "ถามเหมือนถามเพื่อนร่วมงาน คำตอบมีลิงก์กลับไปยังช่วงที่มีคนพูดจริงในบันทึกการประชุม",
         list: [
           "ค้นทุกการประชุมที่คุณมีสิทธิ์เข้าถึง",
-          "ทุกคำตอบมีลิงก์ไปยังแหล่งที่มา",
+          "ทุกคำตอบมีลิงก์ไปยังช่วงที่พูด",
           "ถามแบบส่วนตัวหรือในช่องแชตของทีม",
         ],
         img: "ask-close.jpg",
@@ -569,17 +569,17 @@ const th: Meet8Content = {
     },
   },
   cases: {
-    h2: "รองรับการประชุมทุกรูปแบบ",
+    h2: "ใช้ได้กับการประชุมทุกแบบ",
     items: [
       { h3: "ประชุมลูกค้า", p: "เก็บทุกข้อตกลงและข้อกังวลของลูกค้าไว้ครบ ไม่ต้องพึ่งความจำ" },
       { h3: "ประชุมภายใน", p: "ประชุมประจำสัปดาห์ standup และประชุมผู้บริหาร ได้สรุปและงานต่อทันทีที่จบ" },
-      { h3: "สัมภาษณ์และเวิร์กช็อป", p: "ทรานสคริปต์ครบทุกคำ ระบุผู้พูดแต่ละคน เห็นประเด็นที่พูดถึงซ้ำข้ามหลายรอบ" },
+      { h3: "สัมภาษณ์และเวิร์กช็อป", p: "บันทึกการประชุมครบทุกคำ ระบุผู้พูดแต่ละคน เห็นประเด็นที่ถูกพูดถึงซ้ำข้ามหลายรอบ" },
       { h3: "Voice note", p: "อัดเสียงสั้น ๆ หลังพบลูกค้า แล้วได้บันทึกที่พร้อมใส่ CRM" },
     ],
   },
   plans: {
     eyebrow: "แพ็กเกจ",
-    h2: "เลือกแพ็กเกจที่เหมาะกับองค์กร",
+    h2: "เลือกแพ็กเกจ",
     p: "ผู้ใช้ไม่จำกัดทุกแพ็กเกจ คิดราคาตามชั่วโมงถอดเสียงที่ใช้รวมทั้งองค์กร",
     perYear: "/ ปี",
     standard: {
@@ -590,7 +590,7 @@ const th: Meet8Content = {
       listLabel: "รวมในแพ็กเกจ",
       list: [
         "ผู้ใช้ไม่จำกัด",
-        "สภาพแวดล้อมและฐานข้อมูลส่วนตัวขององค์กร",
+        "ระบบและฐานข้อมูลแยกเป็นของคุณเอง",
         `ถอดเสียง ${P.stdHrs} ชั่วโมงต่อเดือน ใช้ร่วมกันทั้งองค์กร`,
         "ถามได้ไม่จำกัด พร้อมคำตอบเชิงลึก",
         "ผู้ช่วย Second Brain",
@@ -619,9 +619,9 @@ const th: Meet8Content = {
       listLabel: "ทุกอย่างใน Premium และ",
       list: [
         "ชั่วโมงถอดเสียงตามสัญญา",
-        "ผู้ช่วยเฉพาะทางตามขั้นตอนงานขององค์กร",
+        "ผู้ช่วยที่ปรับให้เข้ากับงานของคุณ",
         "SSO และการเชื่อมต่อกับ CRM และระบบภายใน",
-        "ทีมดูแลเฉพาะ พร้อม SLA",
+        "ทีมซัพพอร์ตเฉพาะ พร้อม SLA",
       ],
     },
     note: "ราคาเป็นบาทต่อองค์กรต่อปี ยังไม่รวม VAT 7% · รวมค่าเซิร์ฟเวอร์ตามต้นทุนจริง · ราคาเป็นตัวอย่าง รอยืนยัน",
@@ -654,17 +654,17 @@ const th: Meet8Content = {
       { label: "Google Calendar และ Outlook", std: true, prem: true, cus: true },
       { label: "แอป Web, macOS, iOS และ Chrome extension", std: true, prem: true, cus: true },
       { label: "เชื่อมต่อกับเครื่องมือ AI อื่น (MCP)", std: false, prem: true, cus: true, beta: true },
-      { group: "Privacy & Security" },
+      { group: "ความเป็นส่วนตัวและความปลอดภัย" },
       { label: "เข้ารหัสข้อมูลขณะส่งและจัดเก็บ", std: true, prem: true, cus: true },
       { label: "เจ้าของและผู้เข้าร่วมเห็นการประชุมของตัวเอง", std: true, prem: true, cus: true },
       { label: "ผู้จัดการเห็นการประชุมของทีม", std: false, prem: true, cus: true },
       { label: "Audit log การเข้าถึง", std: false, prem: true, cus: true },
-      { label: "สภาพแวดล้อมและฐานข้อมูลส่วนตัวขององค์กร", std: true, prem: true, cus: true },
+      { label: "ระบบและฐานข้อมูลแยกเป็นของคุณเอง", std: true, prem: true, cus: true },
       { label: "ข้อมูลเก็บในสิงคโปร์ (asia-southeast1)", std: true, prem: true, cus: true },
       { group: "เฉพาะ Customize" },
-      { label: "ผู้ช่วยเฉพาะทางตามขั้นตอนงานขององค์กร", std: false, prem: false, cus: true },
+      { label: "ผู้ช่วยที่ปรับให้เข้ากับงานของคุณ", std: false, prem: false, cus: true },
       { label: "เชื่อม SSO, CRM และระบบภายใน", std: false, prem: false, cus: true },
-      { label: "ทีมดูแลเฉพาะ พร้อม SLA", std: false, prem: false, cus: true },
+      { label: "ทีมซัพพอร์ตเฉพาะ พร้อม SLA", std: false, prem: false, cus: true },
     ],
   },
   spec: {
