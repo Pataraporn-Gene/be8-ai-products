@@ -1,6 +1,6 @@
 # be8-ai-products
 
-A bilingual (English / Thai) catalog of Beryl8 AI products, built with Next.js (App Router) and Tailwind CSS.
+A bilingual (English / Thai) catalog of Beryl8 AI solutions, built with Next.js (App Router) and Tailwind CSS.
 
 ## Develop
 

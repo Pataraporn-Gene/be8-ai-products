@@ -26,8 +26,9 @@
   --ease-standard: var(--ease-standard);
 }
 
+/* Scoped to the catalog home so product pages (which bring their own CSS) are unaffected. */
 @layer components {
-  .eyebrow {
+  .b8-home .eyebrow {
     font-size: var(--type-tiny);
     font-weight: var(--weight-medium);
     letter-spacing: var(--track-eyebrow);
@@ -36,7 +37,7 @@
     color: var(--fg3);
   }
 
-  .card-soft {
+  .b8-home .card-soft {
     background: var(--bg1);
     border: 1px solid var(--line1);
     border-radius: var(--radius-2xl);
@@ -45,23 +46,23 @@
       transform var(--duration-base) var(--ease-standard),
       box-shadow var(--duration-base) var(--ease-standard);
   }
-  .card-soft.hoverable:hover {
+  .b8-home .card-soft.hoverable:hover {
     transform: translateY(-1px);
     box-shadow: var(--shadow-card-elevated);
   }
-  .card-soft.hoverable:active {
+  .b8-home .card-soft.hoverable:active {
     transform: translateY(0);
     transition-duration: 50ms;
   }
 
 
-  .glass {
+  .b8-home .glass {
     background: rgba(255, 255, 255, 0.86);
     backdrop-filter: saturate(1.4) blur(18px);
     -webkit-backdrop-filter: saturate(1.4) blur(18px);
   }
 
-  *:focus-visible {
+  .b8-home *:focus-visible {
     outline: none;
     box-shadow: var(--ring-tight);
     border-radius: 8px;

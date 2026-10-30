@@ -6,8 +6,8 @@ export type Product = {
   id: string;
   number: number;
   name: string;
-  /** "mockup" links to a Claude artifact; "live" links to a running deployment. */
-  linkType: "mockup" | "live";
+  /** "page" is a product page in this site (url is the path after the locale); "live" is an external deployment. */
+  linkType: "page" | "live";
   url: string;
   icon: ProductIcon;
   category: Localized;
@@ -21,8 +21,8 @@ export const products: Product[] = [
     id: "meet8",
     number: 1,
     name: "MEET8",
-    linkType: "mockup",
-    url: "https://claude.ai/artifact/TTC1Sfb6jryv1JR6kuNMS4",
+    linkType: "page",
+    url: "/meet8",
     icon: "brain",
     category: { en: "Second Brain", th: "Second Brain" },
     tagline: {
@@ -43,8 +43,8 @@ export const products: Product[] = [
     id: "agent8",
     number: 2,
     name: "AGENT8",
-    linkType: "mockup",
-    url: "https://claude.ai/artifact/DEgjt659zwMgKuEXPHtVgj",
+    linkType: "page",
+    url: "/agent8",
     icon: "bot",
     category: { en: "Agent Platform", th: "แพลตฟอร์ม Agent" },
     tagline: {
@@ -65,8 +65,8 @@ export const products: Product[] = [
     id: "voice8",
     number: 3,
     name: "VOICE8",
-    linkType: "mockup",
-    url: "https://claude.ai/artifact/F62Co2UhbT9kMfPCYEj8sx",
+    linkType: "page",
+    url: "/voice8",
     icon: "phone",
     category: { en: "AI Phone Agent", th: "AI รับ-โทรสาย" },
     tagline: {
@@ -87,8 +87,8 @@ export const products: Product[] = [
     id: "insight8",
     number: 4,
     name: "INSIGHT8",
-    linkType: "mockup",
-    url: "https://claude.ai/artifact/BeWgzxbbVodGtFe1f6yiKa",
+    linkType: "page",
+    url: "/insight8",
     icon: "chart",
     category: { en: "AI Analytics", th: "วิเคราะห์ข้อมูลด้วย AI" },
     tagline: {
@@ -131,8 +131,8 @@ export const products: Product[] = [
     id: "space8",
     number: 6,
     name: "SPACE8",
-    linkType: "mockup",
-    url: "https://claude.ai/artifact/BY7ZZYTDTxkzHwa21VP67W",
+    linkType: "page",
+    url: "/space8",
     icon: "map",
     category: { en: "Virtual Office", th: "ออฟฟิศเสมือน" },
     tagline: {
@@ -153,8 +153,8 @@ export const products: Product[] = [
     id: "pulse8",
     number: 7,
     name: "PULSE8",
-    linkType: "mockup",
-    url: "https://claude.ai/artifact/WXjEtjwXR9Wb4Mj56gPR1y",
+    linkType: "page",
+    url: "/pulse8",
     icon: "megaphone",
     category: { en: "Marketing Platform", th: "แพลตฟอร์มการตลาด" },
     tagline: {

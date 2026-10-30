@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
+  ArrowRight,
   ArrowUpRight,
   Bot,
   Brain,
@@ -13,7 +14,8 @@ import {
   Workflow,
   type LucideIcon,
 } from "lucide-react";
-import { getDictionary, hasLocale, locales } from "@/lib/i18n";
+import { LangSwitch } from "@/components/LangSwitch";
+import { getDictionary, hasLocale } from "@/lib/i18n";
 import { products, type Product, type ProductIcon } from "@/lib/products";
 import type { Dictionary, Locale } from "@/lib/i18n";
 
@@ -36,28 +38,14 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const dict = getDictionary(lang);
 
   return (
-    <>
+    <div className="b8-home flex flex-1 flex-col">
       <header className="glass sticky top-0 z-20 border-b border-line1">
         <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-6">
           <Link href={`/${lang}`} className="flex items-center gap-3">
             <Image src="/beryl8-logo.svg" alt="Beryl8" width={36} height={28} priority />
-            <span className="font-display text-[15px] font-medium tracking-[-0.01em] text-fg1">AI Products</span>
+            <span className="font-display text-[15px] font-medium tracking-[-0.01em] text-fg1">AI Solutions</span>
           </Link>
-          <nav aria-label={dict.langLabel} className="flex items-center rounded-full border border-line2 bg-bg1 p-1">
-            {locales.map((code) => (
-              <Link
-                key={code}
-                href={`/${code}`}
-                hrefLang={code}
-                aria-current={code === lang ? "page" : undefined}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium uppercase tracking-[0.04em] transition-colors duration-200 ease-standard ${
-                  code === lang ? "bg-navy text-white" : "text-fg3 hover:text-cyan-700"
-                }`}
-              >
-                {code}
-              </Link>
-            ))}
-          </nav>
+          <LangSwitch lang={lang} />
         </div>
       </header>
 
@@ -103,21 +91,18 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           </div>
         </div>
       </footer>
-    </>
+    </div>
   );
 }
 
 function ProductCard({ product, lang, dict }: { product: Product; lang: Locale; dict: Dictionary }) {
   const isLive = product.linkType === "live";
   const Icon = icons[product.icon];
+  const CtaIcon = isLive ? ArrowUpRight : ArrowRight;
 
-  return (
-    <a
-      href={product.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="card-soft hoverable group flex w-full flex-col p-7"
-    >
+  const className = "card-soft hoverable group flex w-full flex-col p-7";
+  const body = (
+    <>
       <div className="flex items-start justify-between gap-3">
         <span className="grid size-11 place-items-center rounded-full bg-cyan-50 text-cyan-700">
           <Icon size={20} strokeWidth={STROKE} aria-hidden />
@@ -151,14 +136,24 @@ function ProductCard({ product, lang, dict }: { product: Product; lang: Locale; 
       </ul>
 
       <span className="mt-auto inline-flex items-center gap-1 pt-7 text-sm font-medium text-cyan-700">
-        {isLive ? dict.openSite : dict.openMockup}
-        <ArrowUpRight
+        {isLive ? dict.openSite : dict.openPage}
+        <CtaIcon
           size={16}
           strokeWidth={STROKE}
-          className="transition-transform duration-200 ease-standard group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+          className="transition-transform duration-200 ease-standard group-hover:translate-x-0.5"
           aria-hidden
         />
       </span>
+    </>
+  );
+
+  return isLive ? (
+    <a href={product.url} target="_blank" rel="noopener noreferrer" className={className}>
+      {body}
     </a>
+  ) : (
+    <Link href={`/${lang}${product.url}`} className={className}>
+      {body}
+    </Link>
   );
 }
