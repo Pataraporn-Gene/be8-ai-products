@@ -8,6 +8,7 @@ import {
   Brain,
   ChartColumn,
   Check,
+  Database,
   Map,
   Megaphone,
   MessageCircleQuestion,
@@ -31,6 +32,7 @@ const icons: Record<ProductIcon, LucideIcon> = {
   megaphone: Megaphone,
   chat: MessagesSquare,
   ask: MessageCircleQuestion,
+  database: Database,
 };
 
 // Lucide at the brand stroke weight.

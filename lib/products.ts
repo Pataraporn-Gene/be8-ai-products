@@ -1,6 +1,6 @@
 import type { Localized } from "./i18n";
 
-export type ProductIcon = "brain" | "bot" | "phone" | "chart" | "workflow" | "map" | "megaphone" | "chat" | "ask";
+export type ProductIcon = "brain" | "bot" | "phone" | "chart" | "workflow" | "map" | "megaphone" | "chat" | "ask" | "database";
 
 export type Product = {
   id: string;
@@ -213,6 +213,28 @@ export const products: Product[] = [
       { en: "Sources cited on every answer", th: "อ้างอิงแหล่งที่มาทุกคำตอบ" },
       { en: "Per-page rules for what it can read and answer", th: "กำหนดต่อหน้าได้ว่าอ่านและตอบอะไรได้" },
       { en: "Ask before, during and after meetings in Meet8", th: "ถามก่อน ระหว่าง และหลังประชุมใน Meet8" },
+    ],
+  },
+  {
+    id: "data8",
+    number: 10,
+    name: "DATA8",
+    linkType: "page",
+    url: "/data8",
+    icon: "database",
+    category: { en: "Customer Data Platform", th: "แพลตฟอร์มข้อมูลลูกค้า" },
+    tagline: {
+      en: "One profile for every customer, ready for your next campaign",
+      th: "โปรไฟล์เดียวสำหรับลูกค้าทุกคน พร้อมใช้ในแคมเปญถัดไป",
+    },
+    description: {
+      en: "Bring in CRM, shop and email data, resolve duplicates into unified profiles, build segments with live counts and send them to your marketing tools on a schedule.",
+      th: "นำข้อมูล CRM ร้านค้า และอีเมลเข้ามา รวมข้อมูลซ้ำเป็นโปรไฟล์เดียว สร้าง segment พร้อมจำนวนคนแบบสด แล้วส่งต่อไปยังเครื่องมือการตลาดตามรอบ",
+    },
+    features: [
+      { en: "Identity resolution with match and reconciliation rules", th: "Identity resolution ด้วยกฎจับคู่และ reconciliation" },
+      { en: "Segments and calculated insights such as lifetime value", th: "Segment และ calculated insight เช่น lifetime value" },
+      { en: "Activations to CSV, webhook and Cloud Storage with run history", th: "Activation ไป CSV, webhook และ Cloud Storage พร้อมประวัติการรัน" },
     ],
   },
 ];
