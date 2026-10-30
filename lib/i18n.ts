@@ -15,7 +15,7 @@ const dictionaries = {
     heroLead: "AI Solutions",
     heroAccent: "built for enterprise.",
     heroBody:
-      "Seven AI solutions for enterprise transformation, covering meetings, agents, voice, analytics, integration, workspace and marketing. Open any solution to see how it works.",
+      "Nine AI solutions for enterprise transformation, covering meetings, agents, voice, analytics, integration, workspace, marketing, agent collaboration and embedded Q&A. Open any solution to see how it works.",
     productsHeading: "The solution suite",
     productCount: (n: number) => `${n} solutions`,
     openPage: "View product",
@@ -34,7 +34,7 @@ const dictionaries = {
     heroLead: "โซลูชัน AI",
     heroAccent: "สำหรับองค์กร",
     heroBody:
-      "เจ็ดโซลูชัน AI สำหรับการเปลี่ยนผ่านในองค์กร ครอบคลุมการประชุม Agent เสียง การวิเคราะห์ข้อมูล การเชื่อมระบบ ออฟฟิศเสมือน และการตลาด เลือกโซลูชันเพื่อดูรายละเอียด",
+      "เก้าโซลูชัน AI สำหรับการเปลี่ยนผ่านในองค์กร ครอบคลุมการประชุม Agent เสียง การวิเคราะห์ข้อมูล การเชื่อมระบบ ออฟฟิศเสมือน การตลาด การทำงานร่วมกับ Agent และถาม-ตอบในหน้าที่ใช้อยู่ เลือกโซลูชันเพื่อดูรายละเอียด",
     productsHeading: "โซลูชันทั้งหมด",
     productCount: (n: number) => `${n} โซลูชัน`,
     openPage: "ดูรายละเอียด",

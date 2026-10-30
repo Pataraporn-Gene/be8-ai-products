@@ -10,6 +10,8 @@ import {
   Check,
   Map,
   Megaphone,
+  MessageCircleQuestion,
+  MessagesSquare,
   Phone,
   Workflow,
   type LucideIcon,
@@ -27,6 +29,8 @@ const icons: Record<ProductIcon, LucideIcon> = {
   workflow: Workflow,
   map: Map,
   megaphone: Megaphone,
+  chat: MessagesSquare,
+  ask: MessageCircleQuestion,
 };
 
 // Lucide at the brand stroke weight.

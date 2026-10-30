@@ -1,6 +1,6 @@
 import type { Localized } from "./i18n";
 
-export type ProductIcon = "brain" | "bot" | "phone" | "chart" | "workflow" | "map" | "megaphone";
+export type ProductIcon = "brain" | "bot" | "phone" | "chart" | "workflow" | "map" | "megaphone" | "chat" | "ask";
 
 export type Product = {
   id: string;
@@ -169,6 +169,50 @@ export const products: Product[] = [
       { en: "Drag-and-drop multichannel Journeys with A/B tests", th: "Journey หลายช่องทางแบบลากวาง พร้อม A/B test" },
       { en: "PDPA consent records and preference center", th: "บันทึกความยินยอมและ preference center ตาม PDPA" },
       { en: "Salesforce sync and audience export to Meta, Google, LINE", th: "ซิงก์ Salesforce และส่ง audience ไป Meta, Google, LINE" },
+    ],
+  },
+  {
+    id: "collab8",
+    number: 8,
+    name: "COLLAB8",
+    linkType: "page",
+    url: "/collab8",
+    icon: "chat",
+    category: { en: "Agent Workspace", th: "พื้นที่ทำงานร่วมกับ Agent" },
+    tagline: {
+      en: "A chat workspace where your team and its AI agents work in the same room",
+      th: "พื้นที่แชตที่ทีมและ AI Agent ทำงานอยู่ในห้องเดียวกัน",
+    },
+    description: {
+      en: "Mention an agent in a channel and it works in its own sandbox. Risky actions wait for approval, and admins decide what agents may do and which knowledge they can search.",
+      th: "แท็ก Agent ในช่องแล้วให้ทำงานใน sandbox ของตัวเอง การกระทำที่เสี่ยงต้องรออนุมัติ และแอดมินกำหนดได้ว่า Agent ทำอะไรได้และค้นความรู้ชุดไหนได้",
+    },
+    features: [
+      { en: "Rooms, DMs and threads for people and agents", th: "ห้อง DM และเธรดสำหรับคนและ Agent" },
+      { en: "Sandbox per session with a tool gate and approvals", th: "sandbox ต่อ session พร้อม tool gate และการอนุมัติ" },
+      { en: "Knowledge bases, room policy and a verifiable audit log", th: "คลังความรู้ นโยบายห้อง และ audit log ที่ตรวจสอบได้" },
+    ],
+  },
+  {
+    id: "ask8",
+    number: 9,
+    name: "ASK8",
+    linkType: "page",
+    url: "/ask8",
+    icon: "ask",
+    category: { en: "Embedded Q&A", th: "ถาม-ตอบในหน้าที่ใช้อยู่" },
+    tagline: {
+      en: "Get answers from your own documents without leaving the page you're on",
+      th: "ได้คำตอบจากเอกสารของคุณเอง โดยไม่ต้องออกจากหน้าที่ใช้อยู่",
+    },
+    description: {
+      en: "A smaller version of Collab8 you can add to any website, app or department. Every answer shows its source, respects access rights and works in Thai and English.",
+      th: "Collab8 ฉบับย่อที่ติดตั้งในเว็บไซต์ แอป หรือหน่วยงานใดก็ได้ ทุกคำตอบบอกแหล่งที่มา เคารพสิทธิ์การเข้าถึง และใช้ได้ทั้งไทยและอังกฤษ",
+    },
+    features: [
+      { en: "Sources cited on every answer", th: "อ้างอิงแหล่งที่มาทุกคำตอบ" },
+      { en: "Per-page rules for what it can read and answer", th: "กำหนดต่อหน้าได้ว่าอ่านและตอบอะไรได้" },
+      { en: "Ask before, during and after meetings in Meet8", th: "ถามก่อน ระหว่าง และหลังประชุมใน Meet8" },
     ],
   },
 ];
