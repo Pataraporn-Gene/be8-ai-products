@@ -68,3 +68,52 @@
     border-radius: 8px;
   }
 }
+
+/* Floating "Back to AI Solutions" button on product pages. Selector is heavy so page-scoped link resets cannot override it. */
+html body a.b8-back {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 20px 0 16px;
+  border-radius: var(--radius-pill);
+  background: var(--neutral-900);
+  color: var(--neutral-0);
+  font: var(--weight-medium) 14px/1 var(--font-body);
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: var(--shadow-card-elevated);
+  transition:
+    transform var(--duration-base) var(--ease-standard),
+    background var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard);
+}
+html body a.b8-back[data-raised="true"] {
+  bottom: 104px;
+}
+html body a.b8-back:hover {
+  background: var(--cyan-700);
+  transform: translateY(-1px);
+}
+html body a.b8-back:active {
+  transform: translateY(0);
+  transition-duration: 50ms;
+}
+html body a.b8-back:focus-visible {
+  outline: none;
+  box-shadow: var(--ring-tight);
+}
+@media (max-width: 520px) {
+  html body a.b8-back {
+    right: 16px;
+    bottom: 16px;
+  }
+  html body a.b8-back[data-raised="true"] {
+    bottom: 112px;
+  }
+}

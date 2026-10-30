@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import { LangSwitch } from "@/components/LangSwitch";
@@ -87,8 +86,8 @@ export default async function Page({ params }: PageProps<"/[lang]/pulse8">) {
                       4,154
                     </b>
                   </div>
-                  <div style={sx("height:6px;border-radius:9px;background:var(--sunken);margin:5px 0 10px")}>
-                    <div style={sx("width:34%;height:100%;border-radius:9px;background:var(--cyan)")} />
+                  <div style={sx("height:6px;border-radius:8px;background:var(--sunken);margin:5px 0 10px")}>
+                    <div style={sx("width:34%;height:100%;border-radius:8px;background:var(--cyan)")} />
                   </div>
                   <div style={sx("display:flex;justify-content:space-between")}>
                     <span>{sc.journey.notOpenedSms}</span>
@@ -96,8 +95,8 @@ export default async function Page({ params }: PageProps<"/[lang]/pulse8">) {
                       8,071
                     </b>
                   </div>
-                  <div style={sx("height:6px;border-radius:9px;background:var(--sunken);margin-top:5px")}>
-                    <div style={sx("width:66%;height:100%;border-radius:9px;background:#9aa3ad")} />
+                  <div style={sx("height:6px;border-radius:8px;background:var(--sunken);margin-top:5px")}>
+                    <div style={sx("width:66%;height:100%;border-radius:8px;background:var(--neutral-400)")} />
                   </div>
                 </div>
                 <div style={sx("border-top:1px solid var(--line);padding-top:10px")} className="muted">
@@ -158,7 +157,7 @@ export default async function Page({ params }: PageProps<"/[lang]/pulse8">) {
                   </div>
                 </div>
                 <div className="card" style={sx("display:flex;align-items:center;gap:12px")}>
-                  <div style={sx("width:34px;height:20px;border-radius:99px;background:var(--action);position:relative;flex:none")}>
+                  <div style={sx("width:34px;height:20px;border-radius:999px;background:var(--action);position:relative;flex:none")}>
                     <i style={sx("position:absolute;right:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#fff")} />
                   </div>
                   <div>
@@ -187,7 +186,7 @@ export default async function Page({ params }: PageProps<"/[lang]/pulse8">) {
                     <span>{c}</span>
                   </div>
                 ))}
-                <div style={sx("margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--wash);color:var(--action)")}>
+                <div style={sx("margin-top:12px;padding:10px 12px;border-radius:8px;background:var(--wash);color:var(--action)")}>
                   {em.passed}
                 </div>
               </div>
@@ -208,7 +207,7 @@ export default async function Page({ params }: PageProps<"/[lang]/pulse8">) {
           <div className="main">
             <div className="main-h">
               <h5>{ln.title}</h5>
-              <span className="chip" style={sx("background:#e6f9ec;color:#067a2f")}>
+              <span className="chip" style={sx("background:var(--ok-wash);color:var(--ok-ink)")}>
                 {ln.chip}
               </span>
               <span className="chip warn">{ln.pending}</span>
@@ -217,16 +216,16 @@ export default async function Page({ params }: PageProps<"/[lang]/pulse8">) {
               <span className="mini-btn fill">{ln.requestApproval}</span>
             </div>
             <div style={sx("display:grid;grid-template-columns:300px 1fr;gap:18px")}>
-              <div style={sx("background:#8ea6c8;border-radius:22px;padding:16px 14px;height:500px")}>
+              <div style={sx("background:var(--neutral-300);border-radius:20px;padding:16px 14px;height:500px")}>
                 <div style={sx("text-align:center;color:#fff;font-size:11.5px;margin-bottom:12px")}>{ln.oaName}</div>
                 <div style={sx("width:236px;background:#fff;border-radius:16px;overflow:hidden")}>
                   <div
                     style={sx(
-                      "height:128px;background:#0a1f2e;color:#fff;padding:16px;display:flex;flex-direction:column;justify-content:flex-end",
+                      "height:128px;background:var(--neutral-900);color:#fff;padding:16px;display:flex;flex-direction:column;justify-content:flex-end",
                     )}
                   >
                     <div style={sx("font:700 26px var(--display);letter-spacing:-.02em")}>11.11</div>
-                    <div style={sx("font-size:12px;color:#9eeaf5")}>{ln.memberDay}</div>
+                    <div style={sx("font-size:12px;color:var(--cyan-200)")}>{ln.memberDay}</div>
                   </div>
                   <div style={sx("padding:12px 14px")}>
                     <b style={sx("font-size:15px;color:var(--navy)")}>{ln.offer}</b>
@@ -237,7 +236,7 @@ export default async function Page({ params }: PageProps<"/[lang]/pulse8">) {
                   <div style={sx("padding:0 14px 14px")}>
                     <div
                       style={sx(
-                        "height:36px;border-radius:9px;background:#06c755;color:#fff;font-weight:600;display:grid;place-items:center",
+                        "height:36px;border-radius:8px;background:#06c755;color:#fff;font-weight:600;display:grid;place-items:center",
                       )}
                     >
                       {ln.getCoupon}
@@ -246,11 +245,11 @@ export default async function Page({ params }: PageProps<"/[lang]/pulse8">) {
                 </div>
                 <div
                   style={sx(
-                    "margin-top:150px;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:#fff;border-radius:10px;overflow:hidden;font-size:11px;text-align:center;color:var(--navy)",
+                    "margin-top:150px;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:#fff;border-radius:8px;overflow:hidden;font-size:11px;text-align:center;color:var(--navy)",
                   )}
                 >
                   {ln.menu.map((m) => (
-                    <div key={m} style={sx("padding:12px 0;background:#f2f4f7")}>
+                    <div key={m} style={sx("padding:12px 0;background:var(--neutral-100)")}>
                       {m}
                     </div>
                   ))}
@@ -300,9 +299,9 @@ export default async function Page({ params }: PageProps<"/[lang]/pulse8">) {
 
   const rp = sc.reports;
   const tableRows = [
-    ["96,410", "99.8%", "—", "5.1%", "112"],
+    ["96,410", "99.8%", "Not tracked", "5.1%", "112"],
     ["71,385", "98.2%", "31.4%", "3.6%", "164"],
-    ["16,435", "99.5%", "—", "2.0%", "38"],
+    ["16,435", "99.5%", "Not tracked", "2.0%", "38"],
   ];
   const reportsPanel = (
     <>
@@ -378,7 +377,7 @@ export default async function Page({ params }: PageProps<"/[lang]/pulse8">) {
   const codes = [
     <code key="a">first_name</code>,
     <Fragment key="b">
-      <code>phone</code> <span className="muted">→ +66812345678</span>
+      <code>phone</code> <span className="muted">saved as +66812345678</span>
     </Fragment>,
     <code key="c">email</code>,
     <code key="d">subscription.email</code>,
@@ -494,7 +493,7 @@ export default async function Page({ params }: PageProps<"/[lang]/pulse8">) {
             </div>
           ))}
         </div>
-        <div style={sx("margin-top:14px;padding:10px 12px;border-radius:10px;background:var(--canvas)")}>
+        <div style={sx("margin-top:14px;padding:10px 12px;border-radius:8px;background:var(--canvas)")}>
           {s3.usedIn[0]}
           <b style={navy}>{s3.usedIn[1]}</b>
           {s3.usedIn[2]}
@@ -546,7 +545,7 @@ export default async function Page({ params }: PageProps<"/[lang]/pulse8">) {
   );
 
   const eventChip = ["chip cy", "chip warn", "chip ok"];
-  const swatch = ["#e8dccb", "#d6e4ea", "#ecebe4"];
+  const swatch = ["var(--neutral-150)", "var(--cyan-100)", "var(--neutral-100)"];
   const caseIcons = ["mega", "route", "brief", "shield"];
   const secIcons = ["shield", "file", "lock", "key"];
 
@@ -556,14 +555,14 @@ export default async function Page({ params }: PageProps<"/[lang]/pulse8">) {
       <PricingProvider t={t.pricing}>
         <header className="site">
           <div className="wrap">
-            <Link className="brand" href={`/${lang}`} id="top">
+            <a className="brand" href="#top" id="top">
               <span className="brand-mark">
                 <svg viewBox="0 0 24 24">
                   <use href="#p8-i-pulse" />
                 </svg>
               </span>
               Pulse8
-            </Link>
+            </a>
             <nav aria-label={t.header.navLabel}>
               <a href="#features">{t.header.nav.features}</a>
               <a href="#cases">{t.header.nav.cases}</a>
@@ -734,7 +733,7 @@ export default async function Page({ params }: PageProps<"/[lang]/pulse8">) {
                         </div>
                         <div
                           style={sx(
-                            "border:1px solid var(--cyan);box-shadow:0 0 0 3px var(--rule);border-radius:10px;padding:10px 12px;min-height:120px;color:var(--navy)",
+                            "border:1px solid var(--cyan);box-shadow:0 0 0 3px var(--rule);border-radius:8px;padding:10px 12px;min-height:120px;color:var(--navy)",
                           )}
                         >
                           {more.sales.note}

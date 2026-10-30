@@ -8,7 +8,7 @@ const en = {
   meta: {
     title: "Collab8 · A chat workspace for your team and its AI agents",
     description:
-      "Rooms where people and AI agents work together. Each agent session runs in its own sandbox, risky actions wait for approval, and admins decide what agents may do and which knowledge they can search.",
+      "Rooms where people and AI agents work together. Each agent works in its own isolated workspace, risky actions wait for approval, and admins decide what agents may do and which knowledge they can search.",
   },
   header: {
     menuAria: "Main menu",
@@ -20,10 +20,10 @@ const en = {
     h1: "Where your team and its AI agents",
     h1em: "work in the same room.",
     lead:
-      "Collab8 is a chat workspace. Mention an agent in a channel the way you would mention a colleague, and it picks up the task in its own sandbox. Admins decide what agents may do, which knowledge they can search, and who can see what.",
+      "Collab8 is a chat workspace. Mention an agent in a channel the way you would mention a colleague, and it picks up the task in its own isolated workspace. Admins decide what agents may do, which knowledge they can search, and who can see what.",
     cta1: "See how it works",
     cta2: "How it stays safe",
-    mini: ["People and agents in one thread", "Every agent session runs in its own sandbox"],
+    mini: ["People and agents in one thread", "Every agent works in its own isolated workspace"],
   },
   chat: {
     org: "Beryl8",
@@ -55,9 +55,9 @@ const en = {
   },
   facts: [
     { b: "Rooms for people and agents", span: "Channels, DMs and projects with threads and @mentions" },
-    { b: "A sandbox per session", span: "gVisor pods on GKE in production, containers locally" },
-    { b: "Keys stay outside", span: "Sandboxes hold a placeholder; the egress proxy adds the real key" },
-    { b: "Tamper-evident audit log", span: "A hash chain you can verify from the product" },
+    { b: "An isolated workspace per session", span: "Isolated cloud containers in production, local containers in development" },
+    { b: "Keys stay out of reach", span: "Workspaces hold a placeholder. A gateway adds the real key when a request leaves." },
+    { b: "Tamper-evident audit log", span: "A log you can check for changes from inside the product" },
   ],
   how: {
     eyebrow: "How it works",
@@ -68,22 +68,22 @@ const en = {
         p: "Write in a room or a DM. A message goes to the agent you @mention, the agent of a DM, or the agent already working that thread. A message that names nobody in a shared room reaches nobody.",
       },
       {
-        h: "The agent works in a sandbox",
-        p: "Collab8 starts a session for the thread, with its own pod or container. The agent can use Claude or Gemini models, connectors, room memory and the knowledge bases an admin attached to it.",
+        h: "The agent works in its own workspace",
+        p: "Collab8 starts a session for the thread in its own isolated container. The agent can use Claude or Gemini models, connectors, room memory and the knowledge bases an admin attached to it.",
       },
       {
-        h: "The tool gate decides",
-        p: "Every tool call is judged by where its paths really lead. It is let through, refused, or held for a person to approve, and the approval covers only the places the approver was shown.",
+        h: "Every action is checked",
+        p: "Each action the agent takes is checked against the files and places it would really touch. It is let through, refused, or held for a person to approve, and an approval covers only what the approver was shown.",
       },
       {
-        h: "The answer lands whole",
-        p: "A turn's answer and the files it made are delivered into the thread together, never half done and never twice. Follow-ups in the same thread continue the same session.",
+        h: "The answer arrives complete",
+        p: "The reply and any files it made arrive in the thread together, never half finished and never twice. Follow-ups in the same thread continue the same session.",
       },
     ] as Item[],
   },
   features: {
     eyebrow: "Features",
-    h2: "Built for teams that work with agents every day",
+    h2: "For teams that work with agents every day",
     items: [
       {
         h: "Rooms, DMs and threads",
@@ -95,7 +95,7 @@ const en = {
       },
       {
         h: "Knowledge bases",
-        p: "Upload documents to a knowledge base backed by Vertex AI Search. Agents answer from them with the search_knowledge tool. A document counts as ready only once it is indexed.",
+        p: "Upload documents to a knowledge base. Agents search them to answer questions. A document is ready to use once it has finished processing.",
       },
       {
         h: "Memory that stays in the room",
@@ -107,21 +107,21 @@ const en = {
       },
       {
         h: "Connectors",
-        p: "Attach business systems to agents as connectors, with credentials kept on the server side and never handed to a sandbox.",
+        p: "Attach business systems to agents as connectors, with credentials kept on the server and never handed to an agent's workspace.",
       },
     ] as Item[],
   },
   control: {
     eyebrow: "Control",
     h2: "Admins decide what agents may do",
-    lead: "Agents are powerful, so Collab8 puts the limits where an admin can see and change them.",
+    lead: "Agents can do a lot, so the limits sit where an admin can see and change them.",
     items: [
-      { h: "Tool gate with approvals", p: "Sensitive calls wait for a person. The card shows the file and destination, and an approval can be given once or for the rest of the session." },
+      { h: "Approvals for risky actions", p: "Sensitive actions wait for a person. The card shows the file and destination, and an approval can be given once or for the rest of the session." },
       { h: "Room policy", p: "Owners and admins set a room's retention window, who may approve its agents' work, and the scope that caps every agent in it." },
-      { h: "Hidden, not just forbidden", p: "A room you are not in, and every admin screen, answers as if it did not exist. A refused action on something you can see tells you that you may not." },
-      { h: "Audit log you can verify", p: "Agent, knowledge, member, approval and gate events are recorded in a hash chain, with a Verify integrity check and filters by agent, channel and event type." },
-      { h: "Usage and budgets", p: "See sessions and tokens per agent. A summon is refused when the agent is over budget, and a person who asked is told why." },
-      { h: "Credentials never enter a sandbox", p: "Containers and pods hold a placeholder. The egress proxy adds the real model key on the way out." },
+      { h: "Private rooms stay hidden", p: "A room you are not in, and every admin screen, appears not to exist. If you try something you are not allowed to do in a room you can see, you are told so." },
+      { h: "Audit log you can verify", p: "Agent, knowledge, member, approval and gate events are recorded in a tamper-evident log, with an integrity check and filters by agent, channel and event type." },
+      { h: "Usage and budgets", p: "See sessions and usage per agent. If an agent is over budget it will not start, and the person who asked is told why." },
+      { h: "Keys never enter an agent workspace", p: "Agent workspaces hold a placeholder. A gateway adds the real model key when a request leaves." },
     ] as Item[],
   },
   roles: {
@@ -154,7 +154,7 @@ const en = {
       },
       {
         q: "What stops an agent from reading files it should not?",
-        a: "The tool gate resolves where each path really leads and keeps file tools inside the session's own tree. Calls outside it are refused or held for approval.",
+        a: "Every file action is checked against where it really leads, and file access stays inside the session's own folder. Anything outside it is refused or held for approval.",
       },
       {
         q: "Does it understand Thai documents?",
@@ -179,7 +179,7 @@ const th: Collab8Content = {
   meta: {
     title: "Collab8 · พื้นที่แชตสำหรับทีมและ AI Agent",
     description:
-      "ห้องที่คนและ AI Agent ทำงานร่วมกัน Agent แต่ละ session รันใน sandbox ของตัวเอง การกระทำที่เสี่ยงต้องรอการอนุมัติ และแอดมินกำหนดได้ว่า Agent ทำอะไรได้และค้นความรู้ชุดไหนได้",
+      "ห้องที่คนและ AI Agent ทำงานร่วมกัน Agent แต่ละตัวทำงานในพื้นที่ทำงานแยกของตัวเอง การกระทำที่เสี่ยงต้องรอการอนุมัติ และแอดมินกำหนดได้ว่า Agent ทำอะไรได้และค้นความรู้ชุดไหนได้",
   },
   header: {
     menuAria: "เมนูหลัก",
@@ -191,10 +191,10 @@ const th: Collab8Content = {
     h1: "ที่ที่ทีมและ AI Agent",
     h1em: "ทำงานอยู่ในห้องเดียวกัน",
     lead:
-      "Collab8 คือพื้นที่แชต แท็ก Agent ในช่องเหมือนแท็กเพื่อนร่วมงาน แล้ว Agent จะรับงานต่อใน sandbox ของตัวเอง แอดมินกำหนดได้ว่า Agent ทำอะไรได้ ค้นความรู้ชุดไหนได้ และใครเห็นอะไร",
+      "Collab8 คือพื้นที่แชต แท็ก Agent ในช่องเหมือนแท็กเพื่อนร่วมงาน แล้ว Agent จะรับงานต่อในพื้นที่ทำงานแยกของตัวเอง แอดมินกำหนดได้ว่า Agent ทำอะไรได้ ค้นความรู้ชุดไหนได้ และใครเห็นอะไร",
     cta1: "ดูการทำงาน",
     cta2: "ปลอดภัยอย่างไร",
-    mini: ["คนและ Agent อยู่ในเธรดเดียวกัน", "ทุก session ของ Agent รันใน sandbox ของตัวเอง"],
+    mini: ["คนและ Agent อยู่ในเธรดเดียวกัน", "Agent ทุกตัวทำงานในพื้นที่ทำงานแยกของตัวเอง"],
   },
   chat: {
     org: "Beryl8",
@@ -226,9 +226,9 @@ const th: Collab8Content = {
   },
   facts: [
     { b: "ห้องสำหรับคนและ Agent", span: "ช่อง DM และโปรเจกต์ พร้อมเธรดและการแท็ก @" },
-    { b: "หนึ่ง session หนึ่ง sandbox", span: "pod แบบ gVisor บน GKE ใน production และ container ในเครื่อง" },
-    { b: "คีย์อยู่ข้างนอก", span: "sandbox ถือแค่ค่าแทน ส่วน egress proxy ใส่คีย์จริงให้" },
-    { b: "audit log ตรวจการแก้ไขได้", span: "เป็น hash chain ที่กดตรวจจากในระบบได้" },
+    { b: "หนึ่ง session หนึ่งพื้นที่ทำงานแยก", span: "คอนเทนเนอร์แยกบนคลาวด์ในระบบจริง และคอนเทนเนอร์ในเครื่องตอนพัฒนา" },
+    { b: "คีย์อยู่นอกเอื้อม", span: "พื้นที่ทำงานถือแค่ค่าแทน ส่วนเกตเวย์จะใส่คีย์จริงตอนส่งคำขอออกไป" },
+    { b: "บันทึกการใช้งานที่ตรวจการแก้ไขได้", span: "ตรวจได้จากในระบบว่ามีการแก้ไขบันทึกหรือไม่" },
   ],
   how: {
     eyebrow: "การทำงาน",
@@ -239,22 +239,22 @@ const th: Collab8Content = {
         p: "พิมพ์ในห้องหรือ DM ข้อความจะไปถึง Agent ที่แท็กด้วย @ Agent ของ DM หรือ Agent ที่กำลังทำเธรดนั้นอยู่ ข้อความที่ไม่ระบุใครในห้องรวมจะไม่ถึง Agent ตัวไหน",
       },
       {
-        h: "Agent ทำงานใน sandbox",
-        p: "Collab8 เริ่ม session ให้เธรดนั้นด้วย pod หรือ container ของตัวเอง Agent ใช้โมเดล Claude หรือ Gemini, connector, ความจำของห้อง และคลังความรู้ที่แอดมินผูกไว้ได้",
+        h: "Agent ทำงานในพื้นที่ของตัวเอง",
+        p: "Collab8 เริ่ม session ให้เธรดนั้นในคอนเทนเนอร์แยกของตัวเอง Agent ใช้โมเดล Claude หรือ Gemini, connector, ความจำของห้อง และคลังความรู้ที่แอดมินผูกไว้ได้",
       },
       {
-        h: "Tool gate ตัดสิน",
-        p: "ทุกการเรียกเครื่องมือถูกตัดสินจากปลายทางจริงของ path อาจผ่าน ถูกปฏิเสธ หรือรอให้คนอนุมัติ และการอนุมัติใช้ได้เฉพาะที่ผู้อนุมัติเห็นเท่านั้น",
+        h: "ตรวจทุกการกระทำ",
+        p: "ทุกการกระทำของ Agent จะถูกตรวจว่าแตะไฟล์หรือที่ไหนจริง ๆ อาจผ่าน ถูกปฏิเสธ หรือรอให้คนอนุมัติ และการอนุมัติใช้ได้เฉพาะสิ่งที่ผู้อนุมัติเห็นเท่านั้น",
       },
       {
-        h: "คำตอบส่งมาครบในครั้งเดียว",
-        p: "คำตอบของแต่ละ turn และไฟล์ที่สร้างจะส่งเข้าเธรดพร้อมกัน ไม่ครึ่งๆ กลางๆ และไม่ซ้ำสอง การตอบต่อในเธรดเดิมจะใช้ session เดิม",
+        h: "คำตอบมาครบในครั้งเดียว",
+        p: "คำตอบและไฟล์ที่สร้างจะส่งเข้าเธรดพร้อมกัน ไม่ครึ่ง ๆ กลาง ๆ และไม่ซ้ำสอง การตอบต่อในเธรดเดิมจะใช้ session เดิม",
       },
     ],
   },
   features: {
     eyebrow: "ฟีเจอร์",
-    h2: "สร้างมาเพื่อทีมที่ทำงานกับ Agent ทุกวัน",
+    h2: "สำหรับทีมที่ทำงานกับ Agent ทุกวัน",
     items: [
       {
         h: "ห้อง DM และเธรด",
@@ -266,7 +266,7 @@ const th: Collab8Content = {
       },
       {
         h: "คลังความรู้",
-        p: "อัปโหลดเอกสารเข้าคลังความรู้ที่ใช้ Vertex AI Search ให้ Agent ตอบจากเอกสารด้วยเครื่องมือ search_knowledge เอกสารจะนับว่าพร้อมใช้เมื่อถูกทำดัชนีแล้วเท่านั้น",
+        p: "อัปโหลดเอกสารเข้าคลังความรู้ ให้ Agent ค้นเอกสารเพื่อตอบคำถาม เอกสารจะพร้อมใช้เมื่อประมวลผลเสร็จแล้ว",
       },
       {
         h: "ความจำที่อยู่ในห้อง",
@@ -278,21 +278,21 @@ const th: Collab8Content = {
       },
       {
         h: "Connector",
-        p: "ผูกระบบธุรกิจกับ Agent ผ่าน connector โดยเก็บ credential ไว้ฝั่งเซิร์ฟเวอร์ และไม่ส่งเข้า sandbox",
+        p: "ผูกระบบธุรกิจกับ Agent ผ่าน connector โดยเก็บ credential ไว้ที่เซิร์ฟเวอร์ และไม่ส่งเข้าพื้นที่ทำงานของ Agent",
       },
     ],
   },
   control: {
     eyebrow: "การควบคุม",
     h2: "แอดมินกำหนดว่า Agent ทำอะไรได้",
-    lead: "Agent ทำได้มาก Collab8 จึงวางขอบเขตไว้ในที่ที่แอดมินมองเห็นและแก้ได้",
+    lead: "Agent ทำได้มาก ขอบเขตจึงอยู่ในที่ที่แอดมินมองเห็นและแก้ได้",
     items: [
-      { h: "Tool gate และการอนุมัติ", p: "การเรียกที่อ่อนไหวต้องรอคนอนุมัติ การ์ดแสดงไฟล์และปลายทาง และอนุมัติได้ครั้งเดียวหรือตลอด session" },
+      { h: "อนุมัติก่อนทำสิ่งเสี่ยง", p: "การกระทำที่อ่อนไหวต้องรอคนอนุมัติ การ์ดแสดงไฟล์และปลายทาง และอนุมัติได้ครั้งเดียวหรือตลอด session" },
       { h: "นโยบายห้อง", p: "เจ้าของและแอดมินกำหนดช่วงเก็บข้อมูล คนที่อนุมัติงานของ Agent ได้ และขอบเขตที่จำกัด Agent ทุกตัวในห้อง" },
-      { h: "ซ่อน ไม่ใช่แค่ห้าม", p: "ห้องที่คุณไม่ได้อยู่ และหน้าแอดมินทั้งหมด จะตอบเหมือนไม่มีอยู่ ส่วนการกระทำที่ถูกปฏิเสธบนสิ่งที่เห็นอยู่ จะบอกว่าคุณไม่มีสิทธิ์" },
-      { h: "Audit log ที่ตรวจสอบได้", p: "เหตุการณ์ของ Agent ความรู้ สมาชิก การอนุมัติ และ gate บันทึกเป็น hash chain มีปุ่มตรวจความสมบูรณ์ และกรองตาม Agent ช่อง หรือชนิดเหตุการณ์ได้" },
-      { h: "การใช้งานและงบ", p: "ดู session และโทเคนต่อ Agent ถ้า Agent เกินงบ ระบบจะไม่เริ่ม session และบอกเหตุผลกับคนที่ถาม" },
-      { h: "Credential ไม่เข้า sandbox", p: "container และ pod ถือแค่ค่าแทน ส่วน egress proxy ใส่คีย์โมเดลจริงตอนส่งออก" },
+      { h: "ห้องส่วนตัวถูกซ่อนไว้", p: "ห้องที่คุณไม่ได้อยู่ และหน้าแอดมินทั้งหมด จะเหมือนไม่มีอยู่ ส่วนห้องที่คุณเห็นอยู่ ถ้าลองทำสิ่งที่ไม่มีสิทธิ์ ระบบจะแจ้งว่าไม่มีสิทธิ์" },
+      { h: "บันทึกที่ตรวจสอบได้", p: "เหตุการณ์ของ Agent ความรู้ สมาชิก การอนุมัติ และการตรวจสิทธิ์ ถูกบันทึกในรูปแบบที่ตรวจการแก้ไขได้ มีปุ่มตรวจความสมบูรณ์ และกรองตาม Agent ช่อง หรือชนิดเหตุการณ์ได้" },
+      { h: "การใช้งานและงบ", p: "ดู session และปริมาณการใช้ต่อ Agent ถ้า Agent เกินงบ ระบบจะไม่เริ่มทำงาน และบอกเหตุผลกับคนที่ถาม" },
+      { h: "คีย์ไม่เข้าพื้นที่ทำงานของ Agent", p: "พื้นที่ทำงานของ Agent ถือแค่ค่าแทน ส่วนเกตเวย์จะใส่คีย์โมเดลจริงตอนส่งคำขอออกไป" },
     ],
   },
   roles: {
@@ -325,7 +325,7 @@ const th: Collab8Content = {
       },
       {
         q: "อะไรป้องกันไม่ให้ Agent อ่านไฟล์ที่ไม่ควรอ่าน",
-        a: "Tool gate ตรวจว่า path แต่ละอันนำไปที่ไหนจริง และกักเครื่องมือไฟล์ไว้ในโฟลเดอร์ของ session การเรียกนอกขอบเขตจะถูกปฏิเสธหรือรออนุมัติ",
+        a: "ระบบตรวจว่าทุกการเข้าถึงไฟล์ไปที่ไหนจริง และจำกัดไว้ในโฟลเดอร์ของ session การเข้าถึงนอกขอบเขตจะถูกปฏิเสธหรือรออนุมัติ",
       },
       {
         q: "รองรับเอกสารภาษาไทยไหม",

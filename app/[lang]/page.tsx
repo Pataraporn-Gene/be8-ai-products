@@ -56,15 +56,11 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       </header>
 
       <main className="flex-1">
-        <section className="relative overflow-hidden">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_80%_30%,rgba(0,184,212,0.08)_0%,transparent_70%)]"
-          />
-          <div className="relative mx-auto max-w-[1280px] px-6 pb-16 pt-20 sm:pb-20 sm:pt-28">
+        <section>
+          <div className="mx-auto max-w-[1280px] px-6 pb-16 pt-20 sm:pb-20 sm:pt-28">
             <p className="eyebrow">{dict.eyebrow}</p>
             <h1 className="mt-4 max-w-[920px] font-display text-[40px] font-medium leading-[1.08] tracking-[-0.028em] text-fg1 sm:text-[56px] lg:text-[72px]">
-              {dict.heroLead} <span className="text-accent">{dict.heroAccent}</span>
+              {dict.heroLead} <span className="text-cyan-700">{dict.heroAccent}</span>
             </h1>
             <p className="mt-6 max-w-[720px] text-lg leading-relaxed text-fg3 sm:text-xl">{dict.heroBody}</p>
           </div>
@@ -135,7 +131,7 @@ function ProductCard({ product, lang, dict }: { product: Product; lang: Locale; 
       <ul className="mt-5 flex flex-col gap-2.5 border-t border-line1 pt-5">
         {product.features.map((feature) => (
           <li key={feature.en} className="flex gap-2.5 text-[13.5px] text-fg2">
-            <Check size={16} strokeWidth={STROKE} className="mt-0.5 shrink-0 text-accent" aria-hidden />
+            <Check size={16} strokeWidth={STROKE} className="mt-0.5 shrink-0 text-cyan-700" aria-hidden />
             {feature[lang]}
           </li>
         ))}
@@ -146,7 +142,7 @@ function ProductCard({ product, lang, dict }: { product: Product; lang: Locale; 
         <CtaIcon
           size={16}
           strokeWidth={STROKE}
-          className="transition-transform duration-200 ease-standard group-hover:translate-x-0.5"
+          className="transition-transform duration-[250ms] ease-standard group-hover:translate-x-0.5"
           aria-hidden
         />
       </span>

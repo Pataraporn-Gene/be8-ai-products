@@ -1,13 +1,13 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Fx, prefersReducedMotion } from "./Fx";
 import type { Screen, ScreenKey } from "./content";
 
 type Props = { screens: Screen[]; tabsLabel: string; alt: string; urlHost: string };
 
-/** "Take a look" screen switcher: sliding tab indicator, cross-fading screenshot, auto-advance and hover tilt. */
+/** "Take a look" screen switcher: sliding tab indicator, cross-fading screenshot, auto-advance that stops on first click. */
 export function HeroViewer({ screens, tabsLabel, alt, urlHost }: Props) {
   const [cur, setCur] = useState<ScreenKey>(screens[0].key);
   const [shown, setShown] = useState<ScreenKey>(screens[0].key);
@@ -19,7 +19,6 @@ export function HeroViewer({ screens, tabsLabel, alt, urlHost }: Props) {
   const tabRefs = useRef<Partial<Record<ScreenKey, HTMLButtonElement | null>>>({});
   const indRef = useRef<HTMLSpanElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
-  const shotRef = useRef<HTMLElement>(null);
 
   const placeIndicator = useCallback(() => {
     const b = tabRefs.current[curRef.current];
@@ -71,20 +70,10 @@ export function HeroViewer({ screens, tabsLabel, alt, urlHost }: Props) {
     if (timer.current) clearInterval(timer.current);
   };
 
-  const onMove = (e: MouseEvent<HTMLDivElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width - 0.5;
-    const y = (e.clientY - r.top) / r.height - 0.5;
-    if (shotRef.current) shotRef.current.style.transform = `perspective(1200px) rotateY(${x * 5}deg) rotateX(${-y * 5}deg)`;
-  };
-  const onLeave = () => {
-    if (shotRef.current) shotRef.current.style.transform = "";
-  };
-
   const s = screens.find((x) => x.key === shown) ?? screens[0];
 
   return (
-    <Fx className="hv-stage" reveal={0} onMouseMove={onMove} onMouseLeave={onLeave}>
+    <Fx className="hv-stage" reveal={0}>
       <div className="hv-tabs" role="tablist" aria-label={tabsLabel}>
         <span className="hv-ind" ref={indRef} aria-hidden="true"></span>
         {screens.map((x) => (
@@ -102,7 +91,7 @@ export function HeroViewer({ screens, tabsLabel, alt, urlHost }: Props) {
           </button>
         ))}
       </div>
-      <figure className="shot hero-main hv-shot" ref={shotRef}>
+      <figure className="shot hero-main hv-shot">
         <div className="shot-bar">
           <i></i>
           <i></i>

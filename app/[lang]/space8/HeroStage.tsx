@@ -14,12 +14,12 @@ const TABS: { id: Tab; icon: IconName }[] = [
 
 // meeting tiles: person, sprite row, tile colour
 const PEOPLE: [PersonId, number, string][] = [
-  ["guy", 4, "#c9d6f5"],
-  ["fon", 5, "#f2d9cf"],
-  ["tee", 2, "#d3ecd9"],
-  ["mind", 1, "#efe2c4"],
-  ["me", 0, "#d9d4f3"],
-  ["prae", 3, "#cfe6ec"],
+  ["guy", 4, "var(--cyan-100)"],
+  ["fon", 5, "var(--neutral-150)"],
+  ["tee", 2, "var(--cyan-50)"],
+  ["mind", 1, "var(--neutral-100)"],
+  ["me", 0, "var(--cyan-200)"],
+  ["prae", 3, "var(--neutral-200)"],
 ];
 // chat thread: person, sprite row (-1 = AI agent), time
 const MSGS: [PersonId, number, string][] = [
@@ -33,7 +33,7 @@ const onlineDot: CSSProperties = {
   width: 8,
   height: 8,
   borderRadius: "50%",
-  background: "#30db72",
+  background: "var(--b8-green)",
   display: "inline-block",
 };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type CSSProperties } from "react";
+import { Hand } from "lucide-react";
 import type { PersonId, SceneStrings, StatusId } from "./content";
 
 type Dir = "down" | "left" | "right" | "up";
@@ -35,7 +36,7 @@ type BubbleKey = "wave" | "near" | "duo";
 
 const CELL = 76;
 const DIRS: Record<Dir, number> = { down: 0, left: 3, right: 6, up: 9 };
-const ST: Record<StatusId, string> = { free: "#30db72", busy: "#f26473", meet: "#8b8dff", away: "#8490a5" };
+const ST: Record<StatusId, string> = { free: "var(--b8-green)", busy: "var(--b8-red)", meet: "var(--cyan-500)", away: "var(--neutral-400)" };
 
 const MAIN_CAST: CastMember[] = [
   { id: "me", row: 0, st: "free", me: true, path: [[600, 690]], face: "up" },
@@ -285,7 +286,7 @@ export function MapScene({ view, strings, ariaLabel, cast = "main", fill, mode, 
                 {strings.n[c.id]}
                 <span className="st">· {strings.st[c.st]}</span>
               </div>
-              <div className="emote">👋</div>
+              <div className="emote"><Hand size={34} strokeWidth={1.75} aria-hidden="true" /></div>
               <div className="bubble">{bubbleFor(c.id)}</div>
             </div>
           );

@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowRight } from "lucide-react";
 import { hasLocale } from "@/lib/i18n";
 import { content, type Voice8Content, type TourKey } from "./content";
 import { SPRITE_DEFS, type IconName } from "./sprite";
@@ -156,7 +156,7 @@ function LiveBar() {
   return (
     <div className="st-live">
       <i />
-      <span>Listening — typing is disabled in voice mode.</span>
+      <span>Listening. Typing is disabled in voice mode.</span>
       <span className="st-btn dan">End call</span>
     </div>
   );
@@ -294,8 +294,8 @@ function tourMedia(m: Voice8Content["mock"]): Record<TourKey, ReactNode> {
                     <div className="st-eb">Retrieval</div>
                     <h4 className="st-h1">Knowledge</h4>
                     <p className="st-desc" style={{ fontSize: 13 }}>
-                      Connect text, PDFs, Markdown files, or Google Sheets. Content is chunked, embedded, and stored for
-                      this agent.
+                      Connect text, PDFs, or Markdown files. Content is chunked, embedded, and stored for this
+                      agent.
                     </p>
                   </div>
                   <span className="st-btn pri">
@@ -307,7 +307,6 @@ function tourMedia(m: Voice8Content["mock"]): Record<TourKey, ReactNode> {
                   {(
                     [
                       ["file", "PDF · 48 chunks"],
-                      ["sheet", "Google Sheet · 12 chunks"],
                       ["file", "Markdown · 21 chunks"],
                       ["type", "Text · 3 chunks"],
                     ] as [IconName, string][]
@@ -467,7 +466,7 @@ function tourMedia(m: Voice8Content["mock"]): Record<TourKey, ReactNode> {
                           02-xxx-1200
                         </td>
                         <td>{m.agentClaims}</td>
-                        <td style={{ color: "var(--s-fg4)" }}>—</td>
+                        <td style={{ color: "var(--s-fg4)" }}>None</td>
                         <td style={{ color: "var(--s-fg3)" }}>{m.lineClaims}</td>
                         <td className="num">0</td>
                         <td>
@@ -513,8 +512,8 @@ function tourMedia(m: Voice8Content["mock"]): Record<TourKey, ReactNode> {
                   </div>
                   <span style={{ color: "var(--s-fg2)" }}>{m.ivrGreeting}</span>
                   <span style={{ display: "flex", gap: 6 }}>
-                    <span className="st-chip ac">1 → {m.agentName}</span>
-                    <span className="st-chip">0 → {m.ivrStaff}</span>
+                    <span className="st-chip ac">1: {m.agentName}</span>
+                    <span className="st-chip">0: {m.ivrStaff}</span>
                   </span>
                 </div>
               </div>
@@ -564,12 +563,12 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
 
       <header className="top">
         <div className="wrap">
-          <Link className="brand" href={`/${lang}`}>
+          <a className="brand" href="#top">
             <svg aria-hidden="true">
               <use href="#v8-logo" />
             </svg>
             VOICE8
-          </Link>
+          </a>
           <nav className="menu" aria-label={c.header.menuAria}>
             <a href="#features">{c.header.menu.features}</a>
             <a href="#phone">{c.header.menu.phone}</a>
@@ -668,7 +667,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
                               </span>
                               <I n="pencil" style={{ width: 14, height: 14, color: "var(--s-fg3)" }} />
                             </div>
-                            <span style={{ fontWeight: 600, color: "var(--s-fg2)" }}>STT → LLM → TTS</span>
+                            <span style={{ fontWeight: 600, color: "var(--s-fg2)" }}>STT, LLM, TTS</span>
                             <span className="st-tiny" style={{ fontWeight: 600, color: "var(--s-fg3)" }}>
                               TH
                             </span>
@@ -703,7 +702,9 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
                           <div className="st-ctrl" aria-hidden="true">
                             <span>+</span>
                             <span>−</span>
-                            <span>⤢</span>
+                            <span>
+                              <I n="box" />
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -756,11 +757,15 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
           <p className="shot-note">{c.shotNote}</p>
         </div>
 
-        <div className="mq" aria-hidden="true">
-          <div className="mq-track">
-            {[...c.marquee, ...c.marquee].map((t, i) => (
-              <span key={i}>{t}</span>
-            ))}
+        <div className="wrap">
+          <div className="mq" aria-hidden="true">
+            <ul className="mq-track">
+              {c.marquee.concat(c.marquee).map((t, i) => (
+                <li key={i} className={i >= c.marquee.length ? "dup" : undefined}>
+                  {t}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 
@@ -783,9 +788,6 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
             <p>{c.how.p}</p>
           </div>
           <div className="hub">
-            <span className="beam l" aria-hidden="true" />
-            <span className="beam r" aria-hidden="true" />
-            <span className="beam d" aria-hidden="true" />
             <div className="cl left">
               <span className="hub-pill">{c.how.phonePill}</span>
               <div className="cl-ring">
@@ -797,7 +799,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
               </div>
               <div className="tile t2">
                 <I n="network" />
-                <span>SIP trunk</span>
+                <span>Phone line</span>
               </div>
               <div className="tile t3">
                 <I n="globe" />
@@ -809,10 +811,6 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
               </div>
             </div>
             <div className="core" aria-label="VOICE8 by Beryl8">
-              <span className="orbit" aria-hidden="true">
-                <i />
-                <i />
-              </span>
               <div className="core-disc">
                 <svg aria-hidden="true">
                   <use href="#v8-eight" />
@@ -820,7 +818,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
               </div>
               <span className="core-cap">VOICE8 Agent</span>
             </div>
-            <div className="cl right five">
+            <div className="cl right">
               <span className="hub-pill">{c.how.knowledgePill}</span>
               <div className="cl-ring">
                 <I n="book" />
@@ -834,43 +832,39 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
                 <span>Markdown</span>
               </div>
               <div className="tile t3">
-                <I n="sheet" />
-                <span>Google Sheet</span>
-              </div>
-              <div className="tile t4">
                 <I n="plug" />
                 <span>API tools</span>
               </div>
-              <div className="tile t5">
+              <div className="tile t4">
                 <I n="puzzle" />
-                <span>MCP</span>
+                <span>Back office</span>
               </div>
             </div>
             <div className="tray-wrap">
-              <span className="hub-pill">Pipeline</span>
+              <span className="hub-pill">Separate voice steps</span>
               <div className="tray">
                 <div className="tile">
                   <I n="mic" />
                   <span>
-                    STT
+                    Speech to text
                     <br />
                     Gemini
                   </span>
                 </div>
-                <em aria-hidden="true">→</em>
+                <ArrowRight className="tray-arrow" size={20} strokeWidth={1.75} aria-hidden="true" />
                 <div className="tile">
                   <I n="spark" />
                   <span>
-                    LLM
+                    Reply
                     <br />
                     Gemini
                   </span>
                 </div>
-                <em aria-hidden="true">→</em>
+                <ArrowRight className="tray-arrow" size={20} strokeWidth={1.75} aria-hidden="true" />
                 <div className="tile">
                   <I n="wave" />
                   <span>
-                    TTS
+                    Voice
                     <br />
                     Gemini TTS
                   </span>
@@ -947,7 +941,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
                           </div>
                           <div className="st-stat">
                             <div className="l">Avg. response</div>
-                            <div className="v num">—</div>
+                            <div className="v num">Not set</div>
                             <div className="hn">per turn</div>
                           </div>
                           <div className="st-stat">
@@ -1074,7 +1068,8 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
                               Pipeline<span className="st-chip ac b">Customizable</span>
                             </div>
                             <div className="st-stage">
-                              <span className="st-chip">STT</span>→<span className="st-chip">LLM</span>→
+                              <span className="st-chip">STT</span>
+                              <span className="st-chip">LLM</span>
                               <span className="st-chip">TTS</span>
                             </div>
                           </div>
@@ -1283,7 +1278,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
             <article className="pc">
               <h3 className="pc-name">Standard</h3>
               <div className="pc-price num">
-                <b>฿ —</b>
+                <b>{c.plans.priceNotSet}</b>
                 <span>{c.plans.perMonth}</span>
               </div>
               <p className="pc-sub">{c.plans.minutes}</p>
@@ -1302,7 +1297,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
               <span className="pc-tag">{c.plans.recommended}</span>
               <h3 className="pc-name">Premium</h3>
               <div className="pc-price num">
-                <b>฿ —</b>
+                <b>{c.plans.priceNotSet}</b>
                 <span>{c.plans.perMonth}</span>
               </div>
               <p className="pc-sub">{c.plans.minutes}</p>

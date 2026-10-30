@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LangSwitch } from "@/components/LangSwitch";
 import { hasLocale } from "@/lib/i18n";
@@ -41,13 +40,13 @@ export default async function Page({ params }: PageProps<"/[lang]/ask8">) {
     <div className="p-ask8">
       <header className="top">
         <div className="wrap">
-          <Link className="brand" href={`/${lang}`} aria-label="Ask8">
+          <a className="brand" href="#top" aria-label="Ask8">
             <svg viewBox="0 0 32 32" aria-hidden="true">
               <rect width="32" height="32" rx="9" fill="#0A1F2E" />
-              <path d="M9 11.5h10a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2h-5l-3.5 3v-3H9a2 2 0 0 1-2-2v-4.5a2 2 0 0 1 2-2z" fill="none" stroke="#00C4D6" strokeWidth="1.8" strokeLinejoin="round" />
+              <path d="M9 11.5h10a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2h-5l-3.5 3v-3H9a2 2 0 0 1-2-2v-4.5a2 2 0 0 1 2-2z" fill="none" stroke="#00C4D6" strokeWidth="1.75" strokeLinejoin="round" />
             </svg>
             Ask8
-          </Link>
+          </a>
           <nav className="menu" aria-label={t.header.menuAria}>
             <a href="#tryit">{t.header.menu.tryit}</a>
             <a href="#demo">{t.header.menu.demo}</a>
@@ -115,12 +114,14 @@ export default async function Page({ params }: PageProps<"/[lang]/ask8">) {
           <p className="shot-note">{t.shotNote}</p>
         </div>
 
-        <div className="mq" aria-hidden="true">
-          <div className="mq-track">
+        <div className="mq wrap" aria-hidden="true">
+          <ul className="mq-track" style={{ listStyle: "none", margin: 0, padding: 0 }}>
             {t.marquee.concat(t.marquee).map((x, i) => (
-              <span key={i}>{x}</span>
+              <li key={i} style={{ display: "contents" }}>
+                <span className={i >= t.marquee.length ? "dup" : undefined}>{x}</span>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
 
         <section className="hv-sec wrap" id="tryit">

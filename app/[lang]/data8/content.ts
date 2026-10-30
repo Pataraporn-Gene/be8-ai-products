@@ -37,18 +37,18 @@ const en = {
     note: "Illustrative screen with sample data",
   },
   facts: [
-    { b: "5,400 → 3,400", span: "Sample records resolved into unified individuals" },
+    { b: "5,400 to 3,400", span: "Sample records resolved into unified individuals" },
     { b: "Live segment counts", span: "See the audience size while you build the rules" },
-    { b: "Runs on your Postgres", span: "Real tables, real jobs, no black box" },
+    { b: "Runs on your Postgres", span: "Real tables and scheduled jobs you can inspect" },
     { b: "Thai-ready", span: "Sample data and search work in Thai and English" },
   ],
   flow: {
     eyebrow: "How it works",
     h2: "From raw files to an audience in seven steps",
     steps: [
-      { h: "Connect a data stream", p: "Load a CSV or read from Postgres. Each stream lands in a data lake object, a real table you can query." },
-      { h: "Map to the data model", p: "Map fields to standard objects such as Individual, Contact Point Email, Sales Order and Product, or define your own." },
-      { h: "Resolve identities", p: "Match records with exact, normalized and fuzzy rules, then choose which source wins for each field." },
+      { h: "Connect a data stream", p: "Load a CSV or read from Postgres. Each stream is stored as a table you can query." },
+      { h: "Map your fields", p: "Match your fields to standard records such as Individual, Contact Point Email, Sales Order and Product, or define your own." },
+      { h: "Match duplicate customers", p: "Match records by exact value, cleaned-up value or close match, then choose which source wins for each field." },
       { h: "Explore the profile", p: "Search a unified profile and see its source records, orders and email engagement in one place." },
       { h: "Calculate insights", p: "Write SQL or use the builder for lifetime value or orders in the last 90 days, and run it on a schedule." },
       { h: "Build a segment", p: "Combine attributes and insights with AND/OR rules, preview the live population, then publish." },
@@ -58,7 +58,7 @@ const en = {
   demo: {
     eyebrow: "A worked example",
     h2: "What the sample data produces",
-    lead: "The demo seed runs the same actions and jobs as the app, so every number below comes from a real run on sample data.",
+    lead: "The demo data runs through the same steps as the app, so every number below comes from a real run on sample data.",
     head: { what: "Step", result: "Result" },
     rows: [
       { what: "Data streams", result: "CRM contacts 3,000 · web customers 2,400 · orders 18,000 · email events 25,000 · products 60" },
@@ -87,10 +87,10 @@ const en = {
     eyebrow: "Control",
     h2: "Built for the people who run the data",
     items: [
-      { h: "Roles on the server", p: "Admins and marketers have different capabilities. Marketers cannot change engineer-only objects, and this is enforced on the server, not just hidden in the UI." },
-      { h: "Read-only SQL", p: "The Query Editor and notebooks run as a read-only database role over the lake, model and insight schemas." },
+      { h: "Roles on the server", p: "Admins and marketers have different capabilities. Marketers cannot change engineer-only objects, and the server enforces this." },
+      { h: "Read-only SQL", p: "The Query Editor and notebooks can read your data but never change it." },
       { h: "Run history and audit", p: "Every stream refresh, resolution, insight, segment and activation records a run, and changes are written to an audit log." },
-      { h: "Safe outbound calls", p: "Webhook targets are checked against server-side request forgery before anything is sent, and actions stay off until a real target is set." },
+      { h: "Safe outbound calls", p: "Webhook addresses are checked for unsafe destinations before anything is sent, and actions stay off until a real target is set." },
     ] as Item[],
   },
   spec: {
@@ -133,7 +133,7 @@ const th: Data8Content = {
       "Data8 คือ customer data platform นำข้อมูล CRM ร้านค้าออนไลน์ และอีเมลเข้ามา รวมข้อมูลซ้ำเป็นโปรไฟล์เดียวต่อคน สร้าง segment พร้อมจำนวนคนแบบสด แล้วส่งต่อไปยังเครื่องมือที่ทีมการตลาดใช้อยู่",
     cta1: "ดูการทำงาน",
     cta2: "ดูโมดูลทั้งหมด",
-    mini: ["รองรับข้อมูลลูกค้าไทยและอังกฤษ", "ทุกการรันมีประวัติและ audit trail"],
+    mini: ["รองรับข้อมูลลูกค้าไทยและอังกฤษ", "ทุกการรันมีประวัติและบันทึกการตรวจสอบ"],
   },
   mock: {
     title: "Identity Resolution",
@@ -151,18 +151,18 @@ const th: Data8Content = {
     note: "หน้าจอตัวอย่าง ใช้ข้อมูลสมมติ",
   },
   facts: [
-    { b: "5,400 → 3,400", span: "ระเบียนตัวอย่างที่รวมเป็นบุคคลเดียว" },
+    { b: "5,400 เหลือ 3,400", span: "ระเบียนตัวอย่างที่รวมเป็นบุคคลเดียว" },
     { b: "จำนวน segment แบบสด", span: "เห็นขนาดกลุ่มเป้าหมายระหว่างตั้งกฎ" },
-    { b: "รันบน Postgres ของคุณ", span: "ตารางจริง job จริง ไม่ใช่กล่องดำ" },
+    { b: "รันบน Postgres ของคุณ", span: "ตารางและงานตามรอบที่คุณตรวจดูได้เอง" },
     { b: "รองรับภาษาไทย", span: "ข้อมูลตัวอย่างและการค้นหาใช้ได้ทั้งไทยและอังกฤษ" },
   ],
   flow: {
     eyebrow: "การทำงาน",
     h2: "จากไฟล์ดิบสู่กลุ่มเป้าหมายใน 7 ขั้น",
     steps: [
-      { h: "เชื่อม data stream", p: "โหลด CSV หรืออ่านจาก Postgres แต่ละ stream ลงใน data lake object ซึ่งเป็นตารางจริงที่ query ได้" },
-      { h: "แมปเข้ากับ data model", p: "แมปฟิลด์เข้ากับอ็อบเจกต์มาตรฐาน เช่น Individual, Contact Point Email, Sales Order และ Product หรือกำหนดเอง" },
-      { h: "รวมตัวตน", p: "จับคู่ระเบียนด้วยกฎแบบตรงตัว แบบ normalize และแบบ fuzzy แล้วเลือกว่าแหล่งไหนชนะในแต่ละฟิลด์" },
+      { h: "เชื่อม data stream", p: "โหลด CSV หรืออ่านจาก Postgres แต่ละ stream จะถูกเก็บเป็นตารางที่ค้นข้อมูลได้" },
+      { h: "แมปฟิลด์ของคุณ", p: "จับคู่ฟิลด์กับข้อมูลมาตรฐาน เช่น Individual, Contact Point Email, Sales Order และ Product หรือกำหนดเอง" },
+      { h: "จับคู่ลูกค้าที่ซ้ำกัน", p: "จับคู่ระเบียนจากค่าที่ตรงกันเป๊ะ ค่าที่จัดรูปแบบแล้ว หรือค่าที่ใกล้เคียงกัน แล้วเลือกว่าแหล่งไหนชนะในแต่ละฟิลด์" },
       { h: "สำรวจโปรไฟล์", p: "ค้นหาโปรไฟล์ที่รวมแล้ว และดูระเบียนต้นทาง คำสั่งซื้อ และการมีส่วนร่วมทางอีเมลในที่เดียว" },
       { h: "คำนวณ insight", p: "เขียน SQL หรือใช้ builder เช่น lifetime value หรือจำนวนออเดอร์ 90 วัน แล้วตั้งให้รันตามรอบ" },
       { h: "สร้าง segment", p: "รวม attribute และ insight ด้วยกฎ AND/OR ดูจำนวนคนแบบสด แล้ว publish" },
@@ -172,7 +172,7 @@ const th: Data8Content = {
   demo: {
     eyebrow: "ตัวอย่างการใช้งานจริง",
     h2: "ข้อมูลตัวอย่างให้ผลอะไร",
-    lead: "สคริปต์ demo เรียก action และ job ชุดเดียวกับตัวแอป ตัวเลขด้านล่างทุกตัวจึงมาจากการรันจริงบนข้อมูลตัวอย่าง",
+    lead: "ข้อมูลเดโมผ่านขั้นตอนชุดเดียวกับตัวแอป ตัวเลขด้านล่างทุกตัวจึงมาจากการรันจริงบนข้อมูลตัวอย่าง",
     head: { what: "ขั้นตอน", result: "ผลลัพธ์" },
     rows: [
       { what: "Data streams", result: "ผู้ติดต่อ CRM 3,000 · ลูกค้าเว็บ 2,400 · ออเดอร์ 18,000 · อีเมลอีเวนต์ 25,000 · สินค้า 60" },
@@ -201,10 +201,10 @@ const th: Data8Content = {
     eyebrow: "การควบคุม",
     h2: "สร้างมาเพื่อคนดูแลข้อมูล",
     items: [
-      { h: "สิทธิ์ตรวจที่ฝั่งเซิร์ฟเวอร์", p: "แอดมินกับมาร์เก็ตเตอร์มีสิทธิ์ต่างกัน มาร์เก็ตเตอร์แก้อ็อบเจกต์เฉพาะวิศวกรไม่ได้ และตรวจที่เซิร์ฟเวอร์ ไม่ใช่แค่ซ่อนปุ่ม" },
-      { h: "SQL แบบอ่านอย่างเดียว", p: "Query Editor และ notebook รันด้วย role ฐานข้อมูลแบบอ่านอย่างเดียวบน schema lake, model และ insight" },
+      { h: "สิทธิ์ตรวจที่ฝั่งเซิร์ฟเวอร์", p: "แอดมินกับมาร์เก็ตเตอร์มีสิทธิ์ต่างกัน มาร์เก็ตเตอร์แก้อ็อบเจกต์เฉพาะวิศวกรไม่ได้ และเซิร์ฟเวอร์เป็นผู้บังคับใช้" },
+      { h: "SQL แบบอ่านอย่างเดียว", p: "Query Editor และ notebook อ่านข้อมูลของคุณได้ แต่แก้ไขไม่ได้" },
       { h: "ประวัติการรันและ audit", p: "ทุกการรีเฟรช stream การรวมตัวตน insight segment และ activation บันทึกการรัน และการเปลี่ยนแปลงลง audit log" },
-      { h: "เรียกภายนอกอย่างปลอดภัย", p: "ปลายทาง webhook ถูกตรวจ SSRF ก่อนส่ง และ action จะปิดไว้จนกว่าจะตั้งปลายทางจริง" },
+      { h: "เรียกภายนอกอย่างปลอดภัย", p: "ที่อยู่ webhook ถูกตรวจว่าปลายทางปลอดภัยก่อนส่ง และ action จะปิดไว้จนกว่าจะตั้งปลายทางจริง" },
     ],
   },
   spec: {

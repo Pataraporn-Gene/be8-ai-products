@@ -229,7 +229,7 @@ export function CompareTable() {
   );
   const no = (
     <span className="n" aria-label={t.no}>
-      —
+      {t.no}
     </span>
   );
   return (

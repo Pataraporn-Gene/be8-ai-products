@@ -120,7 +120,7 @@ const en = {
     oldItems: [
       "Yet another meeting link",
       "Waiting hours for a chat reply",
-      "Camera fatigue all day long",
+      "Being on camera all day",
       "No idea if teammates are free or busy",
       "A five-minute question needs a calendar slot",
     ],
@@ -199,7 +199,7 @@ const en = {
   brain: {
     eyebrow: "New",
     h2: "Meeting notes written for you",
-    lede: "Space8 connects with other BE8 products. Record a meeting and Meet8 summarizes it. Put an AI agent on the map and the team can walk up and ask it questions.",
+    lede: "Space8 works with other BE8 products. Record a meeting and Meet8 summarizes it. Put an AI agent on the map and the team can walk up and ask it questions.",
     recPill: "Available",
     recTitle: "Record meeting rooms to Meet8",
     recBody:
@@ -210,7 +210,7 @@ const en = {
       { title: "Get a summary", body: "Transcript and recap in Meet8" },
     ],
     recFine:
-      "Connect your account once under Settings → General → Meet8. Each room runs one recording at a time, and recording stops on its own when the room empties.",
+      "Connect your account once under Settings > General > Meet8. Each room runs one recording at a time, and recording stops on its own when the room empties.",
     agentPill: "Partly available",
     agentTitle: "AI agents on the map",
     agentBody:
@@ -227,7 +227,7 @@ const en = {
     lede: "Sign in with your Google account, pick a map and send your team an invite link. Nothing to install.",
     cta: "Create your team's Space",
     steps: [
-      { tag: "2 min", title: "Pick and set up a map", body: "Use a ready-made map, or have AI draft one from a description." },
+      { tag: "2 min", title: "Pick a map", body: "Use a ready-made map, or have AI draft one from a description." },
       {
         tag: "1 link",
         title: "Invite your team",
@@ -534,7 +534,7 @@ const th: Space8Content = {
       { title: "ได้สรุป", body: "ถอดเสียงและสรุปใน Meet8" },
     ],
     recFine:
-      "เชื่อมบัญชีครั้งเดียวที่ Settings → General → Meet8 ห้องหนึ่งอัดได้ทีละหนึ่งการอัด ห้องว่างแล้วหยุดอัดเอง",
+      "เชื่อมบัญชีครั้งเดียวที่ Settings > General > Meet8 ห้องหนึ่งอัดได้ทีละหนึ่งการอัด ห้องว่างแล้วหยุดอัดเอง",
     agentPill: "มีบางส่วน",
     agentTitle: "AI agent บนแผนที่",
     agentBody:
@@ -551,7 +551,7 @@ const th: Space8Content = {
     lede: "เข้าสู่ระบบด้วยบัญชี Google เลือกแผนที่ แล้วส่งลิงก์เชิญให้ทีม ไม่ต้องติดตั้งโปรแกรม",
     cta: "สร้าง Space ของทีม",
     steps: [
-      { tag: "2 นาที", title: "เลือกและตั้งค่าแผนที่", body: "ใช้แผนที่สำเร็จรูป หรือให้ AI ร่างจากคำอธิบาย" },
+      { tag: "2 นาที", title: "เลือกแผนที่", body: "ใช้แผนที่สำเร็จรูป หรือให้ AI ร่างจากคำอธิบาย" },
       { tag: "1 ลิงก์", title: "เชิญทีม", body: "ส่งลิงก์จากปุ่ม People เพื่อนกดเข้ามาก็อยู่บนแผนที่เลย" },
       { tag: "ทันที", title: "เริ่มทำงานด้วยกัน", body: "เลือกตัวละคร เดินไปที่โต๊ะ แล้วทักเพื่อนได้" },
     ],

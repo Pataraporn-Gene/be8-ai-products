@@ -6,7 +6,6 @@ import {
   useState,
   type CSSProperties,
   type ElementType,
-  type PointerEvent,
   type ReactNode,
 } from "react";
 
@@ -48,20 +47,18 @@ type FxProps = {
   className?: string;
   style?: CSSProperties;
   children?: ReactNode;
-  /** Scroll reveal (.rv → .rv.in) with this transition delay in seconds. */
+  /** Scroll reveal (.rv to .rv.in) with this transition delay in seconds. */
   reveal?: number;
-  /** Cursor spotlight (.glow with --mx/--my). */
-  glow?: boolean;
-  /** Magnetic hover for .btn elements (skipped with reduced motion). */
-  magnetic?: boolean;
   [prop: string]: unknown;
 };
 
 /**
- * Element wrapper for the source page's motion layer: scroll reveal, cursor spotlight
- * and magnetic buttons, each bound to this element's own ref.
+ * Element wrapper with a short scroll reveal.
  */
-export function Fx({ as = "div", className = "", style, children, reveal, glow, magnetic, ...rest }: FxProps) {
+export function Fx({ as = "div", className = "", style, children, reveal, ...rest }: FxProps) {
+  // Legacy decorative props are accepted but ignored.
+  delete rest.glow;
+  delete rest.magnetic;
   const ref = useRef<HTMLElement>(null);
   const [shown, setShown] = useState(false);
   const revealOn = reveal !== undefined;
@@ -71,22 +68,7 @@ export function Fx({ as = "div", className = "", style, children, reveal, glow, 
     return observeReveal(ref.current, () => setShown(true));
   }, [revealOn]);
 
-  const onPointerMove = (e: PointerEvent<HTMLElement>) => {
-    const el = e.currentTarget;
-    const r = el.getBoundingClientRect();
-    if (glow) {
-      el.style.setProperty("--mx", e.clientX - r.left + "px");
-      el.style.setProperty("--my", e.clientY - r.top + "px");
-    }
-    if (magnetic && !prefersReducedMotion()) {
-      el.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * 0.15}px,${(e.clientY - r.top - r.height / 2) * 0.25}px)`;
-    }
-  };
-  const onPointerLeave = (e: PointerEvent<HTMLElement>) => {
-    if (magnetic) e.currentTarget.style.transform = "";
-  };
-
-  const cls = [className, glow && "glow", revealOn && "rv", revealOn && shown && "in"].filter(Boolean).join(" ");
+  const cls = [className, revealOn && "rv", revealOn && shown && "in"].filter(Boolean).join(" ");
   const st = revealOn ? ({ ...style, "--d": `${reveal}s` } as CSSProperties) : style;
 
   const Tag = as;
@@ -96,8 +78,6 @@ export function Fx({ as = "div", className = "", style, children, reveal, glow, 
       ref={ref}
       className={cls || undefined}
       style={st}
-      onPointerMove={glow || magnetic ? onPointerMove : undefined}
-      onPointerLeave={magnetic ? onPointerLeave : undefined}
     >
       {children}
     </Tag>

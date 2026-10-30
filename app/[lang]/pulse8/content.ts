@@ -117,8 +117,8 @@ const en = {
       within: "Within",
       withinVal: "2 days after sending",
       last30: "Last 30 days",
-      openedLine: "Opened → LINE",
-      notOpenedSms: "Not opened → SMS",
+      openedLine: "Opened: LINE",
+      notOpenedSms: "Not opened: SMS",
       note: "Every sending step automatically passes subscription, suppression list and quota checks.",
       caption:
         "Build Journeys left to right. Start from a form, a LINE follow, Salesforce data, an API event or a scheduled segment, then mix sends on any channel with waits, splits and A/B tests in a single flow.",
@@ -217,9 +217,9 @@ const en = {
     steps: ["Collect contacts", "Segment", "Create and send", "Measure"],
     s1: {
       h3: "Bring contacts from everywhere into a single profile",
-      p: "Import CSV or Excel files and map columns yourself, or stream contacts in continuously from forms, LINE follows, the API, SFTP and Salesforce. Every channel for one person lives in a single contact.",
+      p: "Import CSV or Excel files and map columns yourself, or add contacts automatically from forms, LINE follows, the API, SFTP and Salesforce. Every channel for one person lives in a single contact.",
       ticks: [
-        "Phone numbers are normalized to one format before saving",
+        "Phone numbers are saved in one standard format",
         "Per-channel consent is stored with its source and timestamp",
         "Data tables hold other data, such as purchases or branch, for segmentation",
       ],
@@ -237,7 +237,7 @@ const en = {
       skipped: "12 skipped · invalid phone",
     },
     s2: {
-      h3: "Segment with nestable conditions",
+      h3: "Build segments with AND/OR conditions",
       p: "Segments support AND/OR conditions nested across multiple levels, reading contact data, data tables and the predictive scores Pulse8 calculates nightly from your organization's own data.",
       ticks: [
         "Per-person likelihood scores for opens, clicks, retention and conversion",
@@ -501,7 +501,7 @@ const en = {
       },
       {
         h: "Each organization's data is fully isolated",
-        p: "The database uses Postgres row-level security to separate data by organization. Credentials for every connection are encrypted with AES-256-GCM, with keys stored in Google Secret Manager.",
+        p: "Each organization's data is kept separate from every other organization's. Login details for every connection are encrypted, and the keys are stored in Google Secret Manager.",
       },
       {
         h: "Control who can do what",
@@ -552,7 +552,7 @@ const en = {
       },
       {
         q: "What happens when I reach my quota?",
-        a: "Pulse8 never creates messages beyond your quota. A send whose recipients exceed the remaining quota is not sent at all, the API returns 402, and the Journey records the reason at that step. Quota resets at the start of every month (07:00 on the 1st, Thai time), or you can upgrade instantly on the Plan and usage page.",
+        a: "Pulse8 never creates messages beyond your quota. A send whose recipients exceed the remaining quota is not sent at all, the API returns an error, and the Journey records the reason at that step. Quota resets at the start of every month (07:00 on the 1st, Thai time), or you can upgrade instantly on the Plan and usage page.",
       },
       {
         q: "Are SMS, LINE and WhatsApp delivery fees included in the price?",
@@ -572,7 +572,7 @@ const en = {
       },
       {
         q: "Is the interface available in Thai?",
-        a: "Yes. Every page is available in Thai and English, switchable from the side menu. Thai content renders correctly, and Thai SMS segments are counted according to the UCS-2 standard.",
+        a: "Yes. Every page is available in Thai and English, switchable from the side menu. Thai content renders correctly, and Thai SMS segments are counted the way Thai SMS is actually billed.",
       },
     ],
   },
@@ -687,8 +687,8 @@ const th: Pulse8Content = {
       within: "ภายใน",
       withinVal: "2 วันหลังส่ง",
       last30: "30 วันที่ผ่านมา",
-      openedLine: "เปิดแล้ว → LINE",
-      notOpenedSms: "ยังไม่เปิด → SMS",
+      openedLine: "เปิดแล้ว: LINE",
+      notOpenedSms: "ยังไม่เปิด: SMS",
       note: "ทุกขั้นที่ส่งข้อความผ่านการตรวจ subscription, รายชื่อห้ามส่ง และโควตาอัตโนมัติ",
       caption:
         "วาง Journey จากซ้ายไปขวา เริ่มได้จากฟอร์ม, การ follow LINE, ข้อมูลจาก Salesforce, API event หรือ segment ตามรอบเวลา แล้วผสมขั้นส่งทุกช่องทางกับขั้นรอ แยกเส้นทาง และ A/B ในเส้นเดียว",
@@ -1061,7 +1061,7 @@ const th: Pulse8Content = {
       },
       {
         h: "ข้อมูลแต่ละองค์กรแยกขาดกัน",
-        p: "ฐานข้อมูลใช้ row-level security ของ Postgres แยกข้อมูลรายองค์กร รหัสผ่านของทุก connection เข้ารหัส AES-256-GCM โดยเก็บ key ไว้ใน Google Secret Manager",
+        p: "ข้อมูลของแต่ละองค์กรแยกจากกันอย่างเด็ดขาด ข้อมูลล็อกอินของทุกการเชื่อมต่อถูกเข้ารหัส และเก็บกุญแจไว้ใน Google Secret Manager",
       },
       {
         h: "คุมว่าใครทำอะไรได้",
@@ -1106,7 +1106,7 @@ const th: Pulse8Content = {
       },
       {
         q: "ส่งครบโควตาแล้วจะเป็นอย่างไร",
-        a: "Pulse8 ไม่สร้างข้อความที่เกินโควตา การส่งที่มีผู้รับเกินโควตาที่เหลือจะไม่ส่งเลยทั้งชุด API ตอบกลับ 402 และ Journey บันทึกเหตุผลไว้ในขั้นนั้น โควตาเริ่มใหม่ทุกต้นเดือน (07:00 น. วันที่ 1 เวลาไทย) หรืออัปเกรดแพ็กเกจได้ทันทีในหน้าแพ็กเกจและการใช้งาน",
+        a: "Pulse8 ไม่สร้างข้อความที่เกินโควตา การส่งที่มีผู้รับเกินโควตาที่เหลือจะไม่ส่งเลยทั้งชุด API ตอบกลับว่าเกินโควตา และ Journey บันทึกเหตุผลไว้ในขั้นนั้น โควตาเริ่มใหม่ทุกต้นเดือน (07:00 น. วันที่ 1 เวลาไทย) หรืออัปเกรดแพ็กเกจได้ทันทีในหน้าแพ็กเกจและการใช้งาน",
       },
       {
         q: "ค่าส่ง SMS, LINE และ WhatsApp รวมในราคาไหม",
@@ -1126,7 +1126,7 @@ const th: Pulse8Content = {
       },
       {
         q: "หน้าจอเป็นภาษาไทยไหม",
-        a: "เป็น ทุกหน้ามีทั้งภาษาไทยและอังกฤษ สลับได้จากเมนูด้านข้าง คอนเทนต์ภาษาไทยแสดงผลถูกต้อง และ SMS ภาษาไทยนับ segment ตามมาตรฐาน UCS-2",
+        a: "เป็น ทุกหน้ามีทั้งภาษาไทยและอังกฤษ สลับได้จากเมนูด้านข้าง คอนเทนต์ภาษาไทยแสดงผลถูกต้อง และ SMS ภาษาไทยนับจำนวนข้อความตามที่ SMS ภาษาไทยคิดจริง",
       },
     ],
   },

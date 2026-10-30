@@ -113,13 +113,13 @@ export function Bars() {
   for (let d = 0; d < 30; d++) {
     const v = 40 + ((d * 37) % 23) * 3 + (d % 7 === 3 ? 55 : 0) + (d === 10 || d === 24 ? 40 : 0);
     rects.push(
-      <rect key={d} x={7 + d * 28.4} y={140 - v} width="16" height={v} rx="3" fill={d % 7 === 3 ? "#00b8d4" : "#c9d3dc"} />,
+      <rect key={d} x={7 + d * 28.4} y={140 - v} width="16" height={v} rx="3" fill={d % 7 === 3 ? "var(--cyan-500)" : "var(--neutral-300)"} />,
     );
   }
   return (
     <svg width="100%" height="150" viewBox="0 0 860 150" preserveAspectRatio="none">
       {rects}
-      <line x1="0" y1="140.5" x2="860" y2="140.5" stroke="#e6eaef" />
+      <line x1="0" y1="140.5" x2="860" y2="140.5" stroke="var(--neutral-150)" />
     </svg>
   );
 }

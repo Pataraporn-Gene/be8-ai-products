@@ -79,7 +79,7 @@ export type BarPlan = {
 
 const en = {
   meta: {
-    title: "MEET8 (Second Brain) · Organizational memory for every meeting",
+    title: "MEET8 (Second Brain) · Every meeting recorded, written up and searchable",
     description:
       "Record and transcribe meetings in Thai, English or both, get decisions and action items written up for you, and look up anything said in past meetings.",
   },
@@ -93,8 +93,8 @@ const en = {
   ],
   hero: {
     eyebrow: "MEET8 (Second Brain)",
-    h1: "Organizational memory",
-    h1Em: "for every meeting",
+    h1: "Every meeting recorded,",
+    h1Em: "written up and searchable",
     lead: "Record and transcribe meetings in Thai, English or both, get decisions and action items written up for you, and look up anything said in past meetings, with a link to the exact moment it was said.",
     ctaPrimary: "See how it works",
     ctaSecondary: "View plans and pricing",
@@ -115,12 +115,10 @@ const en = {
   marquee: [
     "Live Thai and English transcription",
     "Decisions and action items written up for you",
-    "Answers with sources",
     "Prep Brief before meetings",
     "PDF meeting minutes",
     "Team chat with a built-in assistant",
     "Manager visibility by reporting line",
-    "Google Meet · macOS · iOS",
   ],
   tryit: {
     eyebrow: "Take a look",
@@ -419,7 +417,7 @@ export type Meet8Content = typeof en;
 
 const th: Meet8Content = {
   meta: {
-    title: "MEET8 (Second Brain) · ความจำขององค์กรสำหรับทุกการประชุม",
+    title: "MEET8 (Second Brain) · ทุกการประชุม บันทึก สรุป และค้นหาได้",
     description:
       "บันทึกและถอดเสียงการประชุมภาษาไทย อังกฤษ หรือทั้งสองภาษา ได้สรุปมติและงานที่ต้องทำให้อัตโนมัติ และค้นสิ่งที่เคยพูดในการประชุมย้อนหลังได้",
   },
@@ -433,8 +431,8 @@ const th: Meet8Content = {
   ],
   hero: {
     eyebrow: "MEET8 (Second Brain)",
-    h1: "ความจำขององค์กร",
-    h1Em: "สำหรับทุกการประชุม",
+    h1: "ทุกการประชุม บันทึกไว้",
+    h1Em: "สรุปให้ และค้นหาได้",
     lead: "บันทึกและถอดเสียงการประชุมภาษาไทย อังกฤษ หรือทั้งสองภาษา ได้สรุปมติและงานที่ต้องทำให้อัตโนมัติ และค้นสิ่งที่เคยพูดในการประชุมย้อนหลังได้ พร้อมลิงก์ไปยังช่วงเวลาที่พูดจริง",
     ctaPrimary: "ดูวิธีการทำงาน",
     ctaSecondary: "ดูแพ็กเกจและราคา",
@@ -455,12 +453,10 @@ const th: Meet8Content = {
   marquee: [
     "ถอดเสียงไทยและอังกฤษแบบสด",
     "สรุปมติและงานที่ต้องทำให้อัตโนมัติ",
-    "คำตอบพร้อมแหล่งที่มา",
     "Prep Brief ก่อนประชุม",
     "รายงานการประชุม PDF",
     "แชตทีมพร้อมผู้ช่วยในตัว",
     "ผู้บริหารเห็นตามสายบังคับบัญชา",
-    "Google Meet · macOS · iOS",
   ],
   tryit: {
     eyebrow: "ลองดู",

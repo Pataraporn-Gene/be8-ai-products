@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LangSwitch } from "@/components/LangSwitch";
 import { hasLocale } from "@/lib/i18n";
@@ -28,15 +27,15 @@ export default async function Page({ params }: PageProps<"/[lang]/data8">) {
     <div className="p-data8">
       <header className="top">
         <div className="wrap">
-          <Link className="brand" href={`/${lang}`}>
+          <a className="brand" href="#top">
             <span className="brand-mark" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#00C4D6" strokeWidth="1.5">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#00C4D6" strokeWidth="1.75">
                 <ellipse cx="8" cy="4" rx="5" ry="2" />
                 <path d="M3 4v4c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8v4c0 1.1 2.2 2 5 2s5-.9 5-2V8" />
               </svg>
             </span>
             Data8
-          </Link>
+          </a>
           <nav className="menu" aria-label={t.header.menuAria}>
             <a href="#flow">{t.header.menu.flow}</a>
             <a href="#modules">{t.header.menu.modules}</a>

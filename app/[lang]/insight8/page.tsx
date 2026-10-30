@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { hasLocale } from "@/lib/i18n";
 import { LangSwitch } from "@/components/LangSwitch";
@@ -31,38 +30,38 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/insight8">
 }
 
 const CASE_ICONS = [
-  <svg key="0" viewBox="0 0 24 24">
+  <svg key="0" viewBox="0 0 24 24" strokeWidth="1.75">
     <path d="M4 19V10M10 19V5M16 19v-6M22 19H2"></path>
   </svg>,
-  <svg key="1" viewBox="0 0 24 24">
+  <svg key="1" viewBox="0 0 24 24" strokeWidth="1.75">
     <path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M18 12h3M16.3 7.7l2.1-2.1"></path>
     <circle cx="12" cy="14" r="5"></circle>
   </svg>,
-  <svg key="2" viewBox="0 0 24 24">
+  <svg key="2" viewBox="0 0 24 24" strokeWidth="1.75">
     <ellipse cx="12" cy="6" rx="7" ry="3"></ellipse>
     <path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"></path>
   </svg>,
-  <svg key="3" viewBox="0 0 24 24">
+  <svg key="3" viewBox="0 0 24 24" strokeWidth="1.75">
     <path d="M4 5h16v11H8l-4 4z"></path>
     <path d="M8 9h8M8 12h5"></path>
   </svg>,
 ];
 
 const TRUST_ICONS = [
-  <svg key="0" viewBox="0 0 24 24">
+  <svg key="0" viewBox="0 0 24 24" strokeWidth="1.75">
     <circle cx="12" cy="8" r="4"></circle>
     <path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"></path>
   </svg>,
-  <svg key="1" viewBox="0 0 24 24">
+  <svg key="1" viewBox="0 0 24 24" strokeWidth="1.75">
     <ellipse cx="12" cy="6" rx="7" ry="3"></ellipse>
     <path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"></path>
     <path d="M3 3l18 18"></path>
   </svg>,
-  <svg key="2" viewBox="0 0 24 24">
+  <svg key="2" viewBox="0 0 24 24" strokeWidth="1.75">
     <rect x="4" y="10" width="16" height="11" rx="2"></rect>
     <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
   </svg>,
-  <svg key="3" viewBox="0 0 24 24">
+  <svg key="3" viewBox="0 0 24 24" strokeWidth="1.75">
     <path d="M9 12l2 2 4-4"></path>
     <path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"></path>
   </svg>,
@@ -79,14 +78,14 @@ export default async function Page({ params }: PageProps<"/[lang]/insight8">) {
     <PricingProvider t={t}>
         <header className="top">
           <div className="wrap">
-            <Link className="brand" href={`/${lang}`}>
+            <a className="brand" href="#top">
               <span className="brand-mark" aria-hidden="true">
                 <svg width="16" height="16" viewBox="0 0 16 16">
-                  <path d="M3 13V9M8 13V5M13 13V3" stroke="#00C4D6" strokeWidth="2" strokeLinecap="round"></path>
+                  <path d="M3 13V9M8 13V5M13 13V3" stroke="var(--cyan-400)" strokeWidth="1.75" strokeLinecap="round"></path>
                 </svg>
               </span>
               Insight8 Studio
-            </Link>
+            </a>
             <nav className="menu" aria-label={t.header.menuAria}>
               <a href="#features">{t.header.menu.features}</a>
               <a href="#cases">{t.header.menu.cases}</a>
@@ -153,7 +152,9 @@ export default async function Page({ params }: PageProps<"/[lang]/insight8">) {
           <div className="mq" aria-hidden="true">
             <div className="mq-track">
               {t.marquee.concat(t.marquee).map((x, i) => (
-                <span key={i}>{x}</span>
+                <span key={i} className={i >= t.marquee.length ? "dup" : undefined}>
+                  {x}
+                </span>
               ))}
             </div>
           </div>

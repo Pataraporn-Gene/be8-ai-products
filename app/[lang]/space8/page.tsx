@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LangSwitch } from "@/components/LangSwitch";
 import { hasLocale } from "@/lib/i18n";
@@ -40,10 +39,10 @@ export default async function Page({ params }: PageProps<"/[lang]/space8">) {
     <div className="p-space8">
       <NavHeader>
         <div className="wrap">
-          <Link className="brand" href={`/${lang}`} aria-label={c.nav.homeLabel}>
+          <a className="brand" href="#top" aria-label={c.nav.homeLabel}>
             <img src={MARK} alt="" />
             Space8
-          </Link>
+          </a>
           <a className="news" href="#brain">
             {c.nav.news}
           </a>

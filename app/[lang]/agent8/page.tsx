@@ -1,21 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Anuphan, IBM_Plex_Mono, IBM_Plex_Sans_Thai } from "next/font/google";
+import { Check, Minus } from "lucide-react";
 import type { ReactNode } from "react";
 import { LangSwitch } from "@/components/LangSwitch";
 import { hasLocale } from "@/lib/i18n";
 import { getAgent8Content } from "./content";
 import { Dock, HowTabs, PickButton, PlanCard, PlanProvider, SubNav } from "./interactive";
 import "./agent8.css";
-
-const anuphan = Anuphan({ subsets: ["latin", "thai"], weight: ["400", "500", "600", "700"], variable: "--font-anuphan" });
-const plexThai = IBM_Plex_Sans_Thai({
-  subsets: ["latin", "thai"],
-  weight: ["400", "500", "600"],
-  variable: "--font-plex-thai",
-});
-const plexMono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex-mono" });
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/agent8">): Promise<Metadata> {
   const { lang } = await params;
@@ -30,11 +21,7 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/agent8">):
 
 /* ---------- Small render helpers ---------- */
 
-const Ck = () => (
-  <svg width="14" height="14" aria-hidden="true">
-    <use href="#ck" />
-  </svg>
-);
+const Ck = () => <Check size={16} strokeWidth={1.75} aria-hidden="true" />;
 
 function Ticks({ items, className = "ticks" }: { items: string[]; className?: string }) {
   return (
@@ -68,7 +55,7 @@ function rich(text: string): ReactNode {
 function Icon({ children }: { children: ReactNode }) {
   return (
     <span className="ic" aria-hidden="true">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75">
         {children}
       </svg>
     </span>
@@ -238,9 +225,9 @@ export default async function Page({ params }: PageProps<"/[lang]/agent8">) {
         {": "}
         <span className="s">{`"${h.call.codeUser}"`}</span>
         {"}],\n)\n"}
-        <span className="c"># resp.agent8 → run_id, status, trace_id, version</span>
+        <span className="c"># resp.agent8 holds run_id, status, trace_id, version</span>
         {"\n"}
-        <span className="c">{`# header X-Agent8-Cost-Usd → ${h.call.codeCost}`}</span>
+        <span className="c">{`# header X-Agent8-Cost-Usd: ${h.call.codeCost}`}</span>
       </pre>
     </>,
     /* 04 Review */
@@ -286,32 +273,19 @@ export default async function Page({ params }: PageProps<"/[lang]/agent8">) {
   const p = c.plans;
 
   return (
-    <div className={`p-agent8 ${anuphan.variable} ${plexThai.variable} ${plexMono.variable}`}>
-      <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
-        <symbol id="ck" viewBox="0 0 16 16">
-          <path
-            d="M3 8.5l3.2 3L13 4.5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </symbol>
-      </svg>
-
+    <div className="p-agent8">
       <PlanProvider>
         <header className="top">
           <div className="wrap">
-            <Link className="brand" href={`/${lang}`}>
+            <a className="brand" href="#top">
               <span className="brand-mark" aria-hidden="true">
                 <svg width="16" height="16" viewBox="0 0 16 16">
-                  <circle cx="8" cy="4.8" r="2.9" fill="none" stroke="currentColor" strokeWidth="1.7" />
-                  <circle cx="8" cy="11.4" r="3.3" fill="none" stroke="currentColor" strokeWidth="1.7" />
+                  <circle cx="8" cy="4.8" r="2.9" fill="none" stroke="currentColor" strokeWidth="1.75" />
+                  <circle cx="8" cy="11.4" r="3.3" fill="none" stroke="currentColor" strokeWidth="1.75" />
                 </svg>
               </span>
               AGENT8
-            </Link>
+            </a>
             <nav aria-label={c.aria.mainNav}>
               <a href="#features">{c.nav.features}</a>
               <a href="#uses">{c.nav.uses}</a>
@@ -319,7 +293,7 @@ export default async function Page({ params }: PageProps<"/[lang]/agent8">) {
               <a href="#faq">{c.nav.help}</a>
             </nav>
             <div className="lang-switch">
-              <LangSwitch lang={lang} path="/agent8" dark />
+              <LangSwitch lang={lang} path="/agent8" />
             </div>
           </div>
         </header>
@@ -955,9 +929,9 @@ export default async function Page({ params }: PageProps<"/[lang]/agent8">) {
                             return (
                               <td key={i} className={cls}>
                                 {cell === "y" ? (
-                                  <span className="y">✓</span>
+                                  <span className="y"><Check size={18} strokeWidth={1.75} aria-label="Included" /></span>
                                 ) : cell === "x" ? (
-                                  <span className="x">—</span>
+                                  <span className="x"><Minus size={18} strokeWidth={1.75} aria-label="Not included" /></span>
                                 ) : (
                                   cell
                                 )}

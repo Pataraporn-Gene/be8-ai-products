@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import localFont from "next/font/local";
 import { getDictionary, hasLocale, locales } from "@/lib/i18n";
+import { BackToSolutions } from "@/components/BackToSolutions";
 import "../globals.css";
 
 // Brand variable fonts from the Beryl8 Design System.
@@ -41,8 +42,14 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   if (!hasLocale(lang)) notFound();
 
   return (
-    <html lang={lang} className={`${interTight.variable} ${inter.variable} ${notoThai.variable} h-full`}>
-      <body className="flex min-h-full flex-col">{children}</body>
+    <html
+      lang={lang}
+      data-scroll-behavior="smooth"
+      className={`${interTight.variable} ${inter.variable} ${notoThai.variable} h-full`}
+    >
+      <body className="flex min-h-full flex-col">{children}
+        <BackToSolutions />
+      </body>
     </html>
   );
 }

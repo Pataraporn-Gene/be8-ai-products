@@ -2,7 +2,6 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useEffect, useRef } from "react";
-import { prefersReducedMotion } from "./Fx";
 
 /** Calls fn on scroll, throttled to one animation frame, plus once on mount. */
 function useRafScroll(fn: () => void) {
@@ -49,19 +48,11 @@ type HeroVisualProps = {
   pill: string;
 };
 
-/** Hero screenshot with floating close-up; drifts with a light parallax near the top of the page. */
+/** Hero screenshot with floating close-up. */
 export function HeroVisual({ shotUrl, mainAlt, floatCaption, floatAlt, pill }: HeroVisualProps) {
-  const visualRef = useRef<HTMLDivElement>(null);
-  const floatRef = useRef<HTMLElement>(null);
-  useRafScroll(() => {
-    const y = window.scrollY;
-    if (prefersReducedMotion() || y >= 1200) return;
-    if (visualRef.current) visualRef.current.style.translate = `0 ${y * 0.08}px`;
-    if (floatRef.current) floatRef.current.style.translate = `0 ${-y * 0.06}px`;
-  });
 
   return (
-    <div className="hero-visual" ref={visualRef}>
+    <div className="hero-visual">
       <figure className="shot hero-main">
         <div className="shot-bar">
           <i></i>
@@ -71,7 +62,7 @@ export function HeroVisual({ shotUrl, mainAlt, floatCaption, floatAlt, pill }: H
         </div>
         <img src="/products/meet8/today.jpg" alt={mainAlt} width={1280} height={640} />
       </figure>
-      <figure className="float-card" ref={floatRef}>
+      <figure className="float-card">
         <figcaption>{floatCaption}</figcaption>
         <img src="/products/meet8/actions-close.jpg" alt={floatAlt} width={754} height={296} />
       </figure>

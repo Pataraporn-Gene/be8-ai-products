@@ -16,8 +16,8 @@ export function LangSwitch({ lang, path = "", dark = false }: { lang: Locale; pa
         gap: 2,
         padding: 3,
         borderRadius: 999,
-        border: `1px solid ${dark ? "rgba(255,255,255,.16)" : "#DBE0E6"}`,
-        background: dark ? "rgba(255,255,255,.04)" : "#fff",
+        border: `1px solid ${dark ? "rgba(255,255,255,.16)" : "var(--line2)"}`,
+        background: dark ? "rgba(255,255,255,.04)" : "var(--bg1)",
         flex: "none",
       }}
     >
@@ -34,15 +34,14 @@ export function LangSwitch({ lang, path = "", dark = false }: { lang: Locale; pa
               borderRadius: 999,
               fontSize: 12,
               fontWeight: 500,
-              letterSpacing: ".04em",
               lineHeight: 1,
-              textTransform: "uppercase",
               textDecoration: "none",
-              background: active ? (dark ? "#fff" : "#0A1F2E") : "transparent",
-              color: active ? (dark ? "#0A1F2E" : "#fff") : dark ? "rgba(255,255,255,.7)" : "#6B7682",
+              transition: "background 180ms var(--ease-standard), color 180ms var(--ease-standard)",
+              background: active ? (dark ? "#fff" : "var(--b8-navy-deep)") : "transparent",
+              color: active ? (dark ? "var(--b8-navy-deep)" : "#fff") : dark ? "rgba(255,255,255,.7)" : "var(--fg3)",
             }}
           >
-            {code}
+            {code.toUpperCase()}
           </Link>
         );
       })}

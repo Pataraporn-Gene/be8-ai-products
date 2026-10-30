@@ -84,7 +84,7 @@ export function OfficeShowcase({ t, scene }: { t: Space8Content["office"]; scene
 }
 
 /* ---------- status chips in the focus card ---------- */
-const STATUS_COLORS = ["#30db72", "#f26473", "#8490a5"];
+const STATUS_COLORS = ["var(--b8-green)", "var(--b8-red)", "var(--neutral-400)"];
 const NOTE_ICONS: IconName[] = ["smile", "headphones", "logout"];
 
 export function StatusCard({ statuses, notes }: { statuses: string[]; notes: string[] }) {

@@ -22,7 +22,7 @@ const en = {
   meta: {
     title: "Insight8 Studio · Plans and pricing",
     description:
-      "Anyone in your organization types what they want to know. The agent writes the SQL and builds a dashboard your team can edit, while BI keeps full control of connections and access.",
+      "Anyone in your organization types what they want to know. The agent writes the queries and builds a dashboard your team can edit. Your BI team keeps control of connections and access.",
   },
   header: {
     menuAria: "Main menu",
@@ -31,14 +31,14 @@ const en = {
   hero: {
     eyebrow: "Insight8 Studio by Beryl8",
     h1: "Ask a plain question.",
-    h1em: "Get a dashboard your team can actually edit.",
+    h1em: "Get a dashboard your team can edit.",
     lead:
-      "Anyone in your organization types what they want to know. The agent reads the data sources that person can access, writes the SQL and builds a dashboard in a workbook, while your BI team keeps full control of connections and access.",
+      "Anyone in your organization types what they want to know. The agent reads only the data that person is allowed to see, writes the queries and builds a dashboard. Your BI team keeps control of connections and access.",
     cta1: "See what it can do",
     cta2: "View plans and pricing",
     mini: [
       "Unlimited users on every plan, priced by organization-wide agent questions",
-      "By default, no copies of records from customer systems are stored",
+      "By default, we do not store copies of your data",
     ],
     dashAlt:
       "Agent-built Thai Retail POS Q3 sales overview dashboard with net sales, gross profit and bill count KPIs versus last year, plus a monthly sales chart",
@@ -48,25 +48,25 @@ const en = {
   },
   facts: [
     { b: "Unlimited users", span: "Priced per organization per year; sign in with your company Google account" },
-    { b: "The agent sees only what the asker sees", span: "Limited to Insight8 tools and runs in a gVisor sandbox" },
+    { b: "The agent sees only what the asker sees", span: "It works only with Insight8 tools, in an isolated workspace" },
     {
-      b: "No copies of records",
-      span: "Reads from source systems; stores data only when Extract is enabled for a connection",
+      b: "No copies of your data",
+      span: "Reads from your systems. Stores data only when Extract is turned on for a connection",
     },
     { b: "Connects to databases and apps", span: "PostgreSQL, BigQuery, Salesforce and 100+ apps" },
   ],
   shotNote: "All screenshots on this page come from the live product with generated sample data, not customer data",
   marquee: [
     "Ask in Thai",
-    "Edit agent dashboards on the shelf",
+    "Edit the dashboards the agent builds",
     "Pulse metric + Inspector",
     "Subscriptions and data alerts",
-    "Row-level security",
+    "Each person sees only their own data",
     "Explain Data",
-    "Live refresh from live databases",
+    "Refresh every minute from live databases",
     "Built-in Thai province maps",
     "Atrium team chat with the agent",
-    "MCP server for external agents",
+    "Connect outside AI agents",
   ],
   tryit: {
     eyebrow: "Try it",
@@ -111,9 +111,9 @@ const en = {
       ask: {
         label: "Ask",
         h: "Ask a question, then keep following up",
-        p: "Type in the question box on Home or in a conversation. The agent explores the data sources the asker can access, writes SQL that must pass a guard before it runs, then answers with a chart and an explanation.",
+        p: "Type in the question box on Home or in a conversation. The agent explores the data sources the asker can access, writes a query, checks it before running it, then answers with a chart and an explanation.",
         list: [
-          "Every SQL query the agent writes runs as the asker",
+          "Every query the agent runs uses the asker's own access",
           "Attach files or @mention a data source in chat",
           "Enable skills so the agent knows your organization's terms and context",
         ],
@@ -146,8 +146,8 @@ const en = {
         h: "BI teams and admins govern from one place",
         p: "Turn AI capabilities on or off one by one, choose which data sources the agent can use, manage access with projects and permissions, and check Impact to see which workbooks and metrics use each field.",
         list: [
-          "Credentials encrypted with Cloud KMS",
-          "Static egress IPs for customer firewall allowlists",
+          "Passwords and keys encrypted with Cloud KMS",
+          "Fixed outgoing IP addresses you can allow through your firewall",
           "Agent activity shows who asked what and how many tokens were used",
         ],
         alt: "AI settings page with toggles for Analytics agent, Pulse Inspector summaries, Explain Data narratives and more",
@@ -172,7 +172,7 @@ const en = {
     conn: {
       k: "Connections",
       h: "Connect once, and the whole team can use it",
-      p: "Admins set up site connections for selected groups, and no one sees the password. Secrets are encrypted with Cloud KMS, internal-network databases connect over SSH tunnel (Beta), and static egress IPs are ready for your firewall.",
+      p: "Admins set up site connections for selected groups, and no one sees the password. Passwords are encrypted and never shown. Databases on a private network connect through an SSH tunnel (Beta), and fixed outgoing IP addresses are ready for your firewall allowlist.",
       alt: "Connections page showing the Retail Data Warehouse site connection with Extract enabled, plus Test, Network and Audience and schemas buttons",
     },
   },
@@ -189,7 +189,7 @@ const en = {
       },
       {
         h: "BI and data teams",
-        p: "Connect the warehouse once, set row-level security by branch (Premium), then let everyone ask their own questions safely.",
+        p: "Connect the warehouse once, limit each person to their own branch's data (Premium), then let everyone ask their own questions safely.",
       },
       {
         h: "Frontline teams",
@@ -226,11 +226,11 @@ const en = {
       list: [
         "{q} agent questions per month",
         "Salesforce and Insight8 Connect for 100+ apps",
-        "Extract per connection",
-        "Row-level security, groups and user attributes",
-        "Public API, MCP server, embedding and Slack app",
+        "Extract per connection (optional copy of the data)",
+        "Per-person data access: row-level security, groups and user attributes",
+        "Public API, MCP server (for outside AI agents), embedding and Slack app",
         "Atrium Knowledge: the agent reads PDF documents for you",
-        "HA Cloud SQL and 2 agent sandbox instances",
+        "High-availability database and 2 agent workspaces",
       ],
     },
     customize: {
@@ -291,9 +291,9 @@ const en = {
       { l: "Extract per connection", s: false, p: true },
       { l: "Custom connectors for the customer's systems", s: false, p: false, c: true },
       { g: "Governance and security" },
-      { l: "IAP sign-in with your organization's Google account", s: true, p: true },
+      { l: "Sign-in with your organization's Google account", s: true, p: true },
       { l: "Projects, permissions, site roles", s: true, p: true },
-      { l: "KMS-encrypted credentials, static egress IPs", s: true, p: true },
+      { l: "Encrypted passwords, fixed outgoing IP addresses", s: true, p: true },
       { l: "Agent activity (who asked what, tokens used)", s: true, p: true },
       { l: "Row-level security, groups and user attributes", s: false, p: true },
       { g: "Integrations" },
@@ -304,30 +304,30 @@ const en = {
       { l: "Knowledge: the agent reads PDF documents + FAQ", s: false, p: true },
       { l: "Beryl8 builds agents and imports documents for you", s: false, p: false, c: true },
       { g: "Deployment" },
-      { l: "Dedicated stack per organization on Google Cloud", s: true, p: true },
-      { l: "HA Cloud SQL and 2 agent sandbox instances", s: false, p: true },
+      { l: "Separate environment per organization on Google Cloud", s: true, p: true },
+      { l: "High-availability database and 2 agent workspaces", s: false, p: true },
       { l: "Larger-than-Premium system sizing per contract", s: false, p: false, c: true },
     ] as MatrixRow[],
   },
   trust: {
     eyebrow: "Security and privacy",
-    h2: "Designed so IT can answer every question",
+    h2: "Built for the questions IT will ask",
     items: [
       {
         b: "The agent sees only what the asker sees",
-        span: "Every agent SQL query passes a guard and runs as the asker; row-level security applies to the agent too",
+        span: "Every query the agent writes is checked and runs with the asker's access. Per-person data limits apply to the agent too",
       },
       {
-        b: "No records stored without permission",
-        span: "By default every read goes to the source system; copies exist only when the connection owner enables Extract",
+        b: "No data stored without permission",
+        span: "By default every read goes to your own system. Copies exist only when the connection owner turns on Extract",
       },
       {
-        b: "Encrypted passwords, static egress IPs",
-        span: "Connection secrets are encrypted with Cloud KMS and never shown again; outbound calls use reserved IPs",
+        b: "Encrypted passwords, fixed IP addresses",
+        span: "Connection passwords are encrypted and never shown again. Outgoing traffic uses reserved IP addresses",
       },
       {
         b: "The agent cannot write data on its own",
-        span: "App actions that write data need the question owner to click Approve first, and every run is logged",
+        span: "Any action that changes data needs the person who asked to click Approve first, and every run is logged",
       },
     ],
   },
@@ -369,11 +369,11 @@ const en = {
       },
       {
         q: "Is our data stored in Insight8?",
-        a: "Records from source systems are not stored by default; every query reads from your systems. What the platform does store: uploaded files, data from connections where the owner enabled Extract, Pulse metric history, subscription thumbnails and snapshots, and agent response text, which may contain figures from your data. Query results are sent to the model to answer the question.",
+        a: "Data from your source systems is not stored by default. Every query reads from your systems. What the platform does store: uploaded files, data from connections where the owner enabled Extract, Pulse metric history, subscription thumbnails and snapshots, and agent response text, which may contain figures from your data. Query results are sent to the model to answer the question.",
       },
       {
         q: "Can the agent see data the user is not allowed to see?",
-        a: "No. The agent uses the asker's permissions on every query, including data source permissions and row-level security, so it sees only what that person sees.",
+        a: "No. The agent uses the asker's permissions on every query, including data source permissions and any limits on which rows they can see, so it sees only what that person sees.",
       },
       {
         q: "Can it connect to databases on an internal network?",
@@ -434,7 +434,7 @@ const th: Insight8Content = {
     cta2: "ดูแพ็กเกจและราคา",
     mini: [
       "ไม่จำกัดผู้ใช้ทุกแพ็กเกจ คิดตามจำนวนคำถามถึง agent ของทั้งองค์กร",
-      "ค่าเริ่มต้นคือไม่เก็บสำเนา records จากระบบของลูกค้า",
+      "ค่าเริ่มต้นคือไม่เก็บสำเนาข้อมูลจากระบบของลูกค้า",
     ],
     dashAlt:
       "dashboard ภาพรวมยอดขาย Thai Retail POS ไตรมาส 3 ที่ agent สร้าง มี KPI ยอดขายสุทธิ กำไรขั้นต้น จำนวนบิล เทียบปีก่อน และกราฟยอดขายรายเดือน",
@@ -444,22 +444,22 @@ const th: Insight8Content = {
   },
   facts: [
     { b: "ไม่จำกัดผู้ใช้", span: "ราคาต่อองค์กรต่อปี เข้าใช้ด้วยบัญชี Google ของบริษัท" },
-    { b: "Agent เห็นเท่าที่ผู้ถามเห็น", span: "ใช้ได้เฉพาะ tools ของ Insight8 และรันใน sandbox gVisor" },
-    { b: "ไม่เก็บสำเนา records", span: "อ่านจากระบบต้นทาง จะเก็บก็ต่อเมื่อเปิด Extract ราย connection" },
+    { b: "Agent เห็นเท่าที่ผู้ถามเห็น", span: "ใช้ได้เฉพาะเครื่องมือของ Insight8 และทำงานในพื้นที่แยกต่างหาก" },
+    { b: "ไม่เก็บสำเนาข้อมูล", span: "อ่านจากระบบต้นทาง จะเก็บก็ต่อเมื่อเปิด Extract ราย connection" },
     { b: "เชื่อมได้ทั้งฐานข้อมูลและแอป", span: "PostgreSQL, BigQuery, Salesforce และแอปกว่า 100 ตัว" },
   ],
   shotNote: "ภาพหน้าจอทั้งหมดในหน้านี้มาจากระบบจริง ใช้ข้อมูลตัวอย่างที่สร้างขึ้น ไม่ใช่ข้อมูลลูกค้า",
   marquee: [
     "ถามเป็นภาษาไทยได้",
-    "Dashboard จาก agent แก้ต่อบน shelf ได้",
+    "แก้ dashboard ที่ agent สร้างได้",
     "Pulse metric + Inspector",
     "Subscription และ data alert",
-    "Row-level security",
+    "แต่ละคนเห็นเฉพาะข้อมูลของตัวเอง",
     "Explain Data",
-    "Live refresh จากฐานข้อมูล live",
+    "รีเฟรชทุกนาทีจากฐานข้อมูลสด",
     "แผนที่จังหวัดไทยในตัว",
     "Atrium team chat กับ agent",
-    "MCP server สำหรับ agent ภายนอก",
+    "เชื่อมกับ agent ภายนอกได้",
   ],
   tryit: {
     eyebrow: "ลองกดดู",
@@ -504,9 +504,9 @@ const th: Insight8Content = {
       ask: {
         label: "ถาม",
         h: "พิมพ์คำถาม แล้วถามต่อได้เรื่อยๆ",
-        p: "พิมพ์ที่กล่องคำถามหน้า Home หรือในบทสนทนา agent ไล่ดู data source ที่ผู้ถามมีสิทธิ์ เขียน SQL ที่ต้องผ่าน guard ก่อนรัน แล้วตอบเป็นกราฟพร้อมคำอธิบาย",
+        p: "พิมพ์ที่กล่องคำถามหน้า Home หรือในบทสนทนา agent ไล่ดู data source ที่ผู้ถามมีสิทธิ์ เขียนคำสั่งค้นข้อมูลและตรวจก่อนรัน แล้วตอบเป็นกราฟพร้อมคำอธิบาย",
         list: [
-          "ทุก SQL ที่ agent เขียนรันในนามผู้ถาม",
+          "ทุกคำสั่งค้นข้อมูลของ agent ใช้สิทธิ์ของผู้ถาม",
           "แนบไฟล์หรือ @mention data source ในแชตได้",
           "เปิด skill ให้ agent รู้คำศัพท์และบริบทขององค์กร",
         ],
@@ -539,8 +539,8 @@ const th: Insight8Content = {
         h: "ทีม BI และ admin ดูแลจากที่เดียว",
         p: "เปิดปิดความสามารถ AI ได้ทีละตัว เลือก data source ที่ agent ใช้ได้ จัดสิทธิ์ด้วย project และ permission แล้วดู Impact ว่า field ไหนถูกใช้ใน workbook และ metric ใด",
         list: [
-          "credential เข้ารหัสด้วย Cloud KMS",
-          "มี IP ขาออกคงที่ไว้ให้ลูกค้าใส่ใน firewall",
+          "รหัสผ่านและคีย์เข้ารหัสด้วย Cloud KMS",
+          "มี IP ขาออกคงที่ให้ลูกค้าอนุญาตผ่าน firewall",
           "Agent activity บอกว่าใครถามอะไร ใช้ไปกี่ token",
         ],
         alt: "หน้า AI settings มีสวิตช์ Analytics agent, Pulse Inspector summaries, Explain Data narratives และอื่นๆ",
@@ -565,7 +565,7 @@ const th: Insight8Content = {
     conn: {
       k: "Connections",
       h: "เชื่อมระบบครั้งเดียว ทั้งทีมใช้ได้",
-      p: "admin ตั้ง site connection ให้กลุ่มที่เลือก ไม่มีใครเห็นรหัสผ่าน secret เข้ารหัสด้วย Cloud KMS ต่อฐานข้อมูลใน network ภายในผ่าน SSH tunnel ได้ (Beta) และมี IP ขาออกคงที่ให้ใส่ firewall",
+      p: "admin ตั้ง site connection ให้กลุ่มที่เลือก ไม่มีใครเห็นรหัสผ่าน รหัสผ่านถูกเข้ารหัสและไม่แสดงให้ใครเห็น ต่อฐานข้อมูลใน network ภายในผ่าน SSH tunnel ได้ (Beta) และมี IP ขาออกคงที่ให้อนุญาตใน firewall",
       alt: "หน้า Connections แสดง site connection Retail Data Warehouse ที่เปิด Extract พร้อมปุ่ม Test, Network และ Audience and schemas",
     },
   },
@@ -579,7 +579,7 @@ const th: Insight8Content = {
       { h: "ทีม operations", p: "ตั้ง data alert ให้เตือนเมื่อตัวเลขหลุดเกณฑ์ และรับ subscription ของ dashboard ทางอีเมลทุกเช้า" },
       {
         h: "ทีม BI และ data",
-        p: "เชื่อม warehouse ครั้งเดียว ตั้ง row-level security แยกตามสาขา (Premium) แล้วเปิดให้ทุกคนถามเองได้อย่างปลอดภัย",
+        p: "เชื่อม warehouse ครั้งเดียว จำกัดให้แต่ละคนเห็นเฉพาะข้อมูลของสาขาตัวเอง (Premium) แล้วเปิดให้ทุกคนถามเองได้อย่างปลอดภัย",
       },
       { h: "ทีมหน้างาน", p: "ถาม agent ใน Atrium ว่าคู่มือกำหนดขั้นตอนไว้อย่างไร แล้วได้คำตอบที่บอกเลขหน้าอ้างอิงมาด้วย" },
     ],
@@ -613,11 +613,11 @@ const th: Insight8Content = {
       list: [
         "{q} คำถามถึง agent ต่อเดือน",
         "Salesforce และ Insight8 Connect แอปกว่า 100 ตัว",
-        "Extract per connection",
-        "Row-level security, groups และ user attributes",
-        "Public API, MCP server, embedding และ Slack app",
+        "Extract ราย connection (เลือกเก็บสำเนาข้อมูลได้)",
+        "จำกัดข้อมูลรายคน: row-level security, groups และ user attributes",
+        "Public API, MCP server (สำหรับ agent ภายนอก), embedding และ Slack app",
         "Atrium Knowledge: agent อ่านเอกสาร PDF ให้",
-        "Cloud SQL แบบ HA และ agent sandbox 2 instance",
+        "ฐานข้อมูลแบบ high-availability และพื้นที่ทำงานของ agent 2 ชุด",
       ],
     },
     customize: {
@@ -678,9 +678,9 @@ const th: Insight8Content = {
       { l: "Extract per connection", s: false, p: true },
       { l: "พัฒนา connector เฉพาะระบบของลูกค้า", s: false, p: false, c: true },
       { g: "Governance และ security" },
-      { l: "IAP sign-in ด้วยบัญชี Google ขององค์กร", s: true, p: true },
+      { l: "เข้าสู่ระบบด้วยบัญชี Google ขององค์กร", s: true, p: true },
       { l: "Projects, permissions, site roles", s: true, p: true },
-      { l: "Credential เข้ารหัสด้วย KMS, IP ขาออกคงที่", s: true, p: true },
+      { l: "รหัสผ่านเข้ารหัส, IP ขาออกคงที่", s: true, p: true },
       { l: "Agent activity (ใครถามอะไร ใช้กี่ token)", s: true, p: true },
       { l: "Row-level security, groups และ user attributes", s: false, p: true },
       { g: "เชื่อมกับระบบอื่น" },
@@ -691,30 +691,30 @@ const th: Insight8Content = {
       { l: "Knowledge: agent อ่านเอกสาร PDF + FAQ", s: false, p: true },
       { l: "Beryl8 สร้าง agent และนำเข้าเอกสารให้", s: false, p: false, c: true },
       { g: "การติดตั้ง" },
-      { l: "Stack แยกต่อองค์กรบน Google Cloud", s: true, p: true },
-      { l: "Cloud SQL แบบ HA และ agent sandbox 2 instance", s: false, p: true },
+      { l: "สภาพแวดล้อมแยกต่อองค์กรบน Google Cloud", s: true, p: true },
+      { l: "ฐานข้อมูลแบบ high-availability และพื้นที่ทำงานของ agent 2 ชุด", s: false, p: true },
       { l: "ขนาดระบบใหญ่กว่า Premium ตามสัญญา", s: false, p: false, c: true },
     ],
   },
   trust: {
     eyebrow: "ความปลอดภัยและความเป็นส่วนตัว",
-    h2: "ออกแบบให้ทีม IT ตอบคำถามได้ทุกข้อ",
+    h2: "สร้างมาเพื่อคำถามที่ทีม IT จะถาม",
     items: [
       {
         b: "Agent เห็นเท่าที่ผู้ถามเห็น",
-        span: "ทุก SQL ของ agent ผ่าน guard และรันในนามผู้ถาม row-level security มีผลกับ agent ด้วย",
+        span: "ทุกคำสั่งค้นข้อมูลของ agent ถูกตรวจและรันด้วยสิทธิ์ของผู้ถาม การจำกัดข้อมูลรายคนมีผลกับ agent ด้วย",
       },
       {
-        b: "ไม่เก็บ records โดยไม่ได้รับอนุญาต",
-        span: "ค่าเริ่มต้นคืออ่านจากระบบต้นทางทุกครั้ง สำเนาจะมีก็ต่อเมื่อเจ้าของ connection เปิด Extract",
+        b: "ไม่เก็บข้อมูลโดยไม่ได้รับอนุญาต",
+        span: "ค่าเริ่มต้นคืออ่านจากระบบของคุณทุกครั้ง สำเนาจะมีก็ต่อเมื่อเจ้าของ connection เปิด Extract",
       },
       {
         b: "รหัสผ่านเข้ารหัส IP ขาออกคงที่",
-        span: "secret ของ connection เข้ารหัสด้วย Cloud KMS และไม่แสดงอีก การเรียกออกใช้ IP ที่จองไว้",
+        span: "รหัสผ่านของ connection ถูกเข้ารหัสและไม่แสดงอีก การเชื่อมต่อขาออกใช้ IP ที่จองไว้",
       },
       {
         b: "Agent เขียนข้อมูลเองไม่ได้",
-        span: "app action ที่เขียนข้อมูลต้องให้เจ้าของคำถามกด Approve ก่อน และทุกครั้งที่รันมีบันทึก",
+        span: "การกระทำที่แก้ข้อมูลต้องให้คนที่ถามกด Approve ก่อน และทุกครั้งที่รันมีบันทึก",
       },
     ],
   },
@@ -756,11 +756,11 @@ const th: Insight8Content = {
       },
       {
         q: "ข้อมูลของเราจะถูกเก็บไว้ที่ Insight8 ไหม",
-        a: "records จากระบบต้นทางไม่ถูกเก็บโดยค่าเริ่มต้น ทุก query อ่านจากระบบของคุณ สิ่งที่ระบบเก็บคือไฟล์ที่อัปโหลด, ข้อมูลจาก connection ที่เจ้าของเปิด Extract, ประวัติตัวเลขของ Pulse metric, ภาพ thumbnail และ snapshot ของ subscription และข้อความคำตอบของ agent ซึ่งอาจมีตัวเลขจากข้อมูล ผลลัพธ์ของ query ถูกส่งให้ model เพื่อใช้ตอบคำถาม",
+        a: "ข้อมูลจากระบบต้นทางไม่ถูกเก็บโดยค่าเริ่มต้น ทุกคำสั่งค้นข้อมูลอ่านจากระบบของคุณ สิ่งที่ระบบเก็บคือไฟล์ที่อัปโหลด, ข้อมูลจาก connection ที่เจ้าของเปิด Extract, ประวัติตัวเลขของ Pulse metric, ภาพ thumbnail และ snapshot ของ subscription และข้อความคำตอบของ agent ซึ่งอาจมีตัวเลขจากข้อมูล ผลลัพธ์ของ query ถูกส่งให้ model เพื่อใช้ตอบคำถาม",
       },
       {
         q: "agent จะเห็นข้อมูลที่ผู้ใช้ไม่มีสิทธิ์ไหม",
-        a: "ไม่เห็น agent ใช้สิทธิ์ของคนที่ถามในทุก query ทั้ง permission ของ data source และ row-level security จึงเห็นได้เท่าที่คนนั้นเห็น",
+        a: "ไม่เห็น agent ใช้สิทธิ์ของคนที่ถามในทุก query ทั้ง permission ของ data source และการจำกัดข้อมูลรายแถว จึงเห็นได้เท่าที่คนนั้นเห็น",
       },
       {
         q: "ต่อฐานข้อมูลที่อยู่ใน network ภายในได้ไหม",

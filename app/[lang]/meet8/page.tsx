@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { hasLocale } from "@/lib/i18n";
 import { LangSwitch } from "@/components/LangSwitch";
@@ -56,14 +55,14 @@ export default async function Page({ params }: PageProps<"/[lang]/meet8">) {
       <PlanProvider>
         <header className="top">
           <div className="wrap">
-            <Link className="brand" href={`/${lang}`}>
+            <a className="brand" href="#top">
               <span className="brand-mark" aria-hidden="true">
                 <svg width="16" height="16" viewBox="0 0 16 16">
-                  <path d="M3 4.5h10M3 8h7M3 11.5h4" stroke="#00C4D6" strokeWidth="1.8" strokeLinecap="round" />
+                  <path d="M3 4.5h10M3 8h7M3 11.5h4" stroke="var(--cyan-400)" strokeWidth="1.75" strokeLinecap="round" />
                 </svg>
               </span>
               {c.brand}
-            </Link>
+            </a>
             <nav className="menu" aria-label={c.menuLabel}>
               {c.menu.map((m) => (
                 <a key={m.href} href={m.href}>
@@ -122,8 +121,10 @@ export default async function Page({ params }: PageProps<"/[lang]/meet8">) {
 
           <div className="mq" aria-hidden="true">
             <div className="mq-track">
-              {[...c.marquee, ...c.marquee].map((x, i) => (
-                <span key={i}>{x}</span>
+              {[...c.marquee, ...c.marquee, ...c.marquee, ...c.marquee].map((x, i) => (
+                <span key={i} className={i >= c.marquee.length ? "dup" : undefined}>
+                  {x}
+                </span>
               ))}
             </div>
           </div>
@@ -413,20 +414,20 @@ export default async function Page({ params }: PageProps<"/[lang]/meet8">) {
 }
 
 const CASE_ICONS = [
-  <svg key="client" viewBox="0 0 24 24">
+  <svg key="client" viewBox="0 0 24 24" strokeWidth="1.75">
     <rect x="3" y="5" width="18" height="12" rx="2" />
     <path d="M8 21h8M12 17v4" />
   </svg>,
-  <svg key="internal" viewBox="0 0 24 24">
+  <svg key="internal" viewBox="0 0 24 24" strokeWidth="1.75">
     <circle cx="9" cy="8" r="3" />
     <circle cx="17" cy="9" r="2.5" />
     <path d="M3 19c0-3 2.7-5 6-5s6 2 6 5M15 14.5c3 0 6 1.5 6 4.5" />
   </svg>,
-  <svg key="interview" viewBox="0 0 24 24">
+  <svg key="interview" viewBox="0 0 24 24" strokeWidth="1.75">
     <path d="M12 3a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z" />
     <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
   </svg>,
-  <svg key="voice" viewBox="0 0 24 24">
+  <svg key="voice" viewBox="0 0 24 24" strokeWidth="1.75">
     <path d="M4 12h2l2-6 4 12 3-9 2 3h3" />
   </svg>,
 ];
