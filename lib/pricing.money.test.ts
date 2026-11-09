@@ -3,7 +3,7 @@
 // Run: node --test lib/pricing.money.test.ts
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_SETTINGS, PRICING, billedUsers, costItem, decode, displayGrid, encode, isPriced, vatOf, newItem, roundMoney, roundPrice, toDisplay, totals, type Item } from "./pricing.ts";
+import { DEFAULT_SETTINGS, PRICING, billedUsers, choiceIndex, costItem, decode, displayGrid, encode, isPriced, vatOf, newItem, roundMoney, roundPrice, toDisplay, totals, type Item } from "./pricing.ts";
 
 const s = DEFAULT_SETTINGS;
 const YEARS_N = 5; // rate 33.5, ฿15,000 per man-day, no discount
@@ -213,4 +213,81 @@ test("C22 size and CUD survive a share link", () => {
   assert.equal(back?.items[0].size, "standard");
   assert.equal(back?.s.cud, true);
   assert.equal(decode(encode({ ...saved, items: [insight()] }))?.items[0].size, "lean");
+});
+
+/* ---- Ask 8: credits per answered question. Expected values worked out by hand. ---- */
+const ask8 = (inputs: Record<string, number> = {}): Item => {
+  const base = newItem("ask8", "a");
+  return { ...base, setup: false, inputs: { ...base.inputs, ...inputs } };
+};
+const aiLine = (item: Item) => costItem(item, s).lines.find((l) => l.id === "ai")!;
+
+test("A1 AI Pack default: 20 x 40 x 1.6 = 1,280 credits = ฿5,120 billed by Beryl8, cost $54.52", () => {
+  const c = costItem(ask8(), s);
+  const ai = aiLine(ask8());
+  assert.equal(ai.payer, "beryl8");
+  assert.equal(ai.kind, "usage");
+  assert.equal(ai.draft, true);
+  near(c.monthlyBeryl8 * 33.5, 5120, "billed in THB");
+  near(c.monthlyCost, 54.52, "800 x (0.0389 x .6 + 0.0792 x .3 + 0.1805 x .1 + 0.003)");
+});
+
+test("A2 pay your provider: $52.12 direct at cost, no infra, nothing billed by Beryl8", () => {
+  const c = costItem(ask8({ pack: 0 }), s);
+  const ai = aiLine(ask8({ pack: 0 }));
+  assert.equal(ai.payer, "direct");
+  assert.equal(ai.kind, "ai");
+  near(ai.sell, 52.12, "sell");
+  near(ai.cost, 52.12, "cost");
+  near(c.monthlyBeryl8, 0, "billed by Beryl8");
+  near(c.monthlyDirect, 52.12 + 155, "AI + cloud 150 + 10 GB x 0.5");
+});
+
+test("A3 mix over 100% gives data what is left after actions, never a negative share", () => {
+  near(aiLine(ask8({ action: 50, data: 80 })).sell * 33.5, 800 * 3 * 4, "50/50/0 = 3 credits");
+  near(aiLine(ask8({ action: 100, data: 100 })).sell * 33.5, 800 * 4 * 4, "all actions = 4 credits");
+  near(aiLine(ask8({ action: 0, data: 0 })).sell * 33.5, 800 * 1 * 4, "all plain answers = 1 credit");
+  assert.ok(!aiLine(ask8({ action: 0.1, data: 100 })).detail!.en.includes("-0"), "float noise must not print -0");
+});
+
+test("A4 no questions, no AI charge", () => {
+  const ai = aiLine(ask8({ asks: 0 }));
+  near(ai.sell, 0, "sell");
+  near(ai.cost, 0, "cost");
+});
+
+test("A5 credits leave the license, MA and cloud alone", () => {
+  const c = costItem(ask8(), s);
+  near(c.license, 2400, "20 x $120");
+  near(c.ma, 528, "22%");
+  near(c.monthlyDirect, 155, "cloud only when AI Pack bills the AI");
+});
+
+test("A6 share link keeps pack and mix, old links get defaults, bad pack values land on one side", () => {
+  const items = [ask8({ pack: 0, data: 15, action: 5 })];
+  const back = decode(encode({ v: 1, items, s, cur: "THB", vat: false }));
+  assert.deepEqual(
+    { pack: back!.items[0].inputs.pack, data: back!.items[0].inputs.data, action: back!.items[0].inputs.action },
+    { pack: 0, data: 15, action: 5 },
+  );
+  const old = decode(btoa(JSON.stringify({ v: 1, i: [["ask8", 20, { asks: 40, gb: 10 }, 1]], s: {} })));
+  assert.deepEqual(
+    { pack: old!.items[0].inputs.pack, data: old!.items[0].inputs.data, action: old!.items[0].inputs.action },
+    { pack: 1, data: 30, action: 10 },
+  );
+  const viaLink = (pack: number) => {
+    const d = decode(btoa(JSON.stringify({ v: 1, i: [["ask8", 20, { pack }, 1]], s: {} })));
+    return [choiceIndex(d!.items[0].inputs.pack), aiLine(d!.items[0]).payer];
+  };
+  assert.deepEqual([0.49, 0.5, 2.5, -1].map(viaLink), [[0, "direct"], [1, "beryl8"], [1, "beryl8"], [0, "direct"]]);
+});
+
+test("A7 satang and rounding: 21 x 3 questions = 100.8 credits = ฿403.20 shows ฿403; VAT and other rates round once", () => {
+  const small = { ...ask8({ asks: 3 }), users: 21 };
+  near(aiLine(small).sell * 33.5, 403.2, "100.8 credits x ฿4");
+  const row = (it: Item, st: typeof s, d: { cur: "THB" | "USD"; rate: number; vat: boolean }) =>
+    displayGrid(totals([it], st), d, st).items[0].lines.find((l) => l.id === "ai")!.sell;
+  assert.equal(row(small, s, { cur: "THB", rate: 33.5, vat: false }), 403);
+  assert.equal(row(ask8(), s, { cur: "THB", rate: 33.5, vat: true }), 5478); // 5,120 x 1.07 = 5,478.40
+  assert.equal(row(ask8(), { ...s, rate: 40 }, { cur: "THB", rate: 40, vat: false }), 6113); // ฿5,120 / 33.5 x 40 = 6,113.43, priced in USD
 });

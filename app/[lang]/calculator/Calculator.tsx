@@ -13,6 +13,7 @@ import {
   MIN_USERS,
   PRICING,
   billedUsers,
+  choiceIndex,
   decode,
   displayGrid,
   isPriced,
@@ -644,7 +645,7 @@ function ItemCard(props: {
               onChange={(v) => props.onChange({ users: v })}
             />
           )}
-          {pr.inputs.map((inp) => (
+          {pr.inputs.filter((inp) => !inp.choices).map((inp) => (
             <NumField
               key={inp.id}
               label={inp.label[lang]}
@@ -658,6 +659,23 @@ function ItemCard(props: {
             />
           ))}
         </div>
+
+        {pr.inputs.map((inp) => inp.choices && (
+          <fieldset key={inp.id} className="calc-size">
+            <legend>{inp.label[lang]}</legend>
+            <div className="calc-size-opts">
+              {([1, 0] as const).map((k) => {
+                const on = choiceIndex(item.inputs[inp.id] ?? inp.def) === k;
+                return (
+                  <label key={k} className="calc-size-opt" data-on={on || undefined}>
+                    <input type="radio" name={`${inp.id}-${item.uid}`} checked={on} onChange={() => props.onChange({ inputs: { ...item.inputs, [inp.id]: k } })} />
+                    <span>{inp.choices![k][lang]}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+        ))}
 
         {pr.sizes && (
           <fieldset className="calc-size">

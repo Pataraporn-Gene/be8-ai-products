@@ -6,8 +6,9 @@ import type { Localized } from "./i18n";
    - Perpetual license per named user, minimum 20 users per customer.
    - MA 22% of the license per year, mandatory from year 2.
    - License excludes AI, cloud and implementation. Exceptions billed by
-     Beryl8: Voice per minute (US$0.076 incl. AI) and Meet transcription
-     + summary (US$2.5 per hour, cost about US$0.74).
+     Beryl8: Voice per minute (US$0.076 incl. AI), Meet transcription
+     + summary (US$2.5 per hour, cost about US$0.74) and the Ask 8 AI
+     Pack (draft, about ฿4 per credit at ฿33.5/US$).
    - Insight8 US$480 per named user (US$20 x 24 months).
    Every other number is a draft (`draft: true`) until finance confirms.
    All money here is USD; the page converts with the rate the user sets.
@@ -32,6 +33,8 @@ export type Input = {
   max: number;
   step?: number;
   help?: Localized;
+  /** Two-way choice stored as 0 or 1; `choices[1]` is the value 1. */
+  choices?: [Localized, Localized];
 };
 
 /** One monthly running cost. `sell` is what the customer pays, `cost` what it costs Beryl8 (same as sell when paid direct). */
@@ -62,6 +65,17 @@ export type ProductPricing = {
 
 const L = (en: string, th: string): Localized => ({ en, th });
 const blocks = (n: number, size: number) => Math.max(1, Math.ceil(n / size));
+/** Which side of a two-way input a stored value means. A hand-edited share link can hold anything from 0 to 1. */
+export const choiceIndex = (x: number) => (x >= 0.5 ? 1 : 0);
+
+/* Ask 8 per answered question, all draft. Cost is Sonnet 5.5 at a 60% cache hit, not yet measured from real usage. */
+const ASK8 = {
+  creditSell: 4 / DEFAULT_RATE, // ฿4 at the default rate
+  infra: 0.003,
+  ask: { credits: 1, cost: 0.0389 },
+  data: { credits: 2, cost: 0.0792 },
+  action: { credits: 4, cost: 0.1805 },
+};
 
 const USERS = L("named users", "ผู้ใช้ (named user)");
 const n = (x: number) => x.toLocaleString("en-US", { maximumFractionDigits: 4 });
@@ -319,18 +333,37 @@ export const PRICING: Record<string, ProductPricing> = {
     inputs: [
       { id: "asks", label: L("Questions per user per month", "คำถามต่อผู้ใช้ต่อเดือน"), unit: L("questions", "คำถาม"), def: 40, max: 10000, step: 5 },
       { id: "gb", label: L("Documents indexed", "ขนาดเอกสารที่ให้ค้น"), unit: L("GB", "GB"), def: 10, max: 100000, step: 5 },
+      { id: "data", label: L("Questions that look up data", "คำถามที่ดึงข้อมูล"), unit: L("%", "%"), def: 30, max: 100, step: 5 },
+      { id: "action", label: L("Questions that update data, run a flow or send email", "คำถามที่อัปเดตข้อมูล สั่ง flow หรือส่งอีเมล"), unit: L("%", "%"), def: 10, max: 100, step: 5,
+        help: L("The rest are plain answers.", "ส่วนที่เหลือนับเป็นถามตอบทั่วไป") },
+      { id: "pack", label: L("How AI is paid for", "วิธีจ่ายค่า AI"), unit: L("", ""), def: 1, max: 1,
+        choices: [L("Pay your AI provider directly", "จ่ายค่าโมเดลกับผู้ให้บริการเอง"), L("AI Pack billed by Beryl8, per credit", "AI Pack เรียกเก็บโดย Beryl8 ตาม credit")] },
     ],
-    lines: (v, users) => [
-      { id: "ai", label: L("AI model for answers", "ค่าโมเดล AI สำหรับคำตอบ"), payer: "direct", kind: "ai", sell: users * v.asks * 0.01, cost: users * v.asks * 0.01, draft: true,
-        detail: L(`${n(users)} users × ${n(v.asks)} questions × US$0.01`, `${n(users)} คน × ${n(v.asks)} คำถาม × US$0.01`) },
-      ...gcp([
-        ["Cloud Run (widget and API)", "Cloud Run (widget และ API)", 60, "run"],
-        ["Cloud SQL with pgvector", "Cloud SQL พร้อม pgvector", 70, "sql"],
-        ["Logging and other", "Logging และอื่นๆ", 20],
-      ], 1, true),
-      gcpUsage("gcp-docs", "Storage and search index", "Storage และดัชนีค้นหา", v.gb * 0.5, L(`${n(v.gb)} GB × US$0.50`, `${n(v.gb)} GB × US$0.50`)),
-    ],
-    notes: [],
+    lines: (v, users) => {
+      const data = Math.min(v.data, 100 - v.action);
+      const ask = Math.max(0, 100 - data - v.action); // float noise can land just below zero
+      const mix = `${n(ask)}/${n(data)}/${n(v.action)}%`;
+      const perQuestion = (k: "credits" | "cost") => (ask * ASK8.ask[k] + data * ASK8.data[k] + v.action * ASK8.action[k]) / 100;
+      const questions = users * v.asks;
+      const model = questions * perQuestion("cost");
+      const ai: Line = choiceIndex(v.pack) === 1
+        ? { id: "ai", label: L("AI Pack (≈฿4 per credit at ฿33.5/US$)", "AI Pack (≈฿4 ต่อ credit ที่ ฿33.5/US$)"), payer: "beryl8", kind: "usage", draft: true,
+            sell: questions * perQuestion("credits") * ASK8.creditSell, cost: model + questions * ASK8.infra,
+            detail: L(`${n(users)} users × ${n(v.asks)} questions × ${n(perQuestion("credits"))} credits · answers/data/actions ${mix}`, `${n(users)} คน × ${n(v.asks)} คำถาม × ${n(perQuestion("credits"))} credit · ถามตอบ/ดึงข้อมูล/สั่งงาน ${mix}`) }
+        : { id: "ai", label: L("AI model for answers (your provider)", "ค่าโมเดล AI สำหรับคำตอบ (ผู้ให้บริการของคุณ)"), payer: "direct", kind: "ai", draft: true,
+            sell: model, cost: model,
+            detail: L(`${n(users)} users × ${n(v.asks)} questions · answers/data/actions ${mix}`, `${n(users)} คน × ${n(v.asks)} คำถาม · ถามตอบ/ดึงข้อมูล/สั่งงาน ${mix}`) };
+      return [
+        ai,
+        ...gcp([
+          ["Cloud Run (widget and API)", "Cloud Run (widget และ API)", 60, "run"],
+          ["Cloud SQL with pgvector", "Cloud SQL พร้อม pgvector", 70, "sql"],
+          ["Logging and other", "Logging และอื่นๆ", 20],
+        ], 1, true),
+        gcpUsage("gcp-docs", "Storage and search index", "Storage และดัชนีค้นหา", v.gb * 0.5, L(`${n(v.gb)} GB × US$0.50`, `${n(v.gb)} GB × US$0.50`)),
+      ];
+    },
+    notes: [L("AI Pack: a plain answer is 1 credit, a data lookup 2, an update, flow or email 4. Failed answers are not charged.", "AI Pack: ถามตอบ 1 credit, ดึงข้อมูล 2 credit, อัปเดตข้อมูล สั่ง flow หรือส่งอีเมล 4 credit คำถามที่ตอบไม่สำเร็จไม่คิดเงิน")],
   },
   data8: {
     id: "data8",
