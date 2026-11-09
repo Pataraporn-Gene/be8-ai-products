@@ -69,12 +69,22 @@
   }
 }
 
-/* Floating "Back to AI Solutions" button on product pages. Selector is heavy so page-scoped link resets cannot override it. */
-html body a.b8-back {
+/* Floating "Back to AI Solutions" + "Estimate price" buttons on product pages. Selectors are heavy so page-scoped link resets cannot override them. */
+html body div.b8-float {
   position: fixed;
   right: 24px;
   bottom: 24px;
   z-index: 60;
+  display: flex;
+  flex-wrap: wrap-reverse;
+  justify-content: flex-end;
+  gap: 8px;
+  max-width: calc(100vw - 32px);
+}
+html body div.b8-float[data-raised="true"] {
+  bottom: 104px;
+}
+html body a.b8-back {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -91,13 +101,17 @@ html body a.b8-back {
   transition:
     transform var(--duration-base) var(--ease-standard),
     background var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard),
     box-shadow var(--duration-base) var(--ease-standard);
 }
-html body a.b8-back[data-raised="true"] {
-  bottom: 104px;
+html body a.b8-back.b8-estimate {
+  background: var(--neutral-0);
+  color: var(--cyan-800);
+  box-shadow: var(--shadow-card-elevated), inset 0 0 0 1px var(--line2);
 }
 html body a.b8-back:hover {
   background: var(--cyan-700);
+  color: var(--neutral-0);
   transform: translateY(-1px);
 }
 html body a.b8-back:active {
@@ -109,11 +123,11 @@ html body a.b8-back:focus-visible {
   box-shadow: var(--ring-tight);
 }
 @media (max-width: 520px) {
-  html body a.b8-back {
+  html body div.b8-float {
     right: 16px;
     bottom: 16px;
   }
-  html body a.b8-back[data-raised="true"] {
+  html body div.b8-float[data-raised="true"] {
     bottom: 112px;
   }
 }

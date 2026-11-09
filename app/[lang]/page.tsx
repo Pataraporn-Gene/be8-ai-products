@@ -1,39 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Bot,
-  Brain,
-  ChartColumn,
-  Check,
-  Database,
-  Map,
-  Megaphone,
-  MessageCircleQuestion,
-  MessagesSquare,
-  Phone,
-  Workflow,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, Calculator, Check } from "lucide-react";
 import { LangSwitch } from "@/components/LangSwitch";
 import { getDictionary, hasLocale } from "@/lib/i18n";
-import { products, type Product, type ProductIcon } from "@/lib/products";
+import { products, type Product } from "@/lib/products";
+import { productIcons as icons } from "@/components/productIcons";
 import type { Dictionary, Locale } from "@/lib/i18n";
-
-const icons: Record<ProductIcon, LucideIcon> = {
-  brain: Brain,
-  bot: Bot,
-  phone: Phone,
-  chart: ChartColumn,
-  workflow: Workflow,
-  map: Map,
-  megaphone: Megaphone,
-  chat: MessagesSquare,
-  ask: MessageCircleQuestion,
-  database: Database,
-};
 
 // Lucide at the brand stroke weight.
 const STROKE = 1.75;
@@ -51,7 +24,16 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             <Image src="/beryl8-logo.svg" alt="Beryl8" width={36} height={28} priority />
             <span className="font-display text-[15px] font-medium tracking-[-0.01em] text-fg1">AI Solutions</span>
           </Link>
-          <LangSwitch lang={lang} />
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link
+              href={`/${lang}/calculator`}
+              className="inline-flex h-11 items-center gap-2 rounded-full px-3 text-sm font-medium text-cyan-700 transition-colors duration-[250ms] hover:bg-cyan-50"
+            >
+              <Calculator size={16} strokeWidth={STROKE} aria-hidden />
+              {dict.calculator}
+            </Link>
+            <LangSwitch lang={lang} />
+          </div>
         </div>
       </header>
 
