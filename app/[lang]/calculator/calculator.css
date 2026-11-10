@@ -158,6 +158,8 @@
 /* ---------- fields ---------- */
 .calc-fields { display: flex; flex-direction: column; gap: 16px; }
 .calc-fields-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px 20px; padding-top: 20px; }
+.calc-fields-pick { padding-bottom: 20px; border-bottom: 1px solid var(--line1); }
+.calc-fields-pick + .calc-fields-grid { padding-top: 20px; }
 .calc-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .calc-field label { font-size: 13px; font-weight: var(--weight-medium); color: var(--fg2); line-height: 1.4; }
 .calc-input {
@@ -178,12 +180,43 @@
   caret-color: var(--cyan-600);
 }
 .calc-input input:focus { outline: none; box-shadow: none; }
+.calc-dd { position: relative; }
+.calc-dd-label { font-size: 13px; font-weight: var(--weight-medium); color: var(--fg2); line-height: 1.4; }
+.calc-dd-btn {
+  width: 100%; padding: 0 12px; gap: 8px; justify-content: space-between; cursor: pointer;
+  font: var(--weight-medium) 15px/1 var(--font-body); color: var(--fg1); text-align: left;
+}
+.calc-dd-btn > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.calc-dd-btn:hover { border-color: var(--cyan-300); }
+.calc-dd-btn:focus-visible { outline: none; border-color: var(--cyan-500); box-shadow: var(--ring); }
+.calc-dd-chev { flex: none; color: var(--fg3); transition: transform var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard); }
+.calc-dd-btn:hover .calc-dd-chev, .calc-dd[data-open] .calc-dd-chev { color: var(--cyan-700); }
+.calc-dd[data-open] .calc-dd-chev { transform: rotate(180deg); }
+.calc-dd[data-open] .calc-dd-btn { border-color: var(--cyan-500); box-shadow: var(--ring); }
+.calc-dd-list {
+  position: absolute; z-index: 20; top: calc(100% + 6px); left: 0; right: 0;
+  margin: 0; padding: 4px; list-style: none;
+  background: var(--bg1); border-radius: var(--radius-md); box-shadow: var(--shadow-popover);
+  animation: calc-dd-in var(--duration-base) var(--ease-standard);
+}
+.calc-dd-list li {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  min-height: 40px; padding: 8px 10px; border-radius: calc(var(--radius-md) - 2px);
+  font-size: 14px; color: var(--fg2); cursor: pointer;
+}
+.calc-dd-list li[data-active] { background: var(--neutral-50); color: var(--fg1); }
+.calc-dd-list li[aria-selected="true"] { color: var(--cyan-800); font-weight: var(--weight-medium); }
+.calc-dd-list li svg { flex: none; color: var(--cyan-600); }
+@keyframes calc-dd-in { from { opacity: 0; transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .calc-dd-list { animation: none; } .calc-dd-chev { transition: none; } }
 .calc-input input::-webkit-inner-spin-button, .calc-input input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .calc-input input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .calc-suffix { flex: none; padding: 0 10px; font-size: 13px; color: var(--fg3); max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .calc-fhint { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--fg3); }
 .calc-fhint[data-warn] { color: #9A5B07; }
 .calc-field[data-bad] .calc-fhint { color: var(--b8-red); }
+.calc-warn { display: flex; gap: 8px; align-items: flex-start; margin: 16px 0 0; padding: 10px 12px; border: 1px solid var(--b8-red); border-radius: var(--radius-md); background: color-mix(in srgb, var(--b8-red) 8%, transparent); color: var(--b8-red); font-size: 13px; line-height: 1.5; }
+.calc-warn svg { flex: none; margin-top: 2px; }
 
 .calc-check { display: flex; align-items: flex-start; gap: 10px; min-height: 44px; padding: 10px 0; font-size: 14px; color: var(--fg2); cursor: pointer; line-height: 1.45; }
 .calc-check input { flex: none; width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--cyan-600); cursor: pointer; }
@@ -206,6 +239,7 @@
 .calc-row dt small { flex-basis: 100%; font-size: 12px; color: var(--fg3); }
 .calc-row dt small.calc-cost { color: var(--cyan-800); }
 .calc-row dd { margin: 0; font-size: 14px; font-weight: var(--weight-medium); color: var(--fg1); white-space: nowrap; }
+.calc-asof { margin: 16px 0 0; padding-top: 12px; border-top: 1px solid var(--line1); text-align: center; font-size: 12.5px; color: var(--fg3); }
 .calc-notes { margin: 16px 0 0; padding: 12px 0 0 18px; border-top: 1px solid var(--line1); font-size: 12.5px; line-height: 1.6; color: var(--fg3); }
 
 /* ---------- summary ---------- */
@@ -244,6 +278,11 @@
 .calc-table tfoot .calc-vatrow:last-child th, .calc-table tfoot .calc-vatrow:last-child td { font-weight: var(--weight-medium); color: var(--fg1); }
 .calc-run { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--line1); display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
 .calc-run strong { font-weight: var(--weight-medium); color: var(--fg1); }
+.calc-month { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--line1); display: grid; gap: 8px; font-size: 14px; }
+.calc-month > div { display: flex; justify-content: space-between; gap: 12px; }
+.calc-month dt { margin: 0; }
+.calc-month dd { margin: 0; color: var(--fg1); font-variant-numeric: tabular-nums; }
+.calc-month .calc-month-total { padding-top: 8px; border-top: 1px solid var(--line1); font-weight: var(--weight-medium); }
 .calc-hint { margin: 4px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--fg3); }
 .calc-sum-in > .calc-check { margin-top: 4px; }
 .calc-run-host { margin-top: 10px; padding-top: 10px; }
