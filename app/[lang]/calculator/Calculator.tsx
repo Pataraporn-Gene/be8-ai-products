@@ -696,6 +696,19 @@ function ItemCard(props: {
       </header>
 
       <div className="calc-item-body" id={bodyId} hidden={!open}>
+        {sh && (
+          <p className="calc-say">
+            {lic !== null && <>{c.sayUsers(f.num(billed))} </>}
+            {c.sayPay} <strong>{f.whole(sh.monthlyBeryl8 + sh.monthlyDirect)}</strong> {c.sayMonth}
+            {sh.perUser && <> ({c.sayPerUser(f.whole(sh.perUser.monthly))})</>}
+            {sh.license + sh.setup > 0 && (
+              <>
+                {" "}{c.sayOnce} <strong>{f.whole(sh.license + sh.setup)}</strong> ({sh.license > 0 && sh.setup > 0 ? c.sayLicenseSetup : sh.license > 0 ? c.license : c.impl})
+              </>
+            )}
+            {sh.ma > 0 && <> {c.sayMa(f.whole(sh.ma))}</>}
+          </p>
+        )}
         {visible.map(({ id, label, choices }) => choices && (
           <fieldset key={id} className="calc-size">
             <legend>{label[lang]}</legend>
@@ -803,6 +816,8 @@ function ItemCard(props: {
           </span>
         </label>
 
+        <details className="calc-break-wrap">
+          <summary>{c.breakdownShow}</summary>
         <div className="calc-break">
           <BreakGroup title={c.oneTime}>
             {lic !== null && lic > 0 && (
@@ -839,6 +854,7 @@ function ItemCard(props: {
             </BreakGroup>
           )}
         </div>
+        </details>
 
         {pr.notes.length > 0 && (
           <ul className="calc-notes" aria-label={c.notes}>

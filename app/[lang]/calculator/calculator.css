@@ -225,6 +225,11 @@
 .calc-group-value { font-size: 14px; font-weight: var(--weight-medium); color: var(--fg1); white-space: nowrap; }
 .calc-row-group dl { margin: 4px 0 0; padding-left: 12px; border-left: 2px solid var(--line1); }
 .calc-item { container-type: inline-size; }
+.calc-say { margin: 20px 0 4px; padding: 14px 16px; border-radius: var(--radius-md); background: var(--cyan-50); font-size: 15px; line-height: 1.6; color: var(--fg1); }
+.calc-say strong { font-weight: var(--weight-medium); color: var(--cyan-800); white-space: nowrap; }
+.calc-break-wrap { margin-top: 16px; border-top: 1px solid var(--line1); }
+.calc-break-wrap > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-size: 14px; font-weight: var(--weight-medium); color: var(--cyan-800); }
+.calc-break-wrap > .calc-break { margin-top: 0; }
 .calc-compare-wrap { margin-top: 16px; }
 /* Comparison on a narrow card: one block per way of buying, each number labelled, nothing hidden sideways. */
 @container (max-width: 780px) {
