@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { LangSwitch } from "@/components/LangSwitch";
+import { ProductLogo } from "@/components/ProductLogo";
 import { hasLocale } from "@/lib/i18n";
 import { content } from "./content";
 import "./data8.css";
@@ -27,14 +28,8 @@ export default async function Page({ params }: PageProps<"/[lang]/data8">) {
     <div className="p-data8">
       <header className="top">
         <div className="wrap">
-          <a className="brand" href="#top">
-            <span className="brand-mark" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#00C4D6" strokeWidth="1.75">
-                <ellipse cx="8" cy="4" rx="5" ry="2" />
-                <path d="M3 4v4c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8v4c0 1.1 2.2 2 5 2s5-.9 5-2V8" />
-              </svg>
-            </span>
-            Data8
+          <a className="brand" href="#top" aria-label="DATA8">
+            <ProductLogo id="data8" kind="wordmark" alt="DATA8" priority />
           </a>
           <nav className="menu" aria-label={t.header.menuAria}>
             <a href="#flow">{t.header.menu.flow}</a>

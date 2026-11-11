@@ -26,11 +26,11 @@ const en = {
   hero: {
     h1Lead: "AI agents for your business,",
     h1Em: "tested before launch, with a log of every run",
-    lede: "Describe an agent in a chat and test it on a set of tasks before release. Your apps then call it through one gateway that controls models, budgets and personal data. Each request is logged with its cost.",
-    ctaPrimary: "See what it does",
+    lede: "Describe an agent in a chat and test it on a set of tasks before release. Your apps then call it through one gateway, a single entry point that controls models, budgets and personal data. Every request is logged with its cost.",
+    ctaPrimary: "See how it works",
     ctaSecondary: "View plans",
     ticks: [
-      "Apps on the OpenAI SDK switch over by changing one address (base_url)",
+      "Apps built on the OpenAI SDK switch over by changing one setting, base_url",
       "Use your organization's own OpenAI, Anthropic, Gemini or OpenRouter keys",
     ],
     screenAria: "Sample request log for one agent request",
@@ -72,7 +72,7 @@ const en = {
       ticks: [
         "Start fresh, or open an existing agent to improve it",
         "See the draft and test tasks as you talk",
-        "A person always does the publishing",
+        "Only a person can publish",
       ],
       aria: "Sample Agent Builder screen",
       userAv: "NP",
@@ -105,7 +105,7 @@ const en = {
     },
     call: {
       h3: "Apps call an agent the same way they call a model",
-      sub: "Give your app an API key, point it at the OpenAI-style address and set the model name to `agent:<slug>`. For long jobs, run the agent in the background and get the result sent back to your app.",
+      sub: "Give your app an API key, point it at the gateway's OpenAI-style address and set the model name to `agent:<slug>`. For long jobs, run the agent in the background and have the result sent back to your app.",
       ticks: [
         "Each key can only call the agents you allow",
         "Results sent back to your app are signed (HMAC-SHA256) so you can verify them",
@@ -117,14 +117,14 @@ const en = {
     },
     review: {
       h3: "Open any past run",
-      sub: "Each run includes the transcript, tools called, iteration count, tokens and cost, with a link to that request's request log.",
+      sub: "Each run includes the transcript, tools called, iteration count, tokens and cost, with a link to the matching request log.",
       ticks: [
         "Runs grouped by source: live apps, test page and test runs",
         "See runs paused for approval",
         "Cancel runs that are still in progress",
       ],
       aria: "Sample run list",
-      heads: ["Agent", "mode", "Status", "Cost"],
+      heads: ["Agent", "Mode", "Status", "Cost"],
     },
   },
   agent: {
@@ -146,7 +146,7 @@ const en = {
     approval: {
       ey: "Approvals",
       h3: "A person approves risky actions",
-      p: "For risky tools, the agent stops and waits for approval.",
+      p: "When an agent is about to use a risky tool, it stops and waits for approval.",
       aria: "Sample pending approval card",
       expires: "Expires in 14 minutes",
       approve: "Approve",
@@ -155,7 +155,7 @@ const en = {
     small: [
       {
         h4: "Tools from MCP",
-        p: "Add your organization's MCP servers and AGENT8 finds their tools. Connect them to an agent one at a time, and mark each as read-only or able to change data.",
+        p: "Add your organization's MCP servers, which give agents access to your systems and data, and AGENT8 finds their tools. Connect them to an agent one at a time, and mark each as read-only or able to change data.",
       },
       {
         h4: "Background runs and callbacks",
@@ -183,7 +183,7 @@ const en = {
     },
     checks: {
       ey: "Check types",
-      h3: "11 types",
+      h3: "11 kinds of checks",
       ticks: [
         "contains, equals, regex, json_valid",
         "Tool called or not called",
@@ -241,7 +241,7 @@ const en = {
       aria: "Sample list of request logs",
       segAll: "All",
       count: "1,284 requests",
-      heads: ["Time", "Agent / model", "source", "Status", "Cost"],
+      heads: ["Time", "Agent / model", "Source", "Status", "Cost"],
     },
     cost: {
       ey: "Cost",
@@ -324,7 +324,7 @@ const en = {
       inc: "Everything in Agent, plus",
       ticks: [
         "Runs in your own cloud project",
-        "Log retention to your requirements",
+        "Log retention set to your requirements",
         "Dedicated support team",
       ],
     },
@@ -333,7 +333,7 @@ const en = {
       Agent: "Agent · Gateway · Monitoring",
       Dedicated: "Private deployment · Scope per contract",
     } as Record<PlanKey, string>,
-    note: "Pricing is estimated by number of teams and usage volume · Excludes 7% VAT · Plan scope is a draft for discussion",
+    note: "Pricing depends on the number of teams and usage volume · Excludes 7% VAT · Plan scope is a draft for discussion",
     cmpH: "Compare plans",
     cmpHead: {
       gatewayPp: "Contact sales",
@@ -458,18 +458,18 @@ const th: Agent8Content = {
   hero: {
     h1Lead: "AI Agent สำหรับธุรกิจของคุณ",
     h1Em: "ที่ทดสอบก่อนใช้ และมี log ให้ย้อนดู",
-    lede: "คุยเพื่อสร้าง Agent แล้วทดสอบด้วยชุดโจทย์ก่อนปล่อย จากนั้นให้แอปเรียกผ่าน Gateway เดียวที่คุมโมเดล งบ และข้อมูลส่วนบุคคล ทุกคำขอมี log พร้อมต้นทุน",
-    ctaPrimary: "ดูว่าทำอะไรได้บ้าง",
+    lede: "คุยเพื่อสร้าง Agent แล้วทดสอบกับชุดโจทย์ก่อนปล่อยใช้งาน จากนั้นให้แอปเรียกผ่าน Gateway ซึ่งเป็นทางเข้าเดียวที่คุมโมเดล งบประมาณ และข้อมูลส่วนบุคคล ทุกคำขอมี log พร้อมต้นทุน",
+    ctaPrimary: "ดูวิธีการทำงาน",
     ctaSecondary: "ดูแพ็กเกจ",
     ticks: [
-      "แอปที่ใช้ OpenAI SDK ย้ายมาได้โดยเปลี่ยนที่อยู่เดียว (base_url)",
+      "แอปที่ใช้ OpenAI SDK ย้ายมาได้ แค่เปลี่ยน base_url ค่าเดียว",
       "ใช้คีย์ OpenAI, Anthropic, Gemini หรือ OpenRouter ขององค์กรเอง",
     ],
-    screenAria: "ตัวอย่างบันทึกของคำขอ Agent หนึ่งรายการ",
+    screenAria: "ตัวอย่าง log ของคำขอ Agent หนึ่งรายการ",
     traceTitle: "ตรวจสถานะเคลมของลูกค้า",
     tiles: [
       { v: "5.92 s", l: "เวลารวม" },
-      { v: "3 รอบ", l: "รอบ" },
+      { v: "3 รอบ", l: "รอบการทำงาน" },
       { v: "$0.031", l: "ต้นทุนคำขอนี้" },
     ],
     floatAria: "ตัวอย่าง API key พร้อมงบและสิทธิ์",
@@ -478,10 +478,10 @@ const th: Agent8Content = {
   },
   trust: {
     items: [
-      { b: "Agent มีรุ่น", s: "ฉบับร่าง ผ่านการทดสอบ แล้วจึงเผยแพร่" },
+      { b: "Agent แยกเป็นรุ่น", s: "ฉบับร่าง ผ่านการทดสอบ แล้วจึงเผยแพร่" },
       { b: "ทดสอบก่อนปล่อย", s: "รุ่นใหม่ต้องได้ผลผ่านตามเกณฑ์ที่ตั้งไว้" },
       { b: "ใช้กับแอปเดิมได้", s: "ตั้งโมเดล งบ และขีดจำกัดแยกตามคีย์" },
-      { b: "บันทึกไม่หาย", s: "ที่เก็บ log ล่ม ระบบพักไว้แล้วส่งซ้ำ" },
+      { b: "บันทึกไม่หาย", s: "ถ้าที่เก็บ log ล่ม ระบบจะพักไว้แล้วส่งซ้ำ" },
     ],
     note: "ภาพหน้าจอในหน้านี้จำลองจาก console ของ AGENT8 ใช้ข้อมูลตัวอย่าง",
   },
@@ -504,7 +504,7 @@ const th: Agent8Content = {
       ticks: [
         "เริ่มใหม่ หรือเปิดจาก Agent เดิมเพื่อปรับปรุง",
         "เห็นร่างและโจทย์ทดสอบระหว่างคุย",
-        "คนต้องเป็นผู้กดเผยแพร่เสมอ",
+        "เผยแพร่ได้เฉพาะคน",
       ],
       aria: "ตัวอย่างหน้า Agent Builder",
       userAv: "นภ",
@@ -520,11 +520,11 @@ const th: Agent8Content = {
     },
     test: {
       h3: "รุ่นใหม่ต้องผ่านเกณฑ์ก่อนใช้งานจริง",
-      sub: "ตั้งอัตราผ่านขั้นต่ำให้ชุดทดสอบ รุ่นที่ไม่ผ่านจะเผยแพร่ไม่ได้ ถ้าจำเป็นต้องปล่อย org_admin ข้ามได้โดยต้องระบุเหตุผล",
+      sub: "ตั้งอัตราผ่านขั้นต่ำให้ชุดทดสอบ รุ่นที่ไม่ผ่านจะเผยแพร่ไม่ได้ ถ้าต้องปล่อยด่วน org_admin ข้ามเกณฑ์ได้ โดยต้องระบุเหตุผล",
       ticks: [
         "ตรวจได้ 11 แบบ รวมถึงให้ AI ให้คะแนน",
         "บทสนทนาจำลองที่ AI รับบทลูกค้าคุยหลายรอบ",
-        "ชุดทดสอบบังคับ แก้ได้เฉพาะ org_admin",
+        "ชุดทดสอบที่บังคับใช้ แก้ไขได้เฉพาะ org_admin",
       ],
       aria: "ตัวอย่างผลทดสอบเทียบเกณฑ์",
       title: "เกณฑ์ก่อนเผยแพร่",
@@ -536,7 +536,7 @@ const th: Agent8Content = {
     },
     call: {
       h3: "แอปเรียก Agent เหมือนเรียกโมเดล",
-      sub: "ให้แอปใช้ API key เรียกที่อยู่แบบ OpenAI แล้วใส่ชื่อโมเดลเป็น `agent:<slug>` ถ้าเป็นงานยาว สั่งรันเบื้องหลังแล้วให้ส่งผลกลับมาที่แอปได้",
+      sub: "ให้แอปใช้ API key เรียกไปที่ Gateway ด้วยรูปแบบเดียวกับ OpenAI แล้วใส่ชื่อโมเดลเป็น `agent:<slug>` งานที่ใช้เวลานานสั่งรันเบื้องหลังได้ แล้วให้ส่งผลกลับมาที่แอป",
       ticks: [
         "แต่ละคีย์เรียกได้เฉพาะ Agent ที่อนุญาต",
         "ผลที่ส่งกลับมาที่แอปมีลายเซ็น (HMAC-SHA256) ให้ตรวจสอบได้",
@@ -555,7 +555,7 @@ const th: Agent8Content = {
         "ยกเลิก run ที่ยังทำงานอยู่ได้",
       ],
       aria: "ตัวอย่างรายการ run",
-      heads: ["Agent", "mode", "สถานะ", "ต้นทุน"],
+      heads: ["Agent", "โหมด", "สถานะ", "ต้นทุน"],
     },
   },
   agent: {
@@ -577,7 +577,7 @@ const th: Agent8Content = {
     approval: {
       ey: "การอนุมัติ",
       h3: "คนอนุมัติก่อนทำงานเสี่ยง",
-      p: "ถ้าเป็นเครื่องมือที่เสี่ยง Agent จะหยุดรอการอนุมัติ",
+      p: "เมื่อ Agent จะใช้เครื่องมือที่เสี่ยง ระบบจะหยุดรอให้คนอนุมัติก่อน",
       aria: "ตัวอย่างการ์ดรออนุมัติ",
       expires: "หมดอายุใน 14 นาที",
       approve: "อนุมัติ",
@@ -586,7 +586,7 @@ const th: Agent8Content = {
     small: [
       {
         h4: "เครื่องมือจาก MCP",
-        p: "เพิ่ม MCP server ขององค์กร แล้ว AGENT8 จะหาเครื่องมือให้ เลือกเชื่อมกับ Agent ทีละตัว และระบุได้ว่าตัวไหนอ่านอย่างเดียว ตัวไหนแก้ข้อมูลได้",
+        p: "เพิ่ม MCP server ขององค์กร ซึ่งเป็นช่องทางให้ Agent เข้าถึงระบบและข้อมูลของคุณ แล้ว AGENT8 จะหาเครื่องมือให้ เลือกเชื่อมกับ Agent ทีละตัว และระบุได้ว่าตัวไหนอ่านอย่างเดียว ตัวไหนแก้ข้อมูลได้",
       },
       {
         h4: "รันเบื้องหลังและ callback",
@@ -614,7 +614,7 @@ const th: Agent8Content = {
     },
     checks: {
       ey: "แบบการตรวจ",
-      h3: "11 แบบ",
+      h3: "ตรวจได้ 11 แบบ",
       ticks: [
         "contains, equals, regex, json_valid",
         "เรียกหรือไม่เรียกเครื่องมือ",
@@ -626,7 +626,7 @@ const th: Agent8Content = {
   },
   gateway: {
     h2: "Gateway เดียวสำหรับทุกโมเดลและทุก Agent",
-    p: "ก่อนถึงโมเดล Gateway จะตรวจคีย์ สิทธิ์ งบ ขีดจำกัดการเรียก และตัวกรองข้อความทุกคำขอ",
+    p: "ทุกคำขอต้องผ่านการตรวจของ Gateway ก่อนถึงโมเดล ทั้งคีย์ สิทธิ์การเข้าถึง งบประมาณ ขีดจำกัดการเรียก และตัวกรองข้อความ",
     keys: {
       ey: "ทีมและ API key",
       h3: "แจกคีย์ให้แต่ละแอป คุมงบได้รายทีม",
@@ -658,7 +658,7 @@ const th: Agent8Content = {
       },
       {
         h4: "คีย์เข้ารหัส นับแม่นยำ",
-        p: "คีย์ผู้ให้บริการเข้ารหัสก่อนเก็บ API key แสดงครั้งเดียว ตัวนับงบและขีดจำกัดการเรียกใช้ร่วมกันทุกเครื่อง",
+        p: "คีย์ผู้ให้บริการเข้ารหัสก่อนเก็บ API key แสดงครั้งเดียว ตัวนับงบและขีดจำกัดการเรียกนับรวมกันทุกเครื่อง แม้รันหลายเครื่อง",
       },
     ],
   },
@@ -669,10 +669,10 @@ const th: Agent8Content = {
       ey: "log คำขอ",
       h3: "ค้นและเปิดดูทุกคำขอ",
       p: "แต่ละคำขอแยกเป็นขั้น คือ request, agent, คำตอบของโมเดล, เครื่องมือ, ตัวกรองข้อความ และการทดสอบ กรองตามช่วงเวลา Agent คีย์ สถานะ และแหล่งที่มา",
-      aria: "ตัวอย่างรายการlog คำขอ",
+      aria: "ตัวอย่างรายการ log คำขอ",
       segAll: "ทั้งหมด",
       count: "1,284 รายการ",
-      heads: ["เวลา", "Agent / โมเดล", "source", "สถานะ", "ต้นทุน"],
+      heads: ["เวลา", "Agent / โมเดล", "แหล่งที่มา", "สถานะ", "ต้นทุน"],
     },
     cost: {
       ey: "ต้นทุน",
@@ -737,18 +737,18 @@ const th: Agent8Content = {
       ],
     },
     dedicated: {
-      big: "กรุณาติดต่อทีมขาย",
+      big: "ติดต่อทีมขาย",
       for: "สำหรับองค์กรที่ต้องการระบบแยกของตัวเอง",
       btn: "ติดต่อทีมขาย",
       inc: "ทุกอย่างใน Agent และ",
-      ticks: ["ติดตั้งแยกบน cloud project ของคุณเอง", "ระยะเก็บ log ตามข้อกำหนด", "ทีมซัพพอร์ตเฉพาะ"],
+      ticks: ["ติดตั้งแยกบน cloud project ของคุณเอง", "กำหนดระยะเก็บ log ได้ตามต้องการ", "ทีมซัพพอร์ตเฉพาะ"],
     },
     desc: {
       Gateway: "AI Gateway · ตัวกรองข้อความ · Monitoring",
       Agent: "Agent · Gateway · Monitoring",
       Dedicated: "ระบบแยกเฉพาะองค์กร · ขอบเขตตามสัญญา",
     },
-    note: "ราคาประเมินตามจำนวนทีมและปริมาณการใช้งาน · ยังไม่รวม VAT 7% · ขอบเขตแพ็กเกจเป็นร่างเพื่อหารือ",
+    note: "ราคาขึ้นอยู่กับจำนวนทีมและปริมาณการใช้งาน · ยังไม่รวม VAT 7% · ขอบเขตแพ็กเกจเป็นร่างเพื่อหารือ",
     cmpH: "เปรียบเทียบแพ็กเกจ",
     cmpHead: {
       gatewayPp: "ติดต่อทีมขาย",
@@ -783,7 +783,7 @@ const th: Agent8Content = {
     eyebrow: "ความปลอดภัย",
     h2: "ข้อมูลแต่ละองค์กรแยกกันตั้งแต่ระดับฐานข้อมูล",
     seals: [
-      { h4: "แยกองค์กรสองชั้น", p: "โค้ดกรองตามองค์กร และฐานข้อมูลบังคับซ้ำด้วย Row-Level Security" },
+      { h4: "แยกองค์กรสองชั้น", p: "แอปกรองข้อมูลตามองค์กร และฐานข้อมูลบังคับซ้ำด้วย Row-Level Security" },
       { h4: "คีย์เข้ารหัส", p: "คีย์ผู้ให้บริการเข้ารหัสก่อนเก็บ แอปใช้เพียง API key" },
       { h4: "ผลมีลายเซ็น", p: "แอปตรวจได้ว่าผลที่ได้รับมาจาก AGENT8 จริง" },
       { h4: "สิทธิ์ 3 ระดับ", p: "org_admin, builder และ viewer พร้อมประวัติการเปลี่ยนแปลง" },
@@ -793,7 +793,7 @@ const th: Agent8Content = {
     h2: "สเปก",
     items: [
       { dt: "Gateway API", dd: "`/v1/chat/completions` `/v1/embeddings` `/v1/models` `/v1/agents/{slug}/runs`" },
-      { dt: "งบและ limit", dd: "รายวัน รายเดือน หรือรวม · RPM/TPM · ระดับองค์กร ทีม และคีย์" },
+      { dt: "งบประมาณและขีดจำกัด", dd: "รายวัน รายเดือน หรือรวม · RPM/TPM · ระดับองค์กร ทีม และคีย์" },
       { dt: "ผู้ให้บริการ", dd: "OpenAI, Anthropic, Gemini, OpenRouter และบริการที่ใช้ API แบบ OpenAI" },
       { dt: "ตัวกรองข้อความ", dd: "ซ่อนข้อมูลส่วนบุคคล, บล็อกคำ, บล็อกตาม regex, จำกัดความยาว · ขาเข้าและขาออก" },
       { dt: "Agent", dd: "1 ถึง 50 รอบต่อคำขอ (ค่าเริ่มต้น 10) · draft / published / retired" },

@@ -15,12 +15,12 @@ const dictionaries = {
     heroLead: "AI Solutions",
     heroAccent: "for enterprise.",
     heroBody:
-      "Ten AI solutions for your business: meeting notes, AI agents, phone calls, analytics, system connections, a virtual office, marketing, team chat with agents, Q&A inside your pages, and customer data. Open one to see how it works.",
+      "Eleven AI solutions for your business: meeting notes, AI agents, phone calls, analytics, system connections, a virtual office, marketing, team chat with agents, Q&A inside your pages, customer data, and e-signature. Open one to see how it works.",
     productsHeading: "The solution suite",
     productCount: (n: number) => `${n} solutions`,
-    openPage: "View product",
+    openPage: "View solution",
     calculator: "Pricing calculator",
-    openSite: "Visit site",
+    openSite: "Open site",
     mockup: "Mockup",
     live: "Live preview",
     footerAbout:
@@ -35,12 +35,12 @@ const dictionaries = {
     heroLead: "โซลูชัน AI",
     heroAccent: "สำหรับองค์กร",
     heroBody:
-      "สิบโซลูชัน AI สำหรับธุรกิจ ได้แก่ บันทึกการประชุม AI Agent โทรศัพท์ วิเคราะห์ข้อมูล เชื่อมระบบ ออฟฟิศเสมือน การตลาด แชตทีมที่มี Agent ถาม-ตอบในหน้าที่ใช้อยู่ และข้อมูลลูกค้า เปิดดูแต่ละโซลูชันได้เลย",
+      "สิบเอ็ดโซลูชัน AI สำหรับธุรกิจ ได้แก่ บันทึกการประชุม AI Agent โทรศัพท์ วิเคราะห์ข้อมูล เชื่อมระบบ ออฟฟิศเสมือน การตลาด แชตทีมที่มี Agent ถาม-ตอบในหน้าที่ใช้อยู่ ข้อมูลลูกค้า และลงนามอิเล็กทรอนิกส์ เลือกดูทีละโซลูชันได้เลย",
     productsHeading: "โซลูชันทั้งหมด",
     productCount: (n: number) => `${n} โซลูชัน`,
     openPage: "ดูรายละเอียด",
     calculator: "คำนวณราคา",
-    openSite: "ไปที่เว็บไซต์",
+    openSite: "เปิดเว็บไซต์",
     mockup: "ตัวอย่าง",
     live: "เวอร์ชันทดลอง",
     footerAbout:

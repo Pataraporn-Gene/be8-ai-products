@@ -1,8 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ProductLogo } from "@/components/ProductLogo";
 import { LangSwitch } from "@/components/LangSwitch";
 import { hasLocale } from "@/lib/i18n";
+import { SHOW_PRICING } from "@/lib/site-config";
 import { content } from "./content";
 import { HeroStage } from "./HeroStage";
 import { Icon } from "./icons";
@@ -40,8 +42,7 @@ export default async function Page({ params }: PageProps<"/[lang]/space8">) {
       <NavHeader>
         <div className="wrap">
           <a className="brand" href="#top" aria-label={c.nav.homeLabel}>
-            <img src={MARK} alt="" />
-            Space8
+            <ProductLogo id="space8" kind="wordmark" alt="SPACE8" priority />
           </a>
           <a className="news" href="#brain">
             {c.nav.news}
@@ -49,7 +50,7 @@ export default async function Page({ params }: PageProps<"/[lang]/space8">) {
           <nav className="nav-links" aria-label={c.nav.menuLabel}>
             <a href="#office">{c.nav.links.office}</a>
             <a href="#templates">{c.nav.links.templates}</a>
-            <a href="#pricing">{c.nav.links.pricing}</a>
+            {SHOW_PRICING && <a href="#pricing">{c.nav.links.pricing}</a>}
             <a href="#faq">{c.nav.links.faq}</a>
           </nav>
           <div className="nav-cta">
@@ -349,7 +350,7 @@ export default async function Page({ params }: PageProps<"/[lang]/space8">) {
                 <span className="eyebrow">{c.start.eyebrow}</span>
                 <h2>{c.start.h2}</h2>
                 <p className="lede">{c.start.lede}</p>
-                <a className="btn btn-primary" href="#pricing">
+                <a className="btn btn-primary" href={SHOW_PRICING ? "#pricing" : "#office"}>
                   {c.start.cta}
                 </a>
               </div>
@@ -361,61 +362,65 @@ export default async function Page({ params }: PageProps<"/[lang]/space8">) {
                     <p>{s.body}</p>
                   </div>
                 ))}
-                <div className="foot">
-                  <a className="btn btn-ghost" href="#pricing">
-                    {c.start.seePlans}
-                  </a>
-                </div>
+                {SHOW_PRICING && (
+                  <div className="foot">
+                    <a className="btn btn-ghost" href="#pricing">
+                      {c.start.seePlans}
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </section>
 
-        <section className="sec" id="pricing">
-          <div className="wrap">
-            <div className="sec-head">
-              <span className="eyebrow">{c.pricing.eyebrow}</span>
-              <h2>{c.pricing.h2}</h2>
-              <p className="lede">{c.pricing.lede}</p>
-            </div>
-            <div className="plans">
-              {plans.map(({ p, rec, talk, href }) => (
-                <article className={"plan" + (rec ? " rec" : "")} key={p.name}>
-                  {rec ? <span className="badge">{c.pricing.recommended}</span> : null}
-                  <div>
-                    <h3>{p.name}</h3>
-                    <p className="for">{p.for}</p>
-                  </div>
-                  {talk ? (
-                    <div className="price talk">
-                      <b>{p.price}</b>
+        {SHOW_PRICING && (
+          <section className="sec" id="pricing">
+            <div className="wrap">
+              <div className="sec-head">
+                <span className="eyebrow">{c.pricing.eyebrow}</span>
+                <h2>{c.pricing.h2}</h2>
+                <p className="lede">{c.pricing.lede}</p>
+              </div>
+              <div className="plans">
+                {plans.map(({ p, rec, talk, href }) => (
+                  <article className={"plan" + (rec ? " rec" : "")} key={p.name}>
+                    {rec ? <span className="badge">{c.pricing.recommended}</span> : null}
+                    <div>
+                      <h3>{p.name}</h3>
+                      <p className="for">{p.for}</p>
                     </div>
-                  ) : (
-                    <div className="price">
-                      <b>{p.price}</b>
-                      <span>{c.pricing.perPerson}</span>
-                    </div>
-                  )}
-                  <ul>
-                    {p.items.map((x) => (
-                      <li key={x}>
-                        <Icon name="check" />
-                        {x}
-                      </li>
-                    ))}
-                  </ul>
-                  <a className={"btn " + (rec ? "btn-primary" : "btn-ghost")} href={href}>
-                    {p.cta}
-                  </a>
-                </article>
-              ))}
+                    {talk ? (
+                      <div className="price talk">
+                        <b>{p.price}</b>
+                      </div>
+                    ) : (
+                      <div className="price">
+                        <b>{p.price}</b>
+                        <span>{c.pricing.perPerson}</span>
+                      </div>
+                    )}
+                    <ul>
+                      {p.items.map((x) => (
+                        <li key={x}>
+                          <Icon name="check" />
+                          {x}
+                        </li>
+                      ))}
+                    </ul>
+                    <a className={"btn " + (rec ? "btn-primary" : "btn-ghost")} href={href}>
+                      {p.cta}
+                    </a>
+                  </article>
+                ))}
+              </div>
+              <p className="note">
+                <b>{c.pricing.noteBold}</b>
+                {c.pricing.noteRest}
+              </p>
             </div>
-            <p className="note">
-              <b>{c.pricing.noteBold}</b>
-              {c.pricing.noteRest}
-            </p>
-          </div>
-        </section>
+          </section>
+        )}
 
         <section className="sec" id="faq">
           <div className="wrap">
@@ -461,9 +466,8 @@ export default async function Page({ params }: PageProps<"/[lang]/space8">) {
           </div>
           <div className="foot-grid">
             <div className="foot-brand">
-              <a className="brand" href="#top">
-                <img src={MARK} alt="" />
-                Space8
+              <a className="brand" href="#top" aria-label="SPACE8">
+                <ProductLogo id="space8" kind="wordmark" alt="SPACE8" />
               </a>
               <p>{c.closing.byline}</p>
             </div>
@@ -476,9 +480,11 @@ export default async function Page({ params }: PageProps<"/[lang]/space8">) {
                 <li>
                   <a href="#templates">{c.closing.productLinks.templates}</a>
                 </li>
-                <li>
-                  <a href="#pricing">{c.closing.productLinks.pricing}</a>
-                </li>
+                {SHOW_PRICING && (
+                  <li>
+                    <a href="#pricing">{c.closing.productLinks.pricing}</a>
+                  </li>
+                )}
                 <li>
                   <a href="#brain">{c.closing.productLinks.brain}</a>
                 </li>
@@ -509,7 +515,7 @@ export default async function Page({ params }: PageProps<"/[lang]/space8">) {
           </div>
           <div className="copy">
             <span>{c.closing.copyright}</span>
-            <span>{c.closing.sample}</span>
+            {SHOW_PRICING && <span>{c.closing.sample}</span>}
           </div>
         </div>
       </footer>

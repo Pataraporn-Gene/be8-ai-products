@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ProductLogo } from "@/components/ProductLogo";
 import { LangSwitch } from "@/components/LangSwitch";
 import { hasLocale } from "@/lib/i18n";
 import { content } from "./content";
@@ -40,13 +41,9 @@ export default async function Page({ params }: PageProps<"/[lang]/ask8">) {
     <div className="p-ask8">
       <header className="top">
         <div className="wrap">
-          <a className="brand" href="#top" aria-label="Ask8">
-            <svg viewBox="0 0 32 32" aria-hidden="true">
-              <rect width="32" height="32" rx="9" fill="#0A1F2E" />
-              <path d="M9 11.5h10a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2h-5l-3.5 3v-3H9a2 2 0 0 1-2-2v-4.5a2 2 0 0 1 2-2z" fill="none" stroke="#00C4D6" strokeWidth="1.75" strokeLinejoin="round" />
-            </svg>
-            Ask8
-          </a>
+          <a className="brand" href="#top" aria-label="ASK8">
+              <ProductLogo id="ask8" kind="wordmark" alt="ASK8" priority />
+            </a>
           <nav className="menu" aria-label={t.header.menuAria}>
             <a href="#tryit">{t.header.menu.tryit}</a>
             <a href="#demo">{t.header.menu.demo}</a>

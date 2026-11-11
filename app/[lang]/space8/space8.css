@@ -270,7 +270,7 @@ html:has(.p-space8){scroll-behavior:smooth}
 .p-space8 .cast .walker{width:70%;aspect-ratio:1;background:url(/products/space8/characters.png) no-repeat;background-size:1200% 600%}
 .p-space8 .cast figcaption{position:absolute;left:10px;bottom:9px;font-size:12.5px;font-weight:500;color:var(--neutral-900);background:rgba(255,255,255,.75);padding:2px 9px;border-radius:999px}
 
-/* duo: second brain + agents */
+/* duo: Meet8 + agents */
 .p-space8 .duo{display:grid;gap:20px}
 @media (min-width:900px){.p-space8 .duo{grid-template-columns:1fr 1fr}}
 .p-space8 .duo .card{padding:28px;gap:16px}

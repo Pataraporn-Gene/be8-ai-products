@@ -1,4 +1,5 @@
 import type { Locale } from "@/lib/i18n";
+import { SHOW_PRICING } from "@/lib/site-config";
 
 type Cell = string | boolean;
 /** [label] = group heading; [label, standard, premium, customize] = feature row */
@@ -8,7 +9,7 @@ const en = {
   meta: {
     title: "VOICE8 AI Phone Agent",
     description:
-      "AI that answers and places calls following your organization's flow. Draw the call flow in Studio, add your company's documents and systems, and connect your real phone numbers for inbound and outbound calls. No code needed.",
+      "AI that answers and places calls following your organization's flow. Draw the call flow in Studio, add your documents and systems, then connect your real phone numbers. The agent takes inbound and outbound calls, with no code.",
   },
   header: {
     menuAria: "Main menu",
@@ -26,12 +27,12 @@ const en = {
   hero: {
     eyebrow: "VOICE8 · AI Phone Agent",
     h1: "AI that answers and places calls",
-    h1Em: "following your organization's flow",
-    lead: "Draw the call flow in Studio, add your company's documents and systems, and connect your real phone numbers for inbound and outbound calls. No code needed.",
+    h1Em: "following your own call flow",
+    lead: "Draw the call flow in Studio, add your documents and systems, then connect your real phone numbers. The agent takes inbound and outbound calls, with no code.",
     ctaPrimary: "See what it can do",
     ctaGhost: "View plans",
     ticks: [
-      "Choose the speech-to-text model, the reply model and the voice separately",
+      "Choose the transcription model, reply model and voice separately",
       "Speaks Thai, English, Indonesian and more",
     ],
     floatAria: "Sample Test window during a test call",
@@ -44,11 +45,14 @@ const en = {
     responseStyle: "Polite, concise, addresses the customer by name",
     startMsg: "Hello, parcel tracking center, how can I help you?",
     nodeVerify: "Verify identity",
-    nodeVerifyDesc: "Ask for the name and tracking number one at a time. Read the number back before moving on",
+    nodeVerifyDesc:
+      "Ask for the name and tracking number one at a time. Read the number back before moving on",
     nodeCheck: "Check parcel status",
-    nodeCheckDesc: "Call get_parcel_status, then give the latest status and expected delivery date",
+    nodeCheckDesc:
+      "Call get_parcel_status, then give the latest status and expected delivery date",
     nodeClose: "Close conversation",
-    nodeCloseDesc: "Explain how to find the tracking number, say thanks, then hang up",
+    nodeCloseDesc:
+      "Explain how to find the tracking number, say thanks, then hang up",
     condConfirmed: "Tracking number received and confirmed by customer",
     condNoNumber: "Customer has no tracking number",
     condDone: "Customer has received the full status",
@@ -56,7 +60,8 @@ const en = {
     stepPrefix: "Step: ",
     heroUser: "It's TH2410 5583 1.",
     checking: "One moment please, I'm checking that for you.",
-    heroAnswer: "Your parcel has reached the Bang Rak branch and should be delivered tomorrow.",
+    heroAnswer:
+      "Your parcel has reached the Bang Rak branch and should be delivered tomorrow.",
     editDesc: "Look up parcel status from the number the customer gave",
     instruction: [
       "Call get_parcel_status with ",
@@ -66,7 +71,8 @@ const en = {
     knowledge: ["Delivery policy", "FAQ", "Branch opening hours"],
     testGreeting: "Hello, may I have your name and tracking number?",
     testUser: "Somying, number TH2410 5583 1",
-    testAnswer: "Khun Somying, your parcel has reached the Bang Rak branch and should arrive tomorrow.",
+    testAnswer:
+      "Khun Somying, your parcel has reached the Bang Rak branch and should arrive tomorrow.",
     ivrMain: "Main menu",
     lineGeneral: "General customer line",
     agentClaims: "Claims intake",
@@ -84,15 +90,24 @@ const en = {
     batchName: "Parcel pickup reminder · Oct",
   },
   facts: [
-    { b: "Choose your own models and voice", s: "Set speech to text, replies and voice separately" },
-    { b: "Transfer to a staff member", s: "You decide when a call goes to a person" },
-    { b: "Answers from company documents", s: "If it isn't in the documents, it says so" },
+    {
+      b: "Choose your own models and voice",
+      s: "Transcription, replies and voice are separate settings",
+    },
+    {
+      b: "Transfer to a staff member",
+      s: "You decide when a call goes to a person",
+    },
+    {
+      b: "Answers from company documents",
+      s: "If it isn't in the documents, it says so",
+    },
     { b: "Runs on Google Cloud", s: "asia-southeast1" },
   ],
   shotNote: "Screenshots show sample data",
   marquee: [
     "Design calls without code",
-    "Choose your speech, reply and voice models",
+    "Choose models for transcription, replies and voice",
     "Answers from PDF and Markdown files",
     "Connect to your back-office systems",
     "Phone menu",
@@ -112,7 +127,7 @@ const en = {
     faq: "FAQ",
   },
   how: {
-    eyebrow: "How it works",
+    eyebrow: "Overview",
     h2: "One agent, connected to your phone lines, documents and systems",
     p: "Set it up in Studio. The agent answers, follows your flow, and summarizes the call after hang-up.",
     phonePill: "Phone lines",
@@ -134,14 +149,14 @@ const en = {
         h: "Draw the flow as goals, step by step",
         p: "Each Instruction node tells the agent what to do in that step. Conditions on the lines are written in plain language. The agent moves to the next step once it judges the current one complete.",
         list: [
-          "Use {{variable_name}} in instructions and the values are captured from the conversation automatically",
+          "Add {{variable_name}} to an instruction and the agent fills it in from the conversation",
           "Enable End call, Transfer to human or Keypad entry per step",
-          "Click Save node when you're done editing",
+          "Select Save node when you finish editing",
         ],
       },
       know: {
         h: "Give the agent your company's knowledge and systems",
-        p: "Add documents in the Knowledge tab. Add tools in the Tools tab to call your APIs or connect your back-office systems",
+        p: "Add documents in the Knowledge tab. Add tools in the Tools tab to call your APIs or connect your back-office systems.",
         list: [
           "Knowledge from Text, PDF and Markdown",
           "API tools: set headers and body, pick fields from the response, and test right in Studio",
@@ -150,7 +165,7 @@ const en = {
       },
       test: {
         h: "Call the agent from your browser before going live",
-        p: "Click Test, choose Live call and talk to the agent by voice. You see the current step, tools called and captured variables as the call goes",
+        p: "Click Test, choose Live call and talk to the agent by voice. You see the current step, tools called and captured variables as the call runs.",
         list: [
           "Check that the agent moves between steps correctly",
           "Inspect the result of each tool call",
@@ -159,11 +174,11 @@ const en = {
       },
       live: {
         h: "Connect your real phone numbers",
-        p: "Assign each inbound number to an agent on the Inbound Call page, add a phone menu if you want one, or have the agent call out one by one or in batches",
+        p: "Assign each inbound number to an agent on the Inbound Call page, add a phone menu if you want one, or have the agent call out one by one or in batches.",
         list: [
           "Works with your Asterisk phone system and your phone line provider (SIP trunk)",
           "Callers press a key to reach the agent or a staff member",
-          "Every call's outcome is reported back, e.g. answered, no_answer, busy",
+          "Every call's outcome is reported back, such as answered, no_answer or busy",
         ],
       },
     },
@@ -173,8 +188,10 @@ const en = {
     h2: "Review every call, adjust the voice, call out in batches",
     analytics: {
       k: "Analytics",
-      h3: "Every call has a transcript, outcome and cost",
-      p: "See the steps taken, variables captured and cost for each call. After hang-up, the call is summarized and labeled with one of the Call results you set for that agent, so you can filter by outcome.",
+      h3: SHOW_PRICING
+        ? "Every call has a transcript, outcome and cost"
+        : "Every call has a transcript and outcome",
+      p: `See the steps taken, variables captured${SHOW_PRICING ? " and cost" : ""} for each call. After hang-up, the call is summarized and labeled with one of the Call results you set for that agent, so you can filter by outcome.`,
     },
     engine: {
       k: "Voice Engine · Pipeline",
@@ -190,16 +207,40 @@ const en = {
   phone: {
     eyebrow: "Telephony",
     h2: "Telephony features",
-    p: "Connect your organization's phone numbers through your Asterisk system and phone line provider",
+    p: "Connect your organization's phone numbers through your Asterisk system and phone line provider.",
     feats: [
-      { h: "Hand off to a human", p: "Enable Transfer to human per step and the call goes to the staff number you set" },
-      { h: "Phone menu and keypad entry", p: "A phone menu before the call, plus Keypad entry only on steps that need digits" },
-      { h: "Speaks before looking things up", p: "Tells the customer it's checking while your system responds, so there's no silence" },
-      { h: "Call time limits", p: "Set a maximum duration per agent and what to say when time is up" },
-      { h: "Checks if the caller is still there", p: "When the customer goes quiet, the agent asks again a set number of times, then says goodbye before hanging up" },
-      { h: "No guessing", p: "Searches only the documents you provide. If nothing relevant is found, it says so" },
-      { h: "Reads numbers correctly", p: "Converts numbers into spoken Thai and Indonesian words before speaking them" },
-      { h: "Clone or design a voice", p: "Create your brand voice on the Voice Cloning page and use it right away" },
+      {
+        h: "Hand off to a human",
+        p: "Enable Transfer to human per step and the call goes to the staff number you set",
+      },
+      {
+        h: "Phone menu and keypad entry",
+        p: "A phone menu before the call, plus Keypad entry only on steps that need digits",
+      },
+      {
+        h: "Speaks before looking things up",
+        p: "Tells the customer it's checking while your system responds, so there is no silence",
+      },
+      {
+        h: "Call time limits",
+        p: "Set a maximum duration per agent and what to say when time is up",
+      },
+      {
+        h: "Checks if the caller is still there",
+        p: "When the customer goes quiet, the agent asks again a set number of times, then says goodbye before hanging up",
+      },
+      {
+        h: "No guessing",
+        p: "Searches only the documents you provide. If nothing relevant is found, it says so.",
+      },
+      {
+        h: "Reads numbers correctly",
+        p: "Converts numbers into spoken Thai and Indonesian words before speaking them",
+      },
+      {
+        h: "Clone or design a voice",
+        p: "Create your brand voice on the Voice Cloning page and use it right away",
+      },
     ],
   },
   cases: {
@@ -237,7 +278,7 @@ const en = {
         tags: ["Batches", "Per-contact details", "Analytics"],
       },
       {
-        h: "Screening before staff pick up",
+        h: "Screening before staff answer",
         sub: "Inbound · Contact center",
         ticks: [
           "A phone menu sends callers to the agent or to staff from the start",
@@ -251,7 +292,7 @@ const en = {
   plans: {
     eyebrow: "Plans",
     h2: "Pick a plan that fits your call volume",
-    flag: "Sample plan structure · pricing not yet set",
+    flag: "Sample plan structure · pricing to be announced",
     perMonth: "/ month",
     priceNotSet: "TBA",
     minutes: "Conversation minutes per month: to be announced",
@@ -290,7 +331,7 @@ const en = {
         "Conversation minutes per contract",
       ],
     },
-    note: "Plan structure and feature split are examples pending confirmation · Prices exclude phone numbers and call charges, which depend on your phone line provider (SIP trunk)",
+    note: "Plan structure and feature split are examples pending confirmation. Prices exclude phone numbers and call charges, which depend on your phone line provider (SIP trunk)",
     compareH: "Compare plans",
     featureSr: "Feature",
     priceLine: "TBA / month",
@@ -307,7 +348,12 @@ const en = {
       ["Realtime engine", false, true, true],
       ["Thai, English, Indonesian and more", true, true, true],
       ["Studio"],
-      ["Step-by-step conversation design with plain-language conditions", true, true, true],
+      [
+        "Step-by-step conversation design with plain-language conditions",
+        true,
+        true,
+        true,
+      ],
       ["Variables with automatic capture", true, true, true],
       ["Knowledge (Text, PDF, Markdown)", true, true, true],
       ["API tools", true, true, true],
@@ -326,22 +372,51 @@ const en = {
       ["Security"],
       ["Google Workspace sign-in by domain", true, true, true],
       ["Cloud Armor (WAF)", true, true, true],
-      ["Dedicated deployment in your own Google Cloud project", false, false, true],
+      [
+        "Dedicated deployment in your own Google Cloud project",
+        false,
+        false,
+        true,
+      ],
     ] as CompareRow[],
   },
   spec: {
     h2: "Specs",
     rows: [
-      { dt: "Voice engine", dd: "Pipeline (STT, LLM, TTS) by default, with Realtime available per agent" },
+      {
+        dt: "Voice engine",
+        dd: "Pipeline (STT, LLM, TTS) by default, with Realtime available per agent",
+      },
       { dt: "Transcription (STT)", dd: "Gemini 3.5 Transcribe" },
-      { dt: "Reasoning (LLM)", dd: "Gemini, with selectable backend and region" },
-      { dt: "Speech (TTS)", dd: "Gemini TTS with stock, cloned or designed voices" },
+      {
+        dt: "Reasoning (LLM)",
+        dd: "Gemini, with selectable backend and region",
+      },
+      {
+        dt: "Speech (TTS)",
+        dd: "Gemini TTS with stock, cloned or designed voices",
+      },
       { dt: "Languages", dd: "Thai, English, Indonesian and more" },
-      { dt: "Telephony", dd: "Asterisk + SIP trunk (e.g. YaleCom) for inbound and outbound" },
-      { dt: "Concurrent calls", dd: "About 90 calls per Asterisk server in load tests. Add servers to scale" },
-      { dt: "Knowledge", dd: "Text, PDF and Markdown, searched with vector search, kept separate for each organization and agent" },
-      { dt: "Integrations", dd: "API tools (GET, POST, PUT, PATCH, DELETE) and MCP servers with token or OAuth" },
-      { dt: "Infrastructure", dd: "Google Cloud asia-southeast1 · Cloud Run · Cloud Armor (WAF) · Google Workspace sign-in by domain" },
+      {
+        dt: "Telephony",
+        dd: "Asterisk + SIP trunk (e.g. YaleCom) for inbound and outbound",
+      },
+      {
+        dt: "Concurrent calls",
+        dd: "About 90 calls per Asterisk server in load tests. Add servers to scale",
+      },
+      {
+        dt: "Knowledge",
+        dd: "Text, PDF and Markdown, searched with vector search, kept separate for each organization and agent",
+      },
+      {
+        dt: "Integrations",
+        dd: "API tools (GET, POST, PUT, PATCH, DELETE) and MCP servers with token or OAuth",
+      },
+      {
+        dt: "Infrastructure",
+        dd: "Google Cloud asia-southeast1 · Cloud Run · Cloud Armor (WAF) · Google Workspace sign-in by domain",
+      },
     ],
   },
   faq: {
@@ -349,7 +424,7 @@ const en = {
     items: [
       {
         q: "What's the difference between Pipeline and Realtime?",
-        a: "With Pipeline, speech to text, reply writing and voice are handled one by one. You can choose a provider for each, use cloned voices, have Thai numbers read correctly, and pay less per minute. Realtime uses one voice model to listen, think and speak. You can pick either one per agent.",
+        a: `Pipeline handles transcription, replies and voice as separate steps. You choose a provider for each, can use a cloned voice, get Thai numbers read correctly${SHOW_PRICING ? ", and pay less per minute" : ""}. Realtime uses a single voice model to listen, think and speak. You choose either one for each agent.`,
       },
       {
         q: "Can we use our own phone numbers?",
@@ -375,12 +450,14 @@ const en = {
   },
   cta: {
     h2: "Try it with your own calls",
-    p: "Tell us which calls you want the agent to answer or make. Our team will help you design the flow and connect a number to try",
+    p: "Tell us which calls you want the agent to answer or make, and we'll help you design the flow and connect a number to try.",
     btn: "Request a trial",
   },
   footer: {
     copy: "© 2026 Beryl8 · VOICE8",
-    note: "Information as of October 2026 · Pricing to be announced",
+    note: SHOW_PRICING
+      ? "Information as of October 2026 · Pricing to be announced"
+      : "Information as of October 2026",
   },
 };
 
@@ -421,13 +498,15 @@ const th: Voice8Content = {
   },
   mock: {
     agentName: "ติดตามพัสดุ",
-    taskOverview: "ตอบสถานะพัสดุจากเลขพัสดุ แจ้งวันส่งโดยประมาณ และโอนให้เจ้าหน้าที่เมื่อเป็นเรื่องร้องเรียน",
+    taskOverview:
+      "ตอบสถานะพัสดุจากเลขพัสดุ แจ้งวันส่งโดยประมาณ และโอนให้เจ้าหน้าที่เมื่อเป็นเรื่องร้องเรียน",
     responseStyle: "สุภาพ กระชับ เรียกชื่อลูกค้า ลงท้ายด้วยค่ะ",
     startMsg: "สวัสดีค่ะ ศูนย์ติดตามพัสดุ ยินดีให้บริการค่ะ",
     nodeVerify: "ยืนยันตัวตน",
     nodeVerifyDesc: "ถามชื่อและเลขพัสดุทีละอย่าง ทวนเลขพัสดุก่อนไปต่อ",
     nodeCheck: "ตรวจสถานะพัสดุ",
-    nodeCheckDesc: "เรียก get_parcel_status แล้วแจ้งสถานะล่าสุดและวันที่คาดว่าจะถึง",
+    nodeCheckDesc:
+      "เรียก get_parcel_status แล้วแจ้งสถานะล่าสุดและวันที่คาดว่าจะถึง",
     nodeClose: "ปิดการสนทนา",
     nodeCloseDesc: "แนะนำช่องทางค้นเลขพัสดุ ขอบคุณ แล้ววางสาย",
     condConfirmed: "ได้เลขพัสดุและลูกค้ายืนยันแล้ว",
@@ -452,7 +531,8 @@ const th: Voice8Content = {
     lineGeneral: "สายลูกค้าทั่วไป",
     agentClaims: "รับแจ้งเคลม",
     lineClaims: "ฝ่ายเคลม",
-    ivrGreeting: "สวัสดีค่ะ กด 1 เพื่อเช็กสถานะพัสดุกับผู้ช่วยอัตโนมัติ กด 0 เพื่อคุยกับเจ้าหน้าที่",
+    ivrGreeting:
+      "สวัสดีค่ะ กด 1 เพื่อเช็กสถานะพัสดุกับผู้ช่วยอัตโนมัติ กด 0 เพื่อคุยกับเจ้าหน้าที่",
     ivrStaff: "เจ้าหน้าที่",
     results: ["ตอบสถานะแล้ว", "โอนให้เจ้าหน้าที่", "ไม่พบพัสดุ"],
     callSummary:
@@ -492,7 +572,7 @@ const th: Voice8Content = {
     faq: "คำถามที่พบบ่อย",
   },
   how: {
-    eyebrow: "How it works",
+    eyebrow: "ภาพรวม",
     h2: "agent ตัวเดียว ต่อเข้ากับเบอร์โทร เอกสาร และระบบของคุณ",
     p: "ตั้งค่าใน Studio แล้ว agent จะรับสาย คุยตาม flow และสรุปผลให้หลังวางสาย",
     phonePill: "สายโทรศัพท์",
@@ -512,7 +592,7 @@ const th: Voice8Content = {
     tour: {
       design: {
         h: "วาด flow เป็นเป้าหมายทีละ step",
-        p: "แต่ละ Instruction node บอกว่า agent ต้องทำอะไรใน step นั้น เงื่อนไขบนเส้นเขียนเป็นภาษาคน ระบบตัดสินเองว่าครบแล้วจึงไป step ถัดไป",
+        p: "แต่ละ Instruction node บอกว่า agent ต้องทำอะไรใน step นั้น เงื่อนไขบนเส้นเขียนเป็นภาษาธรรมดา ระบบตัดสินเองว่าครบแล้วจึงไป step ถัดไป",
         list: [
           "อ้างตัวแปรใน instruction ด้วย {{ชื่อตัวแปร}} ระบบเก็บค่าจากบทสนทนาให้เอง",
           "เปิด End call, Transfer to human หรือ Keypad entry ได้ราย step",
@@ -541,7 +621,7 @@ const th: Voice8Content = {
         h: "ต่อเบอร์จริง ทั้งสายเข้าและสายออก",
         p: "ผูกเบอร์ที่โทรเข้ากับ agent ในหน้า Inbound Call ตั้งเมนูกดเลขก่อนเข้าสาย หรือให้ agent โทรออกทีละสายและเป็น batch",
         list: [
-          "ระบบโทรศัพท์ Asterisk และผู้ให้บริการสายโทรศัพท์ (SIP trunk) ขององค์กร",
+          "ใช้ได้กับระบบโทรศัพท์ Asterisk และผู้ให้บริการสายโทรศัพท์ (SIP trunk) ขององค์กร",
           "เมนูกดเลขให้ผู้โทรเลือกว่าจะคุยกับ agent หรือเจ้าหน้าที่",
           "ผลทุกสายรายงานกลับ เช่น answered, no_answer, busy",
         ],
@@ -553,8 +633,10 @@ const th: Voice8Content = {
     h2: "ดูผลทุกสาย ปรับเสียงได้ละเอียด และโทรออกเป็นชุด",
     analytics: {
       k: "Analytics",
-      h3: "ทุกสายมีทรานสคริปต์ ผลลัพธ์ และต้นทุน",
-      p: "ดู step ที่ผ่าน ตัวแปรที่เก็บได้ และค่าใช้จ่ายต่อสาย หลังวางสาย ระบบสรุปและจัดผลลัพธ์ตาม Call results ที่แต่ละ agent กำหนด แล้วกรองดูได้",
+      h3: SHOW_PRICING
+        ? "ทุกสายมีทรานสคริปต์ ผลลัพธ์ และต้นทุน"
+        : "ทุกสายมีทรานสคริปต์และผลลัพธ์",
+      p: `ดู step ที่ผ่าน ตัวแปรที่เก็บได้${SHOW_PRICING ? " และค่าใช้จ่ายต่อสาย" : ""} หลังวางสาย ระบบสรุปและจัดผลลัพธ์ตาม Call results ที่แต่ละ agent กำหนด แล้วกรองดูได้`,
     },
     engine: {
       k: "Voice Engine · Pipeline",
@@ -572,14 +654,38 @@ const th: Voice8Content = {
     h2: "ฟีเจอร์สำหรับงานโทรศัพท์",
     p: "ต่อเบอร์ขององค์กรผ่านระบบ Asterisk และผู้ให้บริการสายโทรศัพท์",
     feats: [
-      { h: "โอนสายให้คน", p: "เปิด Transfer to human ราย step แล้วระบบโอนสายไปเบอร์เจ้าหน้าที่ที่ตั้งไว้" },
-      { h: "เมนูกดเลขและ keypad", p: "เมนูกดเลขก่อนเข้าสาย และเปิด Keypad entry เฉพาะ step ที่ต้องกรอกตัวเลข" },
-      { h: "พูดก่อนไปค้นข้อมูล", p: "บอกลูกค้าว่ากำลังตรวจสอบ ระหว่างรอระบบหลังบ้าน ไม่มีช่วงเงียบ" },
-      { h: "จำกัดเวลาต่อสาย", p: "ตั้งเวลาสูงสุดราย agent และกำหนดว่าต้องพูดอะไรเมื่อหมดเวลา" },
-      { h: "ถามว่ายังอยู่ในสายไหม", p: "เมื่อลูกค้าเงียบ agent ถามซ้ำตามจำนวนที่ตั้ง แล้วบอกลาก่อนวางสาย" },
-      { h: "ไม่เดาคำตอบ", p: "ค้นจากเอกสารที่ใส่ไว้เท่านั้น ถ้าไม่มีคำตอบที่เกี่ยวข้อง จะบอกว่าไม่พบ" },
-      { h: "อ่านตัวเลขถูกต้อง", p: "แปลงตัวเลขเป็นคำอ่านภาษาไทยและอินโดนีเซียก่อนส่งให้เสียงพูด" },
-      { h: "Clone หรือออกแบบเสียง", p: "สร้างเสียงของแบรนด์ในหน้า Voice Cloning แล้วใช้ได้ทันที" },
+      {
+        h: "โอนสายให้คน",
+        p: "เปิด Transfer to human ราย step แล้วระบบโอนสายไปเบอร์เจ้าหน้าที่ที่ตั้งไว้",
+      },
+      {
+        h: "เมนูกดเลขและ keypad",
+        p: "เมนูกดเลขก่อนเข้าสาย และเปิด Keypad entry เฉพาะ step ที่ต้องกรอกตัวเลข",
+      },
+      {
+        h: "พูดก่อนไปค้นข้อมูล",
+        p: "บอกลูกค้าว่ากำลังตรวจสอบ ระหว่างรอระบบหลังบ้าน ไม่มีช่วงเงียบ",
+      },
+      {
+        h: "จำกัดเวลาต่อสาย",
+        p: "ตั้งเวลาสูงสุดราย agent และกำหนดว่าต้องพูดอะไรเมื่อหมดเวลา",
+      },
+      {
+        h: "ถามว่ายังอยู่ในสายไหม",
+        p: "เมื่อลูกค้าเงียบ agent ถามซ้ำตามจำนวนที่ตั้ง แล้วบอกลาก่อนวางสาย",
+      },
+      {
+        h: "ไม่เดาคำตอบ",
+        p: "ค้นจากเอกสารที่ใส่ไว้เท่านั้น ถ้าไม่มีคำตอบที่เกี่ยวข้อง จะบอกว่าไม่พบ",
+      },
+      {
+        h: "อ่านตัวเลขถูกต้อง",
+        p: "แปลงตัวเลขเป็นคำอ่านภาษาไทยและอินโดนีเซียก่อนส่งให้เสียงพูด",
+      },
+      {
+        h: "Clone หรือออกแบบเสียง",
+        p: "สร้างเสียงของแบรนด์ในหน้า Voice Cloning แล้วใช้ได้ทันที",
+      },
     ],
   },
   cases: {
@@ -631,7 +737,7 @@ const th: Voice8Content = {
   plans: {
     eyebrow: "แพ็กเกจ",
     h2: "เลือกแพ็กเกจที่เหมาะกับปริมาณสาย",
-    flag: "ตัวอย่างโครงแพ็กเกจ · ยังไม่กำหนดราคา",
+    flag: "ตัวอย่างโครงแพ็กเกจ · ราคาประกาศภายหลัง",
     perMonth: "/ เดือน",
     priceNotSet: "ประกาศภายหลัง",
     minutes: "นาทีสนทนารวมต่อเดือน: ประกาศภายหลัง",
@@ -695,7 +801,7 @@ const th: Voice8Content = {
       ["ทดสอบสายจาก browser", true, true, true],
       ["ระบบโทรศัพท์"],
       ["สายเข้าผ่าน Asterisk + SIP trunk", true, true, true],
-      ["IVR และ keypad", true, true, true],
+      ["เมนูกดเลข (IVR) และ keypad", true, true, true],
       ["โทรออกและ Batches", true, true, true],
       ["โอนสายให้เจ้าหน้าที่", true, true, true],
       ["ขยายจำนวนสายพร้อมกันตามปริมาณงาน", false, false, true],
@@ -712,16 +818,37 @@ const th: Voice8Content = {
   spec: {
     h2: "สเปก",
     rows: [
-      { dt: "Voice engine", dd: "Pipeline (STT, LLM, TTS) เป็นหลัก เปลี่ยนเป็น Realtime ได้ราย agent" },
+      {
+        dt: "Voice engine",
+        dd: "Pipeline (STT, LLM, TTS) เป็นหลัก เปลี่ยนเป็น Realtime ได้ราย agent",
+      },
       { dt: "ถอดเสียง (STT)", dd: "Gemini 3.5 Transcribe" },
       { dt: "คิดคำตอบ (LLM)", dd: "Gemini เลือก backend และ region ได้" },
-      { dt: "เสียงพูด (TTS)", dd: "Gemini TTS ใช้เสียงสำเร็จรูปหรือเสียงที่ clone หรือออกแบบไว้ได้" },
+      {
+        dt: "เสียงพูด (TTS)",
+        dd: "Gemini TTS ใช้เสียงสำเร็จรูปหรือเสียงที่ clone หรือออกแบบไว้ได้",
+      },
       { dt: "ภาษา", dd: "ไทย อังกฤษ อินโดนีเซีย และอื่นๆ" },
-      { dt: "ระบบโทรศัพท์", dd: "Asterisk + SIP trunk (เช่น YaleCom) ทั้งสายเข้าและสายออก" },
-      { dt: "สายพร้อมกัน", dd: "ราว 90 สายต่อ Asterisk หนึ่งเครื่องจาก load test เพิ่มเครื่องเพื่อขยายได้" },
-      { dt: "Knowledge", dd: "Text, PDF และ Markdown ค้นด้วย vector search แยกตามองค์กรและ agent" },
-      { dt: "เชื่อมระบบ", dd: "API tools (GET, POST, PUT, PATCH, DELETE) และ MCP servers แบบ token หรือ OAuth" },
-      { dt: "โครงสร้างระบบ", dd: "Google Cloud asia-southeast1 · Cloud Run · Cloud Armor (WAF) · เข้าสู่ระบบด้วย Google Workspace ตามโดเมน" },
+      {
+        dt: "ระบบโทรศัพท์",
+        dd: "Asterisk + SIP trunk (เช่น YaleCom) ทั้งสายเข้าและสายออก",
+      },
+      {
+        dt: "สายพร้อมกัน",
+        dd: "ราว 90 สายต่อ Asterisk หนึ่งเครื่องจาก load test เพิ่มเครื่องเพื่อขยายได้",
+      },
+      {
+        dt: "Knowledge",
+        dd: "Text, PDF และ Markdown ค้นด้วย vector search แยกตามองค์กรและ agent",
+      },
+      {
+        dt: "เชื่อมระบบ",
+        dd: "API tools (GET, POST, PUT, PATCH, DELETE) และ MCP servers แบบ token หรือ OAuth",
+      },
+      {
+        dt: "โครงสร้างระบบ",
+        dd: "Google Cloud asia-southeast1 · Cloud Run · Cloud Armor (WAF) · เข้าสู่ระบบด้วย Google Workspace ตามโดเมน",
+      },
     ],
   },
   faq: {
@@ -729,7 +856,7 @@ const th: Voice8Content = {
     items: [
       {
         q: "Pipeline กับ Realtime ต่างกันอย่างไร",
-        a: "Pipeline แยกเป็นถอดเสียง คิดคำตอบ และสร้างเสียง เลือกผู้ให้บริการได้ทีละชิ้น ใช้เสียงที่ clone ไว้ได้ อ่านตัวเลขไทยได้ถูกต้อง และมีต้นทุนต่อนาทีต่ำกว่า ส่วน Realtime ใช้โมเดลเสียงตัวเดียวทำทั้งฟัง คิด และพูด เลือกใช้แทนได้ราย agent",
+        a: `Pipeline แยกเป็นถอดเสียง คิดคำตอบ และสร้างเสียง เลือกผู้ให้บริการได้ทีละชิ้น ใช้เสียงที่ clone ไว้ได้ อ่านตัวเลขไทยได้ถูกต้อง${SHOW_PRICING ? " และมีต้นทุนต่อนาทีต่ำกว่า" : ""} ส่วน Realtime ใช้โมเดลเสียงตัวเดียวทำทั้งฟัง คิด และพูด เลือกใช้แทนได้ราย agent`,
       },
       {
         q: "ใช้เบอร์โทรขององค์กรเองได้ไหม",
@@ -760,7 +887,9 @@ const th: Voice8Content = {
   },
   footer: {
     copy: "© 2026 Beryl8 · VOICE8",
-    note: "ข้อมูล ณ ตุลาคม 2026 · ราคาอยู่ระหว่างกำหนด",
+    note: SHOW_PRICING
+      ? "ข้อมูล ณ ตุลาคม 2026 · ราคาอยู่ระหว่างกำหนด"
+      : "ข้อมูล ณ ตุลาคม 2026",
   },
 };
 

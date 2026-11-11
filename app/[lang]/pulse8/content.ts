@@ -11,7 +11,7 @@ const en = {
   },
   header: {
     navLabel: "Main menu",
-    nav: { features: "Product", cases: "Use cases", plans: "Pricing", faq: "Help" },
+    nav: { features: "Product", cases: "Use cases", plans: "Pricing", faq: "FAQ" },
     meta: "by Beryl8",
   },
   hero: {
@@ -50,6 +50,13 @@ const en = {
       p: "Thai and English interface, Thai time by default, and Thai SMS segments counted the way providers bill them.",
     },
   ],
+  noPricing: {
+    title: "Pulse8 · Products",
+    ticks: ["Send through your own LINE OA, SMS and email accounts."],
+    factUseOwn: "Connect your own LINE OA, ThaiBulkSMS or Twilio, SMTP and WhatsApp.",
+    faqQuota:
+      "Pulse8 never sends past your quota. If a send has more recipients than the quota you have left, none of it goes out, the API returns an error, and the Journey logs the reason at that step. Quota resets at the start of every month (07:00 on the 1st, Thai time).",
+  },
   footnote: "The screens on this page are mockups of Pulse8 with sample data, not customer data.",
   marquee: {
     label: "Key features",
@@ -217,7 +224,7 @@ const en = {
     steps: ["Collect contacts", "Segment", "Create and send", "Measure"],
     s1: {
       h3: "Bring contacts from everywhere into one profile",
-      p: "Import CSV or Excel files and map columns yourself, or add contacts automatically from forms, LINE follows, the API, SFTP and Salesforce. Each person's channels are kept in one contact.",
+      p: "Import CSV or Excel files and map columns yourself, or add contacts automatically from forms, LINE follows, the API, SFTP and Salesforce. Every channel a person uses sits in one contact record.",
       ticks: [
         "Phone numbers are saved in one standard format",
         "Per-channel consent is stored with its source and timestamp",
@@ -306,10 +313,10 @@ const en = {
       p: "Reps see only the customers they own, choose content prepared by marketing, add a short personal note and send in their own name. Replies go to the rep's inbox, while marketing keeps control of brand and consent.",
       label: "Sample sales quick-send email with a personal note and 3 recipients",
       title: "Quick send",
-      chip: "Content: Enterprise package overview 2027",
+      chip: "Content: Enterprise overview 2027",
       send: "Send to 3 people",
       noteLabel: "Personal note · 142/300 characters",
-      note: "Hi Wanna, following up on yesterday's conversation about expanding into the north, I've attached the enterprise package details. Would Thursday work to continue the discussion?",
+      note: "Hi Wanna, following up on yesterday's conversation about expanding into the north, I've attached the enterprise details. Would Thursday work to continue the discussion?",
       mine: "My customers",
       people: ["Wanna Srisuk", "Kitti Thongdee", "Preeya Maneerat"],
     },
@@ -336,7 +343,7 @@ const en = {
     integ: {
       tag: "Integrations",
       h3: "Connect once, use it across the team",
-      p: "Pull data from Salesforce every 15 minutes, send segments as audiences to Meta, Google Ads and LINE with emails and phone numbers hashed before sending, and offer a REST API and webhooks for other systems. Credentials for every connection are encrypted.",
+      p: "Pull data from Salesforce every 15 minutes. Send segments as audiences to Meta, Google Ads and LINE, with emails and phone numbers hashed first. Connect other systems through the REST API and webhooks. Credentials for every connection are encrypted.",
       label: "Sample connection list: Salesforce, Meta, Google Ads, LINE OA and ThaiBulkSMS",
       head: ["Connection", "Used for", "Status"],
       active: "Active",
@@ -402,14 +409,14 @@ const en = {
       "Help setting up your first Journeys and segments",
       "Support per contract",
     ],
-    contactSales: "Request a quote",
+    contactSales: "Custom quote",
     priceBySize: "Priced by size and agreed services",
     planAria: "{name} plan",
     badge: "Recommended for most teams",
     picked: "Selected",
     pick: "Select {name}",
     pickShort: "Select",
-    contactBtn: "Contact sales",
+    contactBtn: "Request a quote",
     listHead: "Included",
     listHeadEnt: "Everything in Scale, plus",
     feature: "Feature",
@@ -481,7 +488,7 @@ const en = {
       limit: "- {value} {label}",
       all: "- Every feature and every channel: Email, LINE OA, SMS, WhatsApp, Push",
       ent: [
-        "Priced by size and agreed services. Contact sales.",
+        "Priced by size and agreed services. Request a quote.",
         "- Contact and message quota per contract",
         "- Beryl8 helps connect channels and migrate existing data",
       ],
@@ -590,7 +597,7 @@ const th: Pulse8Content = {
   },
   header: {
     navLabel: "เมนูหลัก",
-    nav: { features: "ผลิตภัณฑ์", cases: "การใช้งาน", plans: "ราคา", faq: "ช่วยเหลือ" },
+    nav: { features: "ผลิตภัณฑ์", cases: "การใช้งาน", plans: "ราคา", faq: "คำถามที่พบบ่อย" },
     meta: "by Beryl8",
   },
   hero: {
@@ -600,7 +607,7 @@ const th: Pulse8Content = {
     ctaPrimary: "ดูว่าทำอะไรได้บ้าง",
     ctaSecondary: "ดูแพ็กเกจและราคา",
     ticks: [
-      "ทุกฟีเจอร์เปิดให้ทุกแพ็กเกจ แพ็กเกจต่างกันที่โควตาเท่านั้น",
+      "ทุกแพ็กเกจใช้ฟีเจอร์ได้ครบ ต่างกันที่โควตาเท่านั้น",
       "ส่งผ่านบัญชี LINE OA, SMS และอีเมลของคุณเอง ค่าส่งจ่ายตรงกับผู้ให้บริการ",
     ],
     pill: "ส่งเฉพาะคนที่ยินยอม",
@@ -620,6 +627,13 @@ const th: Pulse8Content = {
     { h: "ใช้บัญชีของคุณเอง", p: "เชื่อม LINE OA, ThaiBulkSMS หรือ Twilio, SMTP และ WhatsApp ของคุณเอง ไม่บวกค่าส่งเพิ่ม" },
     { h: "รองรับภาษาไทยเต็มที่", p: "หน้าจอสลับไทยและอังกฤษได้ เวลาไทยเป็นค่าเริ่มต้น และนับ SMS ภาษาไทยตรงกับที่ผู้ให้บริการคิดเงิน" },
   ],
+  noPricing: {
+    title: "Pulse8 · ผลิตภัณฑ์",
+    ticks: ["ส่งผ่านบัญชี LINE OA, SMS และอีเมลของคุณเอง"],
+    factUseOwn: "เชื่อม LINE OA, ThaiBulkSMS หรือ Twilio, SMTP และ WhatsApp ของคุณเอง",
+    faqQuota:
+      "Pulse8 ไม่ส่งเกินโควตา ถ้าผู้รับมากกว่าโควตาที่เหลือ จะไม่ส่งเลยทั้งชุด API จะตอบกลับว่าเกินโควตา และ Journey จะบันทึกเหตุผลไว้ในขั้นนั้น โควตาเริ่มใหม่ทุกต้นเดือน (07:00 น. วันที่ 1 เวลาไทย)",
+  },
   footnote: "หน้าจอในหน้านี้จำลองจาก UI ของ Pulse8 ด้วยข้อมูลตัวอย่าง ไม่ใช่ข้อมูลลูกค้า",
   marquee: {
     label: "ฟีเจอร์เด่น",
@@ -790,7 +804,7 @@ const th: Pulse8Content = {
     steps: ["เก็บรายชื่อ", "แบ่งกลุ่ม", "สร้างและส่ง", "วัดผล"],
     s1: {
       h3: "รวมรายชื่อจากทุกที่ไว้ในโปรไฟล์เดียว",
-      p: "นำเข้าไฟล์ CSV หรือ Excel จับคู่คอลัมน์เอง หรือรับเข้ามาเรื่อยๆ จากฟอร์ม, การ follow LINE, API, SFTP และ Salesforce ทุกช่องทางของลูกค้าแต่ละคนรวมอยู่ในผู้ติดต่อเดียว",
+      p: "นำเข้าไฟล์ CSV หรือ Excel จับคู่คอลัมน์เอง หรือให้รายชื่อเข้ามาอัตโนมัติจากฟอร์ม, การ follow LINE, API, SFTP และ Salesforce ทุกช่องทางของลูกค้าแต่ละคนรวมอยู่ในผู้ติดต่อเดียว",
       ticks: [
         "เบอร์โทรถูกจัดรูปแบบให้เหมือนกันก่อนบันทึก",
         "ความยินยอมรายช่องทางเก็บพร้อมแหล่งที่มาและเวลา",
@@ -877,10 +891,10 @@ const th: Pulse8Content = {
       p: "เซลล์เห็นเฉพาะลูกค้าที่ตัวเองดูแล เลือกคอนเทนต์ที่การตลาดเตรียมไว้ เขียนข้อความส่วนตัวสั้นๆ แล้วส่งในชื่อตัวเอง คำตอบกลับเข้าอีเมลเซลล์ ส่วนการตลาดยังคุมแบรนด์และความยินยอมได้เหมือนเดิม",
       label: "ตัวอย่างการส่งอีเมลด่วนของเซลล์ พร้อมข้อความส่วนตัวและผู้รับ 3 คน",
       title: "ส่งอีเมลด่วน",
-      chip: "คอนเทนต์: แนะนำแพ็กเกจองค์กร 2027",
+      chip: "คอนเทนต์: แนะนำบริการสำหรับองค์กร 2027",
       send: "ส่งถึง 3 คน",
       noteLabel: "ข้อความส่วนตัว · 142/300 ตัวอักษร",
-      note: "สวัสดีครับคุณวรรณา ตามที่คุยกันเมื่อวานเรื่องขยายสาขาภาคเหนือ ผมแนบรายละเอียดแพ็กเกจองค์กรมาให้ครับ สะดวกคุยต่อวันพฤหัสไหมครับ",
+      note: "สวัสดีครับคุณวรรณา ตามที่คุยกันเมื่อวานเรื่องขยายสาขาภาคเหนือ ผมแนบรายละเอียดบริการสำหรับองค์กรมาให้ครับ สะดวกคุยต่อวันพฤหัสไหมครับ",
       mine: "ลูกค้าของฉัน",
       people: ["วรรณา ศรีสุข", "กิตติ ทองดี", "ปรียา มณีรัตน์"],
     },
@@ -933,7 +947,7 @@ const th: Pulse8Content = {
   },
   plans: {
     h2: "เลือกแพ็กเกจที่เหมาะกับองค์กร",
-    p: "ทุกแพ็กเกจได้ทุกฟีเจอร์ ต่างกันที่จำนวนรายชื่อ ข้อความต่อเดือน ผู้ใช้ และ Journey ที่ทำงานพร้อมกัน",
+    p: "ทุกแพ็กเกจใช้ได้ทุกฟีเจอร์ ต่างกันที่จำนวนรายชื่อ ข้อความต่อเดือน ผู้ใช้ และ Journey ที่ทำงานพร้อมกัน",
     compareH: "เปรียบเทียบแพ็กเกจ",
   },
   pricing: {
@@ -946,7 +960,7 @@ const th: Pulse8Content = {
     },
     perYear: "/ ปี",
     perMonth: "/ เดือน",
-    freeForever: "ฟรีตลอด ไม่ต้องใช้บัตร",
+    freeForever: "ใช้ฟรีตลอด ไม่ต้องใส่บัตรเครดิต",
     yearSub: "เฉลี่ย {perMonth} ต่อเดือน · ประหยัด {save}",
     monthSub: "จ่ายรายปีลด {discount}%",
     limits: {
@@ -963,14 +977,14 @@ const th: Pulse8Content = {
       "ช่วยวาง Journey และ segment ชุดแรก",
       "Support ตามสัญญา",
     ],
-    contactSales: "ขอใบเสนอราคา",
+    contactSales: "ใบเสนอราคาเฉพาะองค์กร",
     priceBySize: "ราคาตามขนาดและบริการที่ตกลง",
     planAria: "แพ็กเกจ {name}",
     badge: "แนะนำสำหรับทีมส่วนใหญ่",
     picked: "เลือกแล้ว",
     pick: "เลือก {name}",
     pickShort: "เลือก",
-    contactBtn: "ติดต่อทีมขาย",
+    contactBtn: "ขอใบเสนอราคา",
     listHead: "รวมในแพ็กเกจ",
     listHeadEnt: "ทุกอย่างใน Scale และ",
     feature: "ฟีเจอร์",
@@ -1041,7 +1055,7 @@ const th: Pulse8Content = {
       limit: "- {label} {value}",
       all: "- ทุกฟีเจอร์และทุกช่องทาง: Email, LINE OA, SMS, WhatsApp, Push",
       ent: [
-        "ราคาตามขนาดและบริการที่ตกลง ติดต่อทีมขาย",
+        "ราคาตามขนาดและบริการที่ตกลง ขอใบเสนอราคาได้จากทีมขาย",
         "- โควตารายชื่อและข้อความตามสัญญา",
         "- Beryl8 ช่วยเชื่อมช่องทางและย้ายข้อมูลเดิม",
       ],
