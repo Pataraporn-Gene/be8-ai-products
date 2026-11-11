@@ -96,6 +96,7 @@ test("C11 property: every displayed total equals the sum of the displayed rows (
       for (const key of Object.keys(it.inputs)) it.inputs[key] = Math.round(it.inputs[key] * rnd() * 3 * 100) / 100;
       it.setup = rnd() > 0.5;
       it.size = rnd() > 0.5 ? "lean" : "standard";
+      if (it.pid === "meet8") Object.assign(it.inputs, { host: Math.floor(rnd() * 3), pkg: Math.floor(rnd() * 3), extra: rnd() > 0.5 ? Math.round(rnd() * 200) : 0 });
       return it;
     });
     const st = { ...s, rate: 30 + Math.round(rnd() * 600) / 100, discount: Math.floor(rnd() * 40), viaPartner: rnd() > 0.5, partner: Math.floor(rnd() * 50), cud: rnd() > 0.5 };
@@ -173,15 +174,6 @@ test("C17 hosting puts Voice8 phone charges under Other, not AI (Voice8 AI is bi
   const g = displayGrid(totals([v], s), { cur: "THB", rate: 33.5, vat: false }, s);
   // SIP 10,000 × $0.02 × 33.5 = ฿6,700; cloud $250 × 33.5 = ฿8,375
   assert.deepEqual(g.hosting.total, { cloud: 8375, ai: 0, other: 6700, total: 15075 });
-});
-
-test("C18 Meet8 GCP breakdown at ฿33.5: 7 services from the Meet8 pricing model, ฿25,595 / month", () => {
-  const m = { ...newItem("meet8", "m"), inputs: { hours: 0, asks: 0 }, setup: false };
-  const g = displayGrid(totals([m], s), { cur: "THB", rate: 33.5, vat: false }, s);
-  const gcpRows = g.items[0].lines.filter((l) => l.kind === "cloud").map((l) => l.sell);
-  // 236, 166, 166, 135, 21, 18, 22 US$ × 33.5, half up: 4,522.5 → 4,523 and 703.5 → 704
-  assert.deepEqual(gcpRows, [7906, 5561, 5561, 4523, 704, 603, 737]);
-  assert.equal(g.hosting.total.cloud, 25595);
 });
 
 test("C19 Insight8 lean size is the default: GCP ฿9,771 / month for 20 users", () => {
@@ -290,4 +282,156 @@ test("A7 satang and rounding: 21 x 3 questions = 100.8 credits = ฿403.20 shows
   assert.equal(row(small, s, { cur: "THB", rate: 33.5, vat: false }), 403);
   assert.equal(row(ask8(), s, { cur: "THB", rate: 33.5, vat: true }), 5478); // 5,120 x 1.07 = 5,478.40
   assert.equal(row(ask8(), { ...s, rate: 40 }, { cur: "THB", rate: 40, vat: false }), 6113); // ฿5,120 / 33.5 x 40 = 6,113.43, priced in USD
+});
+
+/* Meet8 three ways. Expected values worked out by hand (PLAN.md AC1–AC7), not by running this code:
+   GCP from the measured S/M/L/XL sizes; through Beryl8 = Google × 1.2; subscription = (4.10 + hours × 0.72) / 0.5. */
+const meet8 = (host: number, inputs: Record<string, number> = {}): Item =>
+  ({ ...newItem("meet8", "m"), inputs: { hours: 200, asks: 30, conc: 30, host, ...inputs }, setup: false });
+const thb = { cur: "THB" as const, rate: 33.5, vat: false };
+const shown = (it: Item, st = s) => displayGrid(totals([it], st), thb, st).items[0];
+const gcpSells = (lines: { id: string; sell: number }[]) => lines.filter((l) => l.id.startsWith("gcp-")).map((l) => l.sell);
+const cloudRunBase = "gcp-cloud-run-app-and-api-";
+
+test("M1 perpetual, own Google Cloud is the default: license $360 × 20, $500 by Beryl8, $399.80 direct, ฿30,145 / month", () => {
+  assert.equal(newItem("meet8", "m").inputs.host, 0);
+  const it = meet8(0);
+  const c = costItem(it, s);
+  near(c.listLicense, 7200, "license");
+  near(c.ma, 1584, "MA 22%");
+  near(c.monthlyBeryl8, 500, "transcription");
+  near(c.monthlyDirect, 399.8, "AI 7.2 + GCP 392.6");
+  const gcpLines = c.lines.filter((l) => l.id.startsWith("gcp-"));
+  assert.equal(gcpLines.length, 9);
+  assert.ok(gcpLines.every((l) => l.payer === "direct"));
+  const g = shown(it);
+  assert.equal(g.monthlyBeryl8 + g.monthlyDirect, 30145); // 16,750 + 241 + 13,154
+});
+
+test("M2 GCP for 20 users at 30% = 6 meetings at once → size S: US$392.6, ฿13,154 on screen", () => {
+  const c = costItem(meet8(0), s);
+  const usd = c.lines.filter((l) => l.id.startsWith("gcp-")).map((l) => l.sell);
+  // Cloud Run base 61 + 1 warm × 18, Cloud Run 200 h × 0.148, SQL, Redis, VM, LB, Armor, NAT/build, storage 200 h × 0.04
+  [79, 29.6, 85, 95, 20, 20, 16, 40, 8].forEach((x, k) => near(usd[k], x, `row ${k}`));
+  const g = displayGrid(totals([meet8(0)], s), thb, s);
+  assert.deepEqual(gcpSells(g.items[0].lines), [2647, 992, 2848, 3183, 670, 670, 536, 1340, 268]);
+  assert.equal(g.hosting.total.cloud, 13154);
+});
+
+test("M3 perpetual, Google Cloud through Beryl8: all GCP and AI billed by Beryl8 at × 1.2, ฿32,822 / month", () => {
+  const c = costItem(meet8(1), s);
+  near(c.monthlyBeryl8, 979.76, "sell"); // 500 + 8.64 + 471.12
+  near(c.monthlyCost, 547.8, "cost"); // 148 + 7.2 + 392.6
+  near(c.monthlyDirect, 0, "direct");
+  const moved = c.lines.filter((l) => l.id !== "stt");
+  assert.equal(moved.length, 10);
+  for (const l of moved) {
+    assert.equal(l.payer, "beryl8", l.id);
+    assert.equal(l.draft, true, l.id);
+    near(l.sell, l.cost * 1.2, l.id);
+  }
+  const g = displayGrid(totals([meet8(1)], s), thb, s);
+  const it = g.items[0];
+  assert.deepEqual(gcpSells(it.lines), [3176, 1190, 3417, 3819, 804, 804, 643, 1608, 322]);
+  assert.equal(it.lines.find((l) => l.id === "ai")!.sell, 289);
+  assert.equal(it.lines.find((l) => l.id === "stt")!.sell, 16750);
+  assert.equal(it.monthlyBeryl8, 32822);
+  assert.deepEqual(g.hosting.total, { cloud: 0, ai: 0, other: 0, total: 0 });
+  for (const l of it.lines.filter((x) => x.id !== "stt")) assert.equal(Math.round(((l.sell - l.cost) / l.sell) * 100), 17, `${l.id} margin`);
+});
+
+test("M3b committed use cuts Cloud Run base and Cloud SQL, not the hourly Cloud Run row", () => {
+  const st = { ...s, cud: true };
+  const pick = (host: number) => {
+    const it = shown(meet8(host), st);
+    const by = (id: string) => it.lines.find((l) => l.id === id)!.sell;
+    return [by(cloudRunBase), by("gcp-cloud-sql-database-size-s-"), by("gcp-run-hours")];
+  };
+  assert.deepEqual(pick(0), [2197, 2136, 992]);
+  assert.deepEqual(pick(1), [2636, 2563, 1190]);
+});
+
+test("M4 server size follows meetings at once: 30 → M, 300 → XL (capped), 0% → 1 meeting, S", () => {
+  const base = (users: number, conc: number) => costItem({ ...meet8(0, { conc }), users }, s).lines.find((l) => l.id === cloudRunBase)!.sell;
+  const sql = (users: number, conc: number) => costItem({ ...meet8(0, { conc }), users }, s).lines.find((l) => l.id.startsWith("gcp-cloud-sql"))!;
+  near(base(100, 30), 187, "M: 61 + 7 × 18");
+  assert.equal(sql(100, 30).id, "gcp-cloud-sql-database-size-m-");
+  near(sql(100, 30).sell, 155, "M SQL");
+  near(base(1000, 30), 1393, "XL: 61 + 74 × 18");
+  near(sql(1000, 30).sell, 655, "XL SQL");
+  near(base(20, 0), 61, "one meeting, no warm instance");
+  near(sql(20, 0).sell, 85, "S SQL");
+});
+
+test("M5 subscription, 10 hours a user: no license or MA, one line ฿15,142 / month, ฿908,520 over 5 years, ฿757 a user", () => {
+  const it = meet8(2);
+  const c = costItem(it, s);
+  near(c.license, 0, "license");
+  near(c.ma, 0, "MA");
+  assert.deepEqual(c.lines.map((l) => [l.id, l.payer, l.draft]), [["sub", "beryl8", true]]);
+  near(c.monthlyBeryl8, 452, "20 × 22.60");
+  near(c.monthlyCost, 226, "20 × 11.30");
+  const g = displayGrid(totals([it], s), thb, s);
+  const row = g.items[0];
+  assert.equal(row.monthlyBeryl8, 15142);
+  assert.equal(row.monthlyCost, 7571);
+  assert.equal(row.year1, 181704);
+  assert.equal(row.total, 908520);
+  assert.deepEqual(row.perUser, { monthly: 757, avgMonthly: 757 });
+  assert.deepEqual(g.hosting.total, { cloud: 0, ai: 0, other: 0, total: 0 });
+});
+
+test("M6 subscription packages and extra hours: 5 h ฿10,318, 20 h ฿24,790, 50 extra hours ฿2,412 (cost ฿1,206), 5 users billed as 20", () => {
+  assert.equal(shown(meet8(2, { pkg: 2 })).monthlyBeryl8, 10318);
+  assert.equal(shown(meet8(2, { pkg: 0 })).monthlyBeryl8, 24790);
+  const extra = shown(meet8(2, { extra: 50 })).lines.find((l) => l.id === "extra")!;
+  assert.deepEqual([extra.sell, extra.cost], [2412, 1206]);
+  assert.equal(shown({ ...meet8(2), users: 5 }).monthlyBeryl8, 15142);
+});
+
+test("M7 n-way choices: round then clamp; links land host 1.4 → 1, 1.6 → 2, -3 → 0, 1e9 → 2; old links get 0", () => {
+  assert.deepEqual([choiceIndex(-3, 3), choiceIndex(1e9, 3), choiceIndex(0.49), choiceIndex(0.5)], [0, 2, 0, 1]);
+  const viaLink = (inputs: object) => {
+    const d = decode(btoa(JSON.stringify({ v: 1, i: [["meet8", 20, inputs, 0]], s: {} })));
+    const first = costItem(d!.items[0], s).lines.find((l) => l.id !== "stt")!; // what is actually billed, not just the radio
+    return [choiceIndex(d!.items[0].inputs.host, 3), first.id === "sub" ? "sub" : first.payer];
+  };
+  assert.deepEqual([viaLink({}), viaLink({ host: 1.4 }), viaLink({ host: 1.6 }), viaLink({ host: -3 }), viaLink({ host: 1e9 })],
+    [[0, "direct"], [1, "beryl8"], [2, "sub"], [0, "direct"], [2, "sub"]]);
+  assert.equal(choiceIndex(NaN, 3), 0);
+  const back = decode(encode({ v: 1, items: [meet8(2, { pkg: 2, extra: 30 })], s, cur: "THB", vat: false }, { internal: false }));
+  assert.deepEqual([back!.items[0].inputs.host, back!.items[0].inputs.pkg, back!.items[0].inputs.extra], [2, 2, 30]);
+});
+
+test("M8 Beryl8-billed row text shows sell prices only, never Google's price or the markup", () => {
+  const lines = costItem(meet8(1), s).lines;
+  assert.equal(lines.find((l) => l.id === cloudRunBase)!.detail!.en, "US$94.8 / month");
+  assert.equal(lines.find((l) => l.id === "ai")!.detail!.en, "20 users × 30 questions × US$0.0144");
+  for (const l of lines) assert.ok(!/20%|US\$79\b|US\$85\b|0\.148|US\$0\.04\b|0\.012\b/.test(l.detail?.en ?? ""), `${l.id}: ${l.detail?.en}`);
+});
+
+test("P1 per user, Meet8 through Beryl8 at ฿33.5: ฿32,822 / 20 = ฿1,641 a month; 5-year ฿2,422,776 / 20 / 60 = ฿2,019", () => {
+  const it = shown(meet8(1));
+  // license ฿241,200 + 12 × 32,822 = 635,064; years 2–5: MA 53,064 + 393,864 = 446,928
+  assert.equal(it.year1, 635064);
+  assert.equal(it.total, 635064 + 4 * 446928);
+  assert.deepEqual(it.perUser, { monthly: 1641, avgMonthly: 2019 });
+});
+
+test("P2 per user uses billed seats (20-user minimum) and is null for Voice8 with no per-user license", () => {
+  assert.equal(shown({ ...meet8(1), users: 5 }).perUser!.monthly, 1641);
+  const v = { ...newItem("voice8", "v"), inputs: { minutes: 1000, sip: 0 }, setup: false };
+  assert.equal(shown(v).perUser, null);
+});
+
+test("M9 switching how Meet8 is bought keeps the same monthly usage (review finding F2)", () => {
+  const sw = PRICING.meet8.switchTo!;
+  // own cloud, 1,000 h for 20 users → subscription 10 h: package 200 h, so 800 extra hours
+  assert.deepEqual(sw({ hours: 1000, asks: 30, conc: 30, host: 0, pkg: 1, extra: 0 }, 20, 2), { hours: 1000, asks: 30, conc: 30, host: 2, pkg: 1, extra: 800 });
+  // subscription 5 h for 20 users (100 h) + 30 extra → buy once at 130 h
+  assert.deepEqual(sw({ hours: 200, asks: 30, conc: 30, host: 2, pkg: 2, extra: 30 }, 20, 0), { hours: 130, asks: 30, conc: 30, host: 0, pkg: 2, extra: 30 });
+  // usage below the package: no extra hours, never negative
+  assert.equal(sw({ hours: 200, asks: 30, conc: 30, host: 0, pkg: 1, extra: 0 }, 100, 2).extra, 0);
+  // between the two buy-once ways the hours stay as they are
+  assert.equal(sw({ hours: 640, asks: 30, conc: 30, host: 0, pkg: 1, extra: 0 }, 20, 1).hours, 640);
 });

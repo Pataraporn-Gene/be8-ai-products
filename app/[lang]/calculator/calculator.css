@@ -206,25 +206,59 @@
 .calc-row dt small { flex-basis: 100%; font-size: 12px; color: var(--fg3); }
 .calc-row dt small.calc-cost { color: var(--cyan-800); }
 .calc-row dd { margin: 0; font-size: 14px; font-weight: var(--weight-medium); color: var(--fg1); white-space: nowrap; }
+.calc-row-group { display: block; }
+.calc-row-group summary { display: flex; justify-content: space-between; gap: 16px; cursor: pointer; list-style: none; min-height: 44px; align-items: flex-start; }
+.calc-row-group summary::-webkit-details-marker { display: none; }
+.calc-group-label { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-size: 13.5px; color: var(--fg2); line-height: 1.45; }
+.calc-group-label small { flex-basis: 100%; font-size: 12px; color: var(--cyan-700); text-decoration: underline; text-underline-offset: 2px; }
+.calc-group-label small.calc-cost { color: var(--cyan-800); text-decoration: none; }
+.calc-row-group details[open] .calc-group-label small:not(.calc-cost) { display: none; }
+.calc-group-value { font-size: 14px; font-weight: var(--weight-medium); color: var(--fg1); white-space: nowrap; }
+.calc-row-group dl { margin: 4px 0 0; padding-left: 12px; border-left: 2px solid var(--line1); }
+.calc-item { container-type: inline-size; }
+.calc-compare-wrap { margin-top: 16px; }
+/* Comparison on a narrow card: one block per way of buying, each number labelled, nothing hidden sideways. */
+@container (max-width: 780px) {
+  .calc-compare-wrap .calc-scroll { overflow: visible; }
+  .calc-table.calc-compare thead { display: none; }
+  .calc-table.calc-compare tbody tr { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 4px 12px; padding: 10px 8px; border-bottom: 1px solid var(--line1); }
+  .calc-table.calc-compare tbody th { grid-column: 1 / -1; padding: 0; border: 0; }
+  .calc-table.calc-compare tbody td { padding: 0; border: 0; text-align: left; }
+  .calc-table.calc-compare tbody td::before { content: attr(data-label); display: block; font-size: 11px; color: var(--fg3); }
+}
+.calc-compare-h { margin: 0 0 6px; font-size: 13px; font-weight: var(--weight-medium); color: var(--fg2); }
+.calc-table.calc-compare { font-size: 13px; }
+.calc-table.calc-compare th, .calc-table.calc-compare td { vertical-align: top; }
+.calc-table.calc-compare tbody tr[data-on] th, .calc-table.calc-compare tbody tr[data-on] td { background: var(--cyan-50); }
+.calc-compare-pick { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-height: 44px; width: 100%; padding: 4px 0; border: 0; background: none; text-align: left; font: inherit; color: var(--fg1); cursor: pointer; }
+.calc-compare-pick small { font-size: 11.5px; color: var(--cyan-700); }
+.calc-compare-pick[aria-pressed="true"] small { color: var(--fg3); }
+.calc-item-month small { margin-left: 6px; font-size: 12px; color: var(--fg3); white-space: nowrap; }
+.calc-pick-alt { font-size: 12px; color: var(--cyan-800); }
+.calc-how { margin-top: 12px; max-width: 62ch; font-size: 14px; color: var(--fg2); }
+.calc-how summary { cursor: pointer; min-height: 44px; display: inline-flex; align-items: center; color: var(--cyan-800); font-weight: var(--weight-medium); }
+.calc-how ul { margin: 4px 0 0; padding-left: 18px; line-height: 1.6; }
 .calc-notes { margin: 16px 0 0; padding: 12px 0 0 18px; border-top: 1px solid var(--line1); font-size: 12.5px; line-height: 1.6; color: var(--fg3); }
 
 /* ---------- summary ---------- */
-.calc-summary { position: sticky; top: calc(var(--calc-top) + 24px); }
+/* Only the totals stick; the tables below scroll with the page, so there is never a scroll area inside a scroll area. */
+.calc-summary { align-self: stretch; display: flex; flex-direction: column; gap: 16px; }
 .calc-sum-in {
   background: var(--bg1);
   border: 1px solid var(--line1);
   border-radius: var(--radius-3xl);
   box-shadow: var(--shadow-card-elevated);
   padding: 24px;
-  max-height: calc(100vh - var(--calc-top) - 48px);
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--neutral-300) transparent;
 }
+.calc-sum-top { position: sticky; top: calc(var(--calc-top) + 24px); z-index: 2; }
+/* The detail tables sit under the estimate in the left column, so the sticky totals never cover them. */
+.calc-sum-rest { grid-column: 1; }
+.calc-sum-rest > :first-child { margin-top: 0; }
+@media (max-height: 700px) { .calc-sum-top { position: static; } }
 .calc-sum-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .calc-seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 999px; background: var(--neutral-100); }
 .calc-seg button {
-  min-width: 52px; height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: none;
+  min-width: 56px; height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: none;
   font-size: 12.5px; font-weight: var(--weight-medium); color: var(--fg3);
   transition: background var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
 }
@@ -246,7 +280,10 @@
 .calc-run strong { font-weight: var(--weight-medium); color: var(--fg1); }
 .calc-hint { margin: 4px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--fg3); }
 .calc-sum-in > .calc-check { margin-top: 4px; }
-.calc-run-host { margin-top: 10px; padding-top: 10px; }
+.calc-run-host { margin-top: 10px; padding-top: 10px; padding-left: 12px; border-top: 0; border-left: 2px solid var(--line2); font-size: 13px; color: var(--fg2); }
+.calc-run span { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.calc-run-tag { font-size: 12px; color: var(--fg3); }
+.calc-host-toggle { margin: 4px 0 8px; min-height: 44px; }
 .calc-hint-tight { margin: -4px 0 8px; }
 .calc-table.calc-host th, .calc-table.calc-host td { padding-left: 6px; }
 .calc-table.calc-host thead th:first-child { color: var(--fg3); font-weight: var(--weight-medium); }
@@ -328,7 +365,7 @@
 @media (max-width: 1024px) {
   .calc-grid { grid-template-columns: minmax(0, 1fr); }
   .calc-summary { position: static; scroll-margin-top: calc(var(--calc-top) + 16px); }
-  .calc-sum-in { max-height: none; overflow: visible; }
+  .calc-sum-top { position: static; }
   .calc-actions { flex-direction: row; flex-wrap: wrap; }
   .calc-actions .calc-btn { flex: 1 1 180px; }
   .calc-bar {
@@ -359,7 +396,10 @@
   .calc-pick-price small { flex-basis: 100%; font-size: 11.5px; }
   .calc-item-head { flex-wrap: wrap; padding: 4px; }
   .calc-item-toggle { flex-basis: calc(100% - 96px); padding-left: 12px; flex-wrap: wrap; }
-  .calc-item-tot { order: 4; flex-basis: 100%; flex-direction: row; justify-content: flex-start; gap: 16px; padding-left: 48px; }
+  .calc-item-tot { order: 4; flex-basis: 100%; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; gap: 4px 16px; padding-left: 48px; }
+  .calc-item-tot .calc-item-month { flex-basis: 100%; }
+  .calc-table.calc-years { font-size: 12px; }
+  .calc-table.calc-years th, .calc-table.calc-years td { padding-left: 6px; }
   .calc-item-body { padding: 4px 16px 20px; }
   .calc-break { grid-template-columns: 1fr; }
   .calc-sum-in { padding: 20px 16px; }
@@ -371,13 +411,14 @@
   @page { margin: 14mm; }
   .calc { background: #fff; font-size: 11pt; }
   .calc-top, .calc-add, .calc-actions, .calc-seg, .calc-sum-in > .calc-check, .calc-bar, .calc-toasts, .calc-item-tools, .calc-chev, .calc-settings summary svg, .b8-float { display: none !important; }
+  .calc-host-toggle, .calc-compare-pick small, .calc-group-label small:not(.calc-cost), .calc-how summary { display: none !important; }
   .calc-main { padding: 0; }
   .calc-printdate { display: block; font-size: 10pt !important; }
   .calc-grid { display: block; }
   .calc-item, .calc-sum-in { box-shadow: none; border-color: #ccc; break-inside: avoid; animation: none; }
   .calc-item-body[hidden] { display: block; }
   .calc-summary { position: static; margin-top: 16px; }
-  .calc-sum-in { max-height: none; overflow: visible; }
+  .calc-sum-top { position: static; }
   .calc-settings { display: block; }
   .calc-settings:not([open]) { display: none; }
   .calc-check input { print-color-adjust: exact; }

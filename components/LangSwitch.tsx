@@ -14,7 +14,7 @@ export function LangSwitch({ lang, path = "", dark = false }: { lang: Locale; pa
         display: "inline-flex",
         alignItems: "center",
         gap: 2,
-        padding: 3,
+        padding: 0,
         borderRadius: 999,
         border: `1px solid ${dark ? "rgba(255,255,255,.16)" : "var(--line2)"}`,
         background: dark ? "rgba(255,255,255,.04)" : "var(--bg1)",
@@ -30,7 +30,12 @@ export function LangSwitch({ lang, path = "", dark = false }: { lang: Locale; pa
             hrefLang={code}
             aria-current={active ? "page" : undefined}
             style={{
-              padding: "6px 11px",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: 44,
+              minWidth: 44,
+              padding: "0 11px",
               borderRadius: 999,
               fontSize: 12,
               fontWeight: 500,

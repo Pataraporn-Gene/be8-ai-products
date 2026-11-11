@@ -17,6 +17,8 @@ import {
   decode,
   displayGrid,
   isPriced,
+  licenseOf,
+  values,
   vatOf,
   roundPrice,
   toDisplay,
@@ -78,6 +80,27 @@ export function Calculator({ lang }: { lang: Locale }) {
   const [s, setS] = useState<Settings>(DEFAULT_SETTINGS);
   const [cur, setCur] = useState<Cur>("THB");
   const [vat, setVat] = useState(false);
+  const [showHost, setShowHost] = useState(false);
+  // Printing shows everything the screen folds away: Google Cloud rows, pricing rules and per-service hosting.
+  useEffect(() => {
+    let reopen: HTMLDetailsElement[] = [];
+    let hostWas = false;
+    const before = () => {
+      reopen = [...document.querySelectorAll<HTMLDetailsElement>(".calc details:not([open]):not(.calc-settings)")];
+      reopen.forEach((d) => (d.open = true));
+      setShowHost((was) => ((hostWas = was), true));
+    };
+    const after = () => {
+      reopen.forEach((d) => (d.open = false));
+      setShowHost(hostWas);
+    };
+    window.addEventListener("beforeprint", before);
+    window.addEventListener("afterprint", after);
+    return () => {
+      window.removeEventListener("beforeprint", before);
+      window.removeEventListener("afterprint", after);
+    };
+  }, []);
   const [internal, setInternal] = useState(false);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [removed, setRemoved] = useState<{ item: Item; at: number } | null>(null);
@@ -142,6 +165,8 @@ export function Calculator({ lang }: { lang: Locale }) {
   /** Hosting table cells: the currency is in the column header, so plain numbers keep it narrow. */
   const n0 = (n: number) => f.num(n);
   const cell = (id: string) => g.items.find((i) => i.uid === id);
+  /** The same item bought another way, rounded exactly as the card would show it (for the comparison table). */
+  const preview = (it: Item) => displayGrid(totals([it], s), { cur, rate: s.rate, vat: false }, s).items[0];
   const counts = items.reduce<Record<string, number>>((a, i) => ({ ...a, [i.pid]: (a[i.pid] ?? 0) + 1 }), {});
 
   const add = (pid: string) => {
@@ -209,6 +234,14 @@ export function Calculator({ lang }: { lang: Locale }) {
         <div className="calc-intro">
           <h1>{c.h1}</h1>
           <p>{c.lede}</p>
+          <details className="calc-how">
+            <summary>{c.howH}</summary>
+            <ul>
+              {c.how.map((x) => (
+                <li key={x}>{x}</li>
+              ))}
+            </ul>
+          </details>
           <p className="calc-printdate">{c.printedOn(today)}</p>
           {internal && (
             <p className="calc-internal" role="note">
@@ -253,6 +286,7 @@ export function Calculator({ lang }: { lang: Locale }) {
                             )}
                             {pr.licenseDraft && <span className="calc-tag" title={c.draftHint}>{c.draft}</span>}
                           </span>
+                          {pr.fromMonthly !== undefined && <span className="calc-pick-alt">{c.fromMonthly(cur === "USD" ? f.price(pr.fromMonthly) : f.whole(Math.round(f.priceValue(pr.fromMonthly))))}</span>}
                         </span>
                         <Plus className="calc-pick-plus" size={18} strokeWidth={STROKE} aria-hidden />
                       </button>
@@ -278,6 +312,7 @@ export function Calculator({ lang }: { lang: Locale }) {
                   item={item}
                   cost={cost}
                   shown={cell(item.uid)}
+                  preview={preview}
                   c={c}
                   f={f}
                   lang={lang}
@@ -294,7 +329,7 @@ export function Calculator({ lang }: { lang: Locale }) {
           </div>
 
           <aside className="calc-summary" id="summary" aria-labelledby="sum-h">
-            <div className="calc-sum-in">
+            <div className="calc-sum-in calc-sum-top">
               <div className="calc-sum-head">
                 <h2 id="sum-h">{c.summaryH}</h2>
                 <div className="calc-seg" role="group" aria-label={c.currency}>
@@ -323,7 +358,10 @@ export function Calculator({ lang }: { lang: Locale }) {
                 ))}
               </dl>
               <p className="calc-run">
-                <span>{c.running}</span>
+                <span>
+                  {c.running}
+                  {vat && <small className="calc-run-tag">{c.exVat}</small>}
+                </span>
                 <strong>{f.whole(g.monthly)}</strong>
               </p>
               <p className="calc-hint">{c.runningHint}</p>
@@ -353,6 +391,9 @@ export function Calculator({ lang }: { lang: Locale }) {
                   {c.reset}
                 </button>
               </div>
+            </div>
+          </aside>
+          <section className="calc-sum-in calc-sum-rest" aria-label={c.summaryH}>
 
               {t.items.length > 0 && (
                 <>
@@ -390,6 +431,8 @@ export function Calculator({ lang }: { lang: Locale }) {
                     {g.hosting.rows.map((r, i) => {
                       const { item, cost } = t.items[i];
                       const direct = (g.items[i]?.lines ?? []).filter((l) => l.payer === "direct");
+                      // Everything billed by Beryl8 (Meet8 subscription or Google Cloud through Beryl8): nothing paid to providers. Skip here, not in g.hosting.rows (paired by index).
+                      if (direct.length === 0) return null;
                       return (
                         <tbody key={r.uid} className="calc-host-group">
                           <tr className="calc-host-prod">
@@ -397,7 +440,7 @@ export function Calculator({ lang }: { lang: Locale }) {
                             <td>{n0(r.total)}</td>
                             <td>{n0(r.total * 12)}</td>
                           </tr>
-                          {direct.map((l) => {
+                          {showHost && direct.map((l) => {
                             const src = cost.lines.find((x) => x.id === l.id);
                             const label = (src?.label[lang] ?? l.id).replace(/^Google Cloud · /, "");
                             return (
@@ -438,6 +481,11 @@ export function Calculator({ lang }: { lang: Locale }) {
                       </tr>
                     </tfoot>
                   </table>
+                  {g.hosting.total.total > 0 && (
+                    <button type="button" className="calc-btn calc-btn-quiet calc-host-toggle" aria-expanded={showHost} onClick={() => setShowHost(!showHost)}>
+                      {showHost ? c.hostHide : c.hostShow}
+                    </button>
+                  )}
                   <label className="calc-check">
                     <input type="checkbox" checked={s.cud} onChange={(e) => setS({ ...s, cud: e.target.checked })} />
                     <span>
@@ -505,17 +553,17 @@ export function Calculator({ lang }: { lang: Locale }) {
                   <ChevronDown size={16} strokeWidth={STROKE} aria-hidden />
                 </summary>
                 <div className="calc-fields">
-                  <NumField label={c.rate} value={s.rate} min={1} max={1000} step={0.5} invalid={c.invalid} onChange={(v) => setS({ ...s, rate: v })} />
-                  <NumField label={c.dayRate} value={s.dayRate} step={1000} invalid={c.invalid} onChange={(v) => setS({ ...s, dayRate: v })} />
+                  <NumField label={c.rate} value={s.rate} min={1} max={1000} step={0.5} invalid={c.invalid} keep={(v) => c.keep(String(v))} overMax={(v) => c.overMax(String(v))} onChange={(v) => setS({ ...s, rate: v })} />
+                  <NumField label={c.dayRate} value={s.dayRate} step={1000} invalid={c.invalid} keep={(v) => c.keep(f.num(v))} onChange={(v) => setS({ ...s, dayRate: v })} />
                   {internal && (
                     <>
-                      <NumField label={c.discountIn} value={s.discount} max={100} step={1} invalid={c.invalid} onChange={(v) => setS({ ...s, discount: v })} />
+                      <NumField label={c.discountIn} value={s.discount} max={100} step={1} invalid={c.invalid} keep={(v) => c.keep(`${v}%`)} overMax={(v) => c.overMax(`${v}%`)} onChange={(v) => setS({ ...s, discount: v })} />
                       <label className="calc-check">
                         <input type="checkbox" checked={s.viaPartner} onChange={(e) => setS({ ...s, viaPartner: e.target.checked })} />
                         {c.viaPartner}
                       </label>
                       {s.viaPartner && (
-                        <NumField label={c.partner} value={s.partner} max={100} step={5} invalid={c.invalid} onChange={(v) => setS({ ...s, partner: v })} />
+                        <NumField label={c.partner} value={s.partner} max={100} step={5} invalid={c.invalid} keep={(v) => c.keep(`${v}%`)} overMax={(v) => c.overMax(`${v}%`)} onChange={(v) => setS({ ...s, partner: v })} />
                       )}
                     </>
                   )}
@@ -540,13 +588,16 @@ export function Calculator({ lang }: { lang: Locale }) {
               <p className="calc-fine">
                 {vat ? c.vatOn : c.vatOff} · {c.fine}
               </p>
-            </div>
-          </aside>
+          </section>
         </div>
       </main>
 
       {items.length > 0 && (
         <div className="calc-bar">
+          <div>
+            <span>{c.perMonth}{vat ? ` · ${c.exVat}` : ""}</span>
+            <strong>{f.whole(g.monthly)}</strong>
+          </div>
           <div>
             <span>{c.firstYear}</span>
             <strong>{f.whole(withVat(g.year1))}</strong>
@@ -575,6 +626,7 @@ function ItemCard(props: {
   item: Item;
   cost: ItemCost;
   shown?: ShownItem;
+  preview: (it: Item) => ShownItem | undefined;
   c: CalcCopy;
   f: Fmt;
   lang: Locale;
@@ -592,6 +644,15 @@ function ItemCard(props: {
   const Icon = productIcons[p.icon];
   const bodyId = `body-${item.uid}`;
   const billed = billedUsers(item);
+  const lic = licenseOf(item);
+  const vals = values(item);
+  const visible = pr.inputs.filter((inp) => !inp.when || inp.when(vals));
+  const compareInput = pr.inputs.find((inp) => inp.compare);
+  /** Usage every comparison row is priced at: what this card uses now. */
+  const usage = pr.monthlyHours?.(vals, billed);
+  /** Changing how the product is bought keeps the same usage; any other choice just sets its value. */
+  const switchInputs = (id: string, k: number) =>
+    id === compareInput?.id && pr.switchTo ? pr.switchTo(vals, billed, k) : { ...item.inputs, [id]: k };
   const sh = props.shown;
   const shownLine = (id: string) => sh?.lines.find((l) => l.id === id);
   const beryl8Lines = cost.lines.filter((l) => l.payer === "beryl8");
@@ -610,12 +671,16 @@ function ItemCard(props: {
               {pr.licenseDraft && <span className="calc-tag" title={c.draftHint}>{c.draft}</span>}
             </span>
             <span className="calc-item-meta">
-              {pr.license !== null ? `${f.num(billed)} ${pr.unitLabel[lang]}` : p.category[lang]}
+              {lic !== null ? `${f.num(billed)} ${pr.unitLabel[lang]}` : p.category[lang]}
             </span>
           </span>
           <span className="calc-item-tot">
-            <span>{c.firstYear} <strong>{f.whole(props.shown?.year1 ?? 0)}</strong></span>
-            <span>{c.fiveYear} <strong>{f.whole(props.shown?.total ?? 0)}</strong></span>
+            <span className="calc-item-month">
+              {c.perMonth} <strong>{f.whole(sh ? sh.monthlyBeryl8 + sh.monthlyDirect : 0)}</strong>
+              {sh?.perUser && <small>{f.whole(sh.perUser.monthly)} {c.perUserShort}</small>}
+            </span>
+            <span>{c.firstYear} <strong>{f.whole(sh?.year1 ?? 0)}</strong></span>
+            <span>{c.fiveYear} <strong>{f.whole(sh?.total ?? 0)}</strong></span>
           </span>
           <ChevronDown className="calc-chev" size={18} strokeWidth={STROKE} aria-hidden />
           <span className="sr-only">{open ? c.collapse : c.expand}</span>
@@ -631,8 +696,60 @@ function ItemCard(props: {
       </header>
 
       <div className="calc-item-body" id={bodyId} hidden={!open}>
+        {visible.map(({ id, label, choices }) => choices && (
+          <fieldset key={id} className="calc-size">
+            <legend>{label[lang]}</legend>
+            <div className="calc-size-opts">
+              {choices.map((choice, k) => {
+                const on = choiceIndex(vals[id], choices.length) === k;
+                return (
+                  <label key={k} className="calc-size-opt" data-on={on || undefined}>
+                    <input type="radio" name={`${id}-${item.uid}`} checked={on} onChange={() => props.onChange({ inputs: switchInputs(id, k) })} />
+                    <span>{choice[lang]}</span>
+                  </label>
+                );
+              }).reverse()}
+            </div>
+          </fieldset>
+        ))}
+
+        {compareInput?.choices && (
+          <div className="calc-compare-wrap">
+            <h4 className="calc-compare-h">{c.compareH}</h4>
+            <div className="calc-scroll">
+              <table className="calc-table calc-compare">
+                <thead>
+                  <tr>{c.compareCols.map((h, k) => <th key={k} scope="col">{h}</th>)}</tr>
+                </thead>
+                <tbody>
+                  {compareInput.choices.map((choice, k) => {
+                    const it = { ...item, inputs: switchInputs(compareInput.id, k) };
+                    const v = props.preview(it);
+                    const on = choiceIndex(vals[compareInput.id], compareInput.choices?.length) === k;
+                    return { k, row: (
+                      <tr key={k} data-on={on || undefined}>
+                        <th scope="row">
+                          <button type="button" className="calc-compare-pick" aria-pressed={on} onClick={() => props.onChange({ inputs: switchInputs(compareInput.id, k) })}>
+                            {choice[lang]}
+                            <small>{on ? c.chosen : c.choose}</small>
+                          </button>
+                        </th>
+                        <td data-label={c.compareCols[1]}>{usage === undefined ? "—" : f.num(usage)}</td>
+                        <td data-label={c.compareCols[2]}>{f.whole(v ? v.monthlyBeryl8 + v.monthlyDirect : 0)}</td>
+                        <td data-label={c.compareCols[3]}>{f.whole(v?.year1 ?? 0)}</td>
+                        <td data-label={c.compareCols[4]}>{f.whole(v?.total ?? 0)}</td>
+                        <td data-label={c.compareCols[5]}>{v?.perUser ? f.whole(v.perUser.monthly) : "—"}</td>
+                      </tr>
+                    ) };
+                  }).reverse().map((r) => r.row)}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         <div className="calc-fields calc-fields-grid">
-          {pr.license !== null && (
+          {lic !== null && (
             <NumField
               label={`${c.users}`}
               value={item.users}
@@ -642,10 +759,12 @@ function ItemCard(props: {
               hint={item.users < MIN_USERS ? c.billedAs(f.num(billed)) : c.minUsers}
               warn={item.users < MIN_USERS}
               invalid={c.invalid}
+              keep={(v) => c.keep(`${f.num(Math.max(MIN_USERS, Math.round(v)))} ${pr.unitLabel[lang]}`)}
+              overMax={(v) => c.overMax(f.num(v))}
               onChange={(v) => props.onChange({ users: v })}
             />
           )}
-          {pr.inputs.filter((inp) => !inp.choices).map((inp) => (
+          {visible.filter((inp) => !inp.choices).map((inp) => (
             <NumField
               key={inp.id}
               label={inp.label[lang]}
@@ -655,27 +774,12 @@ function ItemCard(props: {
               suffix={inp.unit[lang]}
               hint={inp.help?.[lang]}
               invalid={c.invalid}
+              keep={(v) => c.keep(`${f.num(v)} ${inp.unit[lang]}`.trim())}
+              overMax={(v) => c.overMax(`${f.num(v)} ${inp.unit[lang]}`.trim())}
               onChange={(v) => props.onChange({ inputs: { ...item.inputs, [inp.id]: v } })}
             />
           ))}
         </div>
-
-        {pr.inputs.map((inp) => inp.choices && (
-          <fieldset key={inp.id} className="calc-size">
-            <legend>{inp.label[lang]}</legend>
-            <div className="calc-size-opts">
-              {([1, 0] as const).map((k) => {
-                const on = choiceIndex(item.inputs[inp.id] ?? inp.def) === k;
-                return (
-                  <label key={k} className="calc-size-opt" data-on={on || undefined}>
-                    <input type="radio" name={`${inp.id}-${item.uid}`} checked={on} onChange={() => props.onChange({ inputs: { ...item.inputs, [inp.id]: k } })} />
-                    <span>{inp.choices![k][lang]}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </fieldset>
-        ))}
 
         {pr.sizes && (
           <fieldset className="calc-size">
@@ -701,18 +805,18 @@ function ItemCard(props: {
 
         <div className="calc-break">
           <BreakGroup title={c.oneTime}>
-            {pr.license !== null && (
+            {lic !== null && lic > 0 && (
               <Row
                 label={c.license}
-                detail={`${f.num(billed)} × ${f.price(pr.license)}${discount > 0 ? ` · ${c.discount(discount)}` : ""}`}
+                detail={`${f.num(billed)} × ${f.price(lic)}${discount > 0 ? ` · ${c.discount(discount)}` : ""}`}
                 value={f.whole(sh?.license ?? 0)}
               />
             )}
-            {item.setup && <Row label={c.impl} detail={`${pr.setupDays} man-day`} value={f.whole(sh?.setup ?? 0)} />}
-            {pr.license === null && !item.setup && <Row label={c.none} value="—" />}
+            {item.setup && <Row label={c.impl} detail={c.days(pr.setupDays)} value={f.whole(sh?.setup ?? 0)} />}
+            {!(lic !== null && lic > 0) && !item.setup && <Row label={c.none} value="—" />}
           </BreakGroup>
 
-          {pr.license !== null && (
+          {lic !== null && lic > 0 && (
             <BreakGroup title={c.yearly}>
               <Row label={c.ma} value={f.whole(sh?.ma ?? 0)} />
             </BreakGroup>
@@ -720,16 +824,20 @@ function ItemCard(props: {
 
           <BreakGroup title={`${c.monthly} · ${c.byBeryl8}`}>
             {beryl8Lines.length === 0 && <Row label={c.none} value="—" />}
-            {beryl8Lines.map((l) => (
-              <LineRow key={l.id} l={l} shown={shownLine(l.id)} f={f} c={c} lang={lang} internal={internal} />
-            ))}
+            <Lines lines={beryl8Lines} shownLine={shownLine} f={f} c={c} lang={lang} internal={internal} />
           </BreakGroup>
 
           <BreakGroup title={`${c.monthly} · ${c.direct}`}>
-            {directLines.map((l) => (
-              <LineRow key={l.id} l={l} shown={shownLine(l.id)} f={f} c={c} lang={lang} internal={false} />
-            ))}
+            {directLines.length === 0 && <Row label={c.none} value="—" />}
+            <Lines lines={directLines} shownLine={shownLine} f={f} c={c} lang={lang} internal={false} />
           </BreakGroup>
+
+          {sh?.perUser && (
+            <BreakGroup title={c.perUserH}>
+              <Row label={c.perUserMonthly} detail={c.perUserMonthlyHint} value={f.whole(sh.perUser.monthly)} />
+              <Row label={c.perUserAvg} detail={c.perUserAvgHint} value={f.whole(sh.perUser.avgMonthly)} />
+            </BreakGroup>
+          )}
         </div>
 
         {pr.notes.length > 0 && (
@@ -766,6 +874,41 @@ function Row({ label, detail, value, extra }: { label: ReactNode; detail?: strin
   );
 }
 
+/** Rows of one payer. Three or more Google Cloud services fold into one subtotal row that opens on request. */
+function Lines({ lines, shownLine, f, c, lang, internal }: { lines: Line[]; shownLine: (id: string) => { sell: number; cost: number } | undefined; f: Fmt; c: CalcCopy; lang: Locale; internal: boolean }) {
+  const cloud = lines.filter((l) => l.kind === "cloud");
+  const fold = cloud.length >= 3;
+  const rest = fold ? lines.filter((l) => l.kind !== "cloud") : lines;
+  const sum = (k: "sell" | "cost") => cloud.reduce((a, l) => a + (shownLine(l.id)?.[k] ?? 0), 0);
+  return (
+    <>
+      {rest.map((l) => (
+        <LineRow key={l.id} l={l} shown={shownLine(l.id)} f={f} c={c} lang={lang} internal={internal} />
+      ))}
+      {fold && (
+        <div className="calc-row calc-row-group">
+          <details>
+            <summary>
+              <span className="calc-group-label">
+                {c.cloudGroup(cloud.length)}
+                {cloud.some((l) => l.draft) && <span className="calc-tag" title={c.draftHint}>{c.draft}</span>}
+                <small>{c.cloudShow}</small>
+                {internal && <small className="calc-cost">{c.cost} {f.whole(sum("cost"))} · {c.margin} {sum("sell") > 0 ? Math.round(((sum("sell") - sum("cost")) / sum("sell")) * 100) : 0}%</small>}
+              </span>
+              <span className="calc-group-value">{f.whole(sum("sell"))}</span>
+            </summary>
+            <dl>
+              {cloud.map((l) => (
+                <LineRow key={l.id} l={l} shown={shownLine(l.id)} f={f} c={c} lang={lang} internal={internal} />
+              ))}
+            </dl>
+          </details>
+        </div>
+      )}
+    </>
+  );
+}
+
 function LineRow({ l, shown, f, c, lang, internal }: { l: Line; shown?: { sell: number; cost: number }; f: Fmt; c: CalcCopy; lang: Locale; internal: boolean }) {
   const sell = shown?.sell ?? 0;
   const cost = shown?.cost ?? 0;
@@ -796,6 +939,10 @@ function NumField(props: {
   hint?: string;
   warn?: boolean;
   invalid: string;
+  /** Says which value the estimate still uses while the field holds something it cannot use. */
+  keep?: (v: number) => string;
+  /** Says the limit used when the typed value is above `max`. */
+  overMax?: (v: number) => string;
   onChange: (v: number) => void;
 }) {
   const id = useId();
@@ -809,7 +956,8 @@ function NumField(props: {
   }
   const n = text.trim() === "" ? NaN : Number(text);
   const bad = !Number.isFinite(n) || n < min;
-  const msg = bad ? props.invalid : props.hint;
+  const over = !bad && n > max;
+  const msg = bad ? [props.invalid, props.keep?.(value)].filter(Boolean).join(" · ") : over && props.overMax ? props.overMax(max) : props.hint;
 
   return (
     <div className="calc-field" data-bad={bad || undefined}>
@@ -842,7 +990,7 @@ function NumField(props: {
         {props.suffix && <span className="calc-suffix">{props.suffix}</span>}
       </div>
       {msg && (
-        <p id={`${id}-m`} className="calc-fhint" data-warn={(props.warn && !bad) || undefined}>
+        <p id={`${id}-m`} className="calc-fhint" data-warn={((props.warn || over) && !bad) || undefined}>
           {msg}
         </p>
       )}

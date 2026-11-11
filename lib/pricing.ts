@@ -9,6 +9,10 @@ import type { Localized } from "./i18n";
      Beryl8: Voice per minute (US$0.076 incl. AI), Meet transcription
      + summary (US$2.5 per hour, cost about US$0.74) and the Ask 8 AI
      Pack (draft, about ฿4 per credit at ฿33.5/US$).
+   - Meet8 is sold three ways: perpetual with the customer paying Google
+     Cloud, perpetual with Google Cloud billed through Beryl8 at cost plus
+     HOST_MARKUP, or a per-user subscription on Beryl8's shared multi-tenant
+     cloud priced from measured cost at MEET8_SUB.margin (all draft).
    - Insight8 US$480 per named user (US$20 x 24 months).
    Every other number is a draft (`draft: true`) until finance confirms.
    All money here is USD; the page converts with the rate the user sets.
@@ -21,6 +25,8 @@ export const VAT = 0.07;
 export const DEFAULT_RATE = 33.5; // THB per USD; makes US$0.076 = ฿2.55 as quoted
 export const DEFAULT_DAY_RATE_THB = 15000;
 export const DEFAULT_PARTNER = 30;
+/** Markup on Google Cloud and AI billed through Beryl8 (Meet8 perpetual). Draft until finance confirms. */
+export const HOST_MARKUP = 0.2;
 
 export type Payer = "beryl8" | "direct";
 export type Kind = "usage" | "ai" | "cloud" | "telco";
@@ -33,8 +39,12 @@ export type Input = {
   max: number;
   step?: number;
   help?: Localized;
-  /** Two-way choice stored as 0 or 1; `choices[1]` is the value 1. */
-  choices?: [Localized, Localized];
+  /** Choice stored as its index (0, 1, 2…); shown as radio buttons, last option first. */
+  choices?: Localized[];
+  /** Shown only when this returns true; a hidden input keeps its value but the lines ignore it. */
+  when?: (v: Record<string, number>) => boolean;
+  /** A choice between ways of buying: the card shows every option side by side for the same usage. */
+  compare?: boolean;
 };
 
 /** One monthly running cost. `sell` is what the customer pays, `cost` what it costs Beryl8 (same as sell when paid direct). */
@@ -53,7 +63,15 @@ export type ProductPricing = {
   id: string;
   /** US$ per named user, perpetual. null = no per-user license (priced by usage). */
   license: number | null;
+  /** Per-item license when it depends on the inputs (Meet8 subscription has none); see `licenseOf`. */
+  licenseFor?: (v: Record<string, number>) => number | null;
   licenseDraft: boolean;
+  /** Cheapest monthly price per user (US$) when the product can also be bought monthly. */
+  fromMonthly?: number;
+  /** Meeting hours a month the estimate assumes, so ways of buying can be compared on the same usage. */
+  monthlyHours?: (v: Record<string, number>, users: number) => number;
+  /** Inputs for buying option `k` of the `compare` choice with the same monthly usage as `v`. */
+  switchTo?: (v: Record<string, number>, users: number, k: number) => Record<string, number>;
   unitLabel: Localized;
   setupDays: number;
   inputs: Input[];
@@ -65,8 +83,8 @@ export type ProductPricing = {
 
 const L = (en: string, th: string): Localized => ({ en, th });
 const blocks = (n: number, size: number) => Math.max(1, Math.ceil(n / size));
-/** Which side of a two-way input a stored value means. A hand-edited share link can hold anything from 0 to 1. */
-export const choiceIndex = (x: number) => (x >= 0.5 ? 1 : 0);
+/** Which option of an `n`-way choice a stored value means. A hand-edited share link can hold any number. */
+export const choiceIndex = (x: number, n = 2) => Math.min(n - 1, Math.max(0, Math.round(x) || 0));
 
 /* Ask 8 per answered question, all draft. Cost is Sonnet 5.5 at a 60% cache hit, not yet measured from real usage. */
 const ASK8 = {
@@ -77,24 +95,29 @@ const ASK8 = {
   action: { credits: 4, cost: 0.1805 },
 };
 
-const USERS = L("named users", "ผู้ใช้ (named user)");
+const USERS = L("users", "คน");
 const n = (x: number) => x.toLocaleString("en-US", { maximumFractionDigits: 4 });
 
 /** One Google Cloud service: label, US$ per month for one set of servers. */
 type Svc = [en: string, th: string, usd: number, cud?: keyof typeof CUD];
 
-/** Google Cloud services as separate rows, `sets` copies of the stack (more users → more sets). */
-function gcp(svcs: Svc[], sets: number, draft: boolean): Line[] {
+/**
+ * Google Cloud services as separate rows, `sets` copies of the stack (more users → more sets).
+ * With `markup`, Beryl8 bills the rows at cost × (1 + markup); the text shows only the sell price.
+ */
+function gcp(svcs: Svc[], sets: number, draft: boolean, markup?: number): Line[] {
+  const hosted = markup !== undefined;
+  const k = hosted ? 1 + markup : 1;
   return svcs.map(([en, th, usd, family]) => ({
     id: "gcp-" + en.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
     label: L(`Google Cloud · ${en}`, `Google Cloud · ${th}`),
-    payer: "direct" as const,
+    payer: hosted ? ("beryl8" as const) : ("direct" as const),
     kind: "cloud" as const,
-    sell: usd * sets,
+    sell: usd * k * sets,
     cost: usd * sets,
-    draft,
+    draft: draft || hosted,
     cud: family ? CUD[family] : undefined,
-    detail: L(sets > 1 ? `${sets} sets × US$${n(usd)} / month` : `US$${n(usd)} / month`, sets > 1 ? `${sets} ชุด × US$${n(usd)} ต่อเดือน` : `US$${n(usd)} ต่อเดือน`),
+    detail: L(sets > 1 ? `${sets} sets × US$${n(usd * k)} / month` : `US$${n(usd * k)} / month`, sets > 1 ? `${sets} ชุด × US$${n(usd * k)} ต่อเดือน` : `US$${n(usd * k)} ต่อเดือน`),
   }));
 }
 
@@ -104,33 +127,120 @@ const gcpUsage = (id: string, en: string, th: string, usd: number, detail: Local
   cud: family ? CUD[family] : undefined,
 });
 
+/* Meet8 Google Cloud, measured on production: sizes and fixed rows from the 2026-11-03 cost model
+   (~/Desktop/meet8-concurrent-cost-2026-11-03.html, SIZES/COMMON_FIXED), checked against prod on
+   2026-11-11 (Cloud SQL db-custom-2-7680, 2 × Redis BASIC 1 GB, e2-small runner). Hourly Cloud Run =
+   (US$216 − US$97 floor and warm) / 805 recorded hours, Cloud Monitoring 4–10 Nov 2026. L/XL unmeasured. */
+const MEET8_SIZES = [
+  { name: "S", maxRooms: 20, sql: 85, redis: 95, vm: 20 },
+  { name: "M", maxRooms: 50, sql: 155, redis: 95, vm: 25 },
+  { name: "L", maxRooms: 100, sql: 320, redis: 143, vm: 40 },
+  { name: "XL", maxRooms: 200, sql: 655, redis: 190, vm: 60 },
+] as const;
+const MEET8_RUN = { floor: 61, warm: 18, roomsPerInstance: 4, perHour: 0.148, storagePerHour: 0.04 };
+/* Meet8 subscription on Beryl8's shared multi-tenant cloud, from prod 4–10 Nov 2026 (× 30/7, 111 users active in 30 days):
+   fixed US$4.10 per user = (servers US$351 + Cloud Run floor and warm US$97 + chat US$7.5) / 111; per recorded hour
+   US$0.72 = Cloud Run 0.148 + storage 0.04 + STT 0.196 (stt_usage_log) + AI 0.335 (ai_usage_log, catalog list prices).
+   Priced as if the whole pool is used. `hours` index order makes the radios read 5, 10, 20. */
+const MEET8_SUB = { fixedPerUser: 4.1, perHour: 0.72, margin: 0.5, hours: [20, 10, 5] };
+const MEET8_LICENSE = 360;
+/** `host` options: 0 your own Google Cloud, 1 Google Cloud through Beryl8, 2 subscription. */
+const MEET8_HOST = { options: 3, viaBeryl8: 1, subscription: 2 };
+const meet8Host = (v: Record<string, number>) => choiceIndex(v.host, MEET8_HOST.options);
+const isMeet8Sub = (v: Record<string, number>) => meet8Host(v) === MEET8_HOST.subscription;
+
+/** Meet8's own Google Cloud project, sized by meetings at the same time. With `markup`, billed through Beryl8. */
+function meet8Gcp(users: number, conc: number, hours: number, markup?: number): Line[] {
+  const rooms = Math.max(1, Math.ceil(+((users * conc) / 100).toFixed(6)));
+  const size = MEET8_SIZES.find((x) => rooms <= x.maxRooms) ?? MEET8_SIZES[MEET8_SIZES.length - 1];
+  const warm = Math.max(0, Math.ceil(rooms / MEET8_RUN.roomsPerInstance) - 1) * MEET8_RUN.warm;
+  const draft = size.name === "L" || size.name === "XL";
+  const k = 1 + (markup ?? 0);
+  const perHour = (id: string, en: string, th: string, usd: number): Line => ({
+    id, label: L(`Google Cloud · ${en}`, `Google Cloud · ${th}`), payer: markup === undefined ? "direct" : "beryl8", kind: "cloud",
+    sell: hours * usd * k, cost: hours * usd, draft: true,
+    detail: L(`${n(hours)} h × US$${n(usd * k)}`, `${n(hours)} ชม. × US$${n(usd * k)}`),
+  });
+  return [
+    ...gcp([["Cloud Run (app and API)", "Cloud Run (แอปและ API)", MEET8_RUN.floor + warm, "run"]], 1, draft, markup),
+    perHour("gcp-run-hours", "Cloud Run (per meeting hour)", "Cloud Run (ตามชั่วโมงประชุม)", MEET8_RUN.perHour),
+    ...gcp([
+      [`Cloud SQL (database, size ${size.name})`, `Cloud SQL (ฐานข้อมูล ขนาด ${size.name})`, size.sql, "sql"],
+      ["Memorystore (2 × Redis)", "Memorystore (Redis 2 ตัว)", size.redis],
+      ["Compute Engine (chat runner)", "Compute Engine (ตัวรันแชต)", size.vm],
+      ["Load Balancer", "Load Balancer", 20],
+      ["Cloud Armor", "Cloud Armor", 16],
+      ["NAT, build and other", "NAT, build และอื่นๆ", 40],
+    ], 1, draft, markup),
+    perHour("gcp-storage-hours", "Storage, egress and logs (per meeting hour)", "Storage, egress และ log (ตามชั่วโมงประชุม)", MEET8_RUN.storagePerHour),
+  ];
+}
+
 export const PRICING: Record<string, ProductPricing> = {
   meet8: {
     id: "meet8",
-    license: 360,
+    license: MEET8_LICENSE,
+    licenseFor: (v) => (isMeet8Sub(v) ? 0 : MEET8_LICENSE),
+    monthlyHours: (v, users) =>
+      isMeet8Sub(v) ? users * MEET8_SUB.hours[choiceIndex(v.pkg, MEET8_SUB.hours.length)] + Math.max(0, v.extra) : v.hours,
+    // A subscription is priced as if its package is used in full, so its usage is the package plus extra hours.
+    switchTo: (v, users, k) => {
+      const pool = users * MEET8_SUB.hours[choiceIndex(v.pkg, MEET8_SUB.hours.length)];
+      const usage = isMeet8Sub(v) ? pool + Math.max(0, v.extra) : v.hours;
+      return k === MEET8_HOST.subscription ? { ...v, host: k, extra: Math.max(0, usage - pool) } : { ...v, host: k, hours: usage };
+    },
+    fromMonthly: (MEET8_SUB.fixedPerUser + Math.min(...MEET8_SUB.hours) * MEET8_SUB.perHour) / (1 - MEET8_SUB.margin),
     licenseDraft: true,
     unitLabel: USERS,
     setupDays: 3,
     inputs: [
-      { id: "hours", label: L("Meeting hours transcribed per month", "ชั่วโมงประชุมที่ถอดเสียงต่อเดือน"), unit: L("hours", "ชั่วโมง"), def: 200, max: 100000, step: 10 },
-      { id: "asks", label: L("Questions per user per month", "คำถามต่อผู้ใช้ต่อเดือน"), unit: L("questions", "คำถาม"), def: 30, max: 10000, step: 5, help: L("Questions asked across past meetings.", "คำถามที่ถามย้อนหลังข้ามการประชุม") },
+      { id: "host", label: L("How you buy Meet8", "รูปแบบการซื้อ Meet8"), unit: L("", ""), def: 0, max: 2, compare: true,
+        choices: [
+          L("Buy once, you pay Google Cloud directly", "ซื้อขาด จ่ายค่า Google Cloud เอง"),
+          L("Buy once, Google Cloud billed through Beryl8", "ซื้อขาด ซื้อ Google Cloud ผ่าน Beryl8"),
+          L("Subscription, monthly per user on Beryl8's cloud", "Subscription รายเดือนต่อคน บน cloud ของ Beryl8"),
+        ] },
+      { id: "pkg", label: L("Meeting hours per user per month", "ชั่วโมงประชุมต่อคนต่อเดือน"), unit: L("", ""), def: 1, max: 2,
+        choices: MEET8_SUB.hours.map((h) => L(`${h} hours`, `${h} ชั่วโมง`)), when: isMeet8Sub },
+      { id: "hours", label: L("Meeting hours recorded per month, whole company", "ชั่วโมงประชุมที่อัดต่อเดือน รวมทั้งบริษัท"), unit: L("hours", "ชั่วโมง"), def: 200, max: 100000, step: 10,
+        help: L("Typical: about 10 hours per user a month.", "ทั่วไปราว 10 ชั่วโมงต่อคนต่อเดือน"), when: (v) => !isMeet8Sub(v) },
+      { id: "asks", label: L("Questions per user per month", "คำถามต่อคนต่อเดือน"), unit: L("questions", "คำถาม"), def: 30, max: 10000, step: 5,
+        help: L("Questions about past meetings. Typical: 20–50.", "ถามย้อนหลังข้ามการประชุม ทั่วไป 20–50 คำถาม"), when: (v) => !isMeet8Sub(v) },
+      { id: "conc", label: L("Meetings at the same time, as % of users", "ห้องประชุมพร้อมกัน คิดเป็น % ของผู้ใช้"), unit: L("%", "%"), def: 30, max: 100, step: 5,
+        help: L("Sets the server size. Typical: 20–40%.", "ใช้เลือกขนาดเครื่อง ทั่วไป 20–40%"), when: (v) => !isMeet8Sub(v) },
+      { id: "extra", label: L("Extra hours beyond the package per month", "ชั่วโมงที่ใช้เกินแพ็กเกจต่อเดือน"), unit: L("hours", "ชั่วโมง"), def: 0, max: 100000, step: 10,
+        help: L("The package is shared across the company: users × hours per user.", "แพ็กเกจใช้ร่วมกันทั้งบริษัท = จำนวนคน × ชั่วโมงต่อคน"), when: isMeet8Sub },
     ],
-    lines: (v, users) => [
-      { id: "stt", label: L("Transcription and summary (US$2.5 per hour)", "ถอดเสียงและสรุป (US$2.5 ต่อชั่วโมง)"), payer: "beryl8", kind: "usage", sell: v.hours * 2.5, cost: v.hours * 0.74 },
-      { id: "ai", label: L("AI model for questions", "ค่าโมเดล AI สำหรับถาม-ตอบ"), payer: "direct", kind: "ai", sell: users * v.asks * 0.012, cost: users * v.asks * 0.012, draft: true,
-        detail: L(`${n(users)} users × ${n(v.asks)} questions × US$0.012`, `${n(users)} คน × ${n(v.asks)} คำถาม × US$0.012`) },
-      // Size M stack from the Meet8 pricing model (app/[lang]/meet8/content.ts), one set per 300 users.
-      ...gcp([
-        ["Cloud Run (app and API)", "Cloud Run (แอปและ API)", 236, "run"],
-        ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 166, "sql"],
-        ["Memorystore (Redis)", "Memorystore (Redis)", 166],
-        ["Compute Engine (live transcription)", "Compute Engine (ถอดเสียงสด)", 135],
-        ["Load Balancer", "Load Balancer", 21],
-        ["Cloud Armor", "Cloud Armor", 18],
-        ["Storage, logging and other", "Storage, logging และอื่นๆ", 22],
-      ], blocks(users, 300), false),
+    lines: (v, users) => {
+      if (isMeet8Sub(v)) {
+        const pkgHours = MEET8_SUB.hours[choiceIndex(v.pkg, MEET8_SUB.hours.length)];
+        const unitCost = MEET8_SUB.fixedPerUser + pkgHours * MEET8_SUB.perHour;
+        const unitSell = unitCost / (1 - MEET8_SUB.margin);
+        const hourSell = MEET8_SUB.perHour / (1 - MEET8_SUB.margin);
+        const sub: Line = { id: "sub", label: L(`Meet8 subscription, ${pkgHours} hours per user`, `Meet8 แบบ subscription ${pkgHours} ชั่วโมงต่อคน`), payer: "beryl8", kind: "usage", draft: true,
+          sell: users * unitSell, cost: users * unitCost,
+          detail: L(`${n(users)} users × US$${n(unitSell)} / month · ${n(users * pkgHours)} hours shared`, `${n(users)} คน × US$${n(unitSell)} ต่อเดือน · รวม ${n(users * pkgHours)} ชั่วโมงทั้งบริษัท`) };
+        if (!(v.extra > 0)) return [sub];
+        return [sub, { id: "extra", label: L("Extra hours beyond the package", "ชั่วโมงที่ใช้เกินแพ็กเกจ"), payer: "beryl8", kind: "usage", draft: true,
+          sell: v.extra * hourSell, cost: v.extra * MEET8_SUB.perHour,
+          detail: L(`${n(v.extra)} h × US$${n(hourSell)}`, `${n(v.extra)} ชม. × US$${n(hourSell)}`) }];
+      }
+      const markup = meet8Host(v) === MEET8_HOST.viaBeryl8 ? HOST_MARKUP : undefined;
+      const perAsk = 0.012 * (1 + (markup ?? 0)); // sell price per question
+      return [
+        { id: "stt", label: L("Transcription and summary (US$2.5 per hour)", "ถอดเสียงและสรุป (US$2.5 ต่อชั่วโมง)"), payer: "beryl8", kind: "usage", sell: v.hours * 2.5, cost: v.hours * 0.74 },
+        { id: "ai", label: L("AI model for questions", "ค่าโมเดล AI สำหรับถาม-ตอบ"), payer: markup === undefined ? "direct" : "beryl8", kind: "ai", sell: users * v.asks * perAsk, cost: users * v.asks * 0.012, draft: true,
+          detail: L(`${n(users)} users × ${n(v.asks)} questions × US$${n(perAsk)}`, `${n(users)} คน × ${n(v.asks)} คำถาม × US$${n(perAsk)}`) },
+        ...meet8Gcp(users, v.conc, v.hours, markup),
+      ];
+    },
+    notes: [
+      L("Monthly: Meet8 on Beryl8's cloud, shared with other companies and run by Beryl8. No license or maintenance; the package hours are shared across your company and extra hours are billed per hour.",
+        "รายเดือน: Meet8 บน cloud ที่ Beryl8 ดูแลและใช้ร่วมกับบริษัทอื่น ไม่มีค่า license และ MA ชั่วโมงในแพ็กเกจใช้ร่วมกันทั้งบริษัท ใช้เกินคิดต่อชั่วโมง"),
+      L("Buy once: Meet8 runs in your own Google Cloud project, sized from our production measurements by meetings at the same time (sizes S and M measured, L and XL estimated).",
+        "ซื้อขาด: Meet8 อยู่บน Google Cloud project ของลูกค้าเอง ขนาดเครื่องคิดจากการวัดบน production ตามจำนวนห้องประชุมพร้อมกัน (ขนาด S และ M วัดจริง L และ XL ประมาณ)"),
+      L("Google Cloud through Beryl8: Beryl8 bills your Meet8 cloud and AI monthly, in one invoice with the rest.", "ซื้อ Google Cloud ผ่าน Beryl8: Beryl8 เรียกเก็บค่า cloud และ AI ของ Meet8 รายเดือน รวมในบิลเดียวกัน"),
     ],
-    notes: [L("Cloud based on the size M Google Cloud stack, one stack per 300 users.", "ค่า cloud อิงชุด Google Cloud ขนาด M หนึ่งชุดต่อ 300 ผู้ใช้")],
   },
   agent8: {
     id: "agent8",
@@ -415,9 +525,15 @@ export function values(item: Item): Record<string, number> {
   return Object.fromEntries(p.inputs.map((i) => [i.id, clamp(item.inputs[i.id], 0, i.max, i.def)]));
 }
 
-/** Seats billed: the 20-user minimum applies to every per-user license. */
+/** The per-user license for this item (Meet8's depends on how it is bought); null = none, 0 = per-user but no license. */
+export const licenseOf = (item: Item): number | null => {
+  const p = PRICING[item.pid];
+  return p.licenseFor ? p.licenseFor(values(item)) : p.license;
+};
+
+/** Seats billed: the 20-user minimum applies to every per-user license (and to Meet8 subscriptions). */
 export const billedUsers = (item: Item) =>
-  PRICING[item.pid].license === null ? 0 : Math.max(MIN_USERS, Math.round(clamp(item.users, 0, 1e6, MIN_USERS)));
+  licenseOf(item) === null ? 0 : Math.max(MIN_USERS, Math.round(clamp(item.users, 0, 1e6, MIN_USERS)));
 
 export type ItemCost = {
   license: number; // one-time, after discount
@@ -435,7 +551,7 @@ export type ItemCost = {
 export function costItem(item: Item, s: Settings): ItemCost {
   const p = PRICING[item.pid];
   const users = billedUsers(item);
-  const listLicense = (p.license ?? 0) * users;
+  const listLicense = (licenseOf(item) ?? 0) * users;
   const license = listLicense * (1 - clamp(s.discount, 0, 100, 0) / 100);
   const ma = license * MA_RATE;
   const setup = item.setup ? (p.setupDays * s.dayRate) / s.rate : 0;
@@ -524,6 +640,8 @@ export type ShownItem = {
   years: Pair[];
   year1: number;
   total: number;
+  /** Per billed user, whole display units; null for products with no per-user license. */
+  perUser: { monthly: number; avgMonthly: number } | null;
 };
 
 export type Grid = {
@@ -559,8 +677,8 @@ function hostingOf(items: ShownItem[]): Grid["hosting"] {
 export function displayGrid(t: Totals, d: Display, s: Settings): Grid {
   const disc = 1 - clamp(s.discount, 0, 100, 0) / 100;
   const items: ShownItem[] = t.items.map(({ item, cost }) => {
-    const p = PRICING[item.pid];
-    const unitPrice = p.license === null ? 0 : roundPrice(toDisplay(p.license, d));
+    const lic = licenseOf(item);
+    const unitPrice = lic === null ? 0 : roundPrice(toDisplay(lic, d));
     const license = roundMoney(billedUsers(item) * unitPrice * disc);
     const ma = roundMoney(license * MA_RATE);
     const setup = roundMoney(toDisplay(cost.setup, d));
@@ -572,6 +690,8 @@ export function displayGrid(t: Totals, d: Display, s: Settings): Grid {
       beryl8: (y === 0 ? license + setup : ma) + 12 * monthlyBeryl8,
       direct: 12 * monthlyDirect,
     }));
+    const seats = billedUsers(item);
+    const total = years.reduce((a, y) => a + y.beryl8 + y.direct, 0);
     return {
       uid: item.uid,
       unitPrice,
@@ -584,7 +704,10 @@ export function displayGrid(t: Totals, d: Display, s: Settings): Grid {
       monthlyCost: sum("beryl8", "cost"),
       years,
       year1: years[0].beryl8 + years[0].direct,
-      total: years.reduce((a, y) => a + y.beryl8 + y.direct, 0),
+      total,
+      perUser: seats > 0
+        ? { monthly: roundMoney((monthlyBeryl8 + monthlyDirect) / seats), avgMonthly: roundMoney(total / seats / (YEARS * 12)) }
+        : null,
     };
   });
   const years = Array.from({ length: YEARS }, (_, y) => {
