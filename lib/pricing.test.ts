@@ -25,11 +25,11 @@ test("Voice8: no license, US$0.076 per minute billed by Beryl8", () => {
   close(c.monthlyBeryl8 * s.rate, 2546); // 1,000 min ≈ ฿2.55 per minute at the default rate
 });
 
-test("Meet8 transcription US$2.5/h sell, US$0.74/h cost", () => {
+test("Meet8 transcription at measured cost US$0.53/h, paid to providers on your own cloud", () => {
   const item: Item = { ...newItem("meet8", "m"), inputs: { hours: 100, asks: 0 }, setup: false };
   const c = costItem(item, s);
-  close(c.monthlyBeryl8, 250);
-  close(c.monthlyCost, 74);
+  close(c.monthlyBeryl8, 0);
+  close(c.lines.find((l) => l.id === "stt")!.sell, 53);
 });
 
 test("setup converts THB man-days to USD; discount applies to license and MA", () => {

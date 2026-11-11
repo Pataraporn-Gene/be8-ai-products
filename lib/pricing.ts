@@ -6,9 +6,10 @@ import type { Localized } from "./i18n";
    - Perpetual license per named user, minimum 20 users per customer.
    - MA 22% of the license per year, mandatory from year 2.
    - License excludes AI, cloud and implementation. Exceptions billed by
-     Beryl8: Voice per minute (US$0.076 incl. AI), Meet transcription
-     + summary (US$2.5 per hour, cost about US$0.74) and the Ask 8 AI
+     Beryl8: Voice per minute (US$0.076 incl. AI) and the Ask 8 AI
      Pack (draft, about ฿4 per credit at ฿33.5/US$).
+   - Meet8 transcription + summary is priced at measured cost (US$0.53/h,
+     replacing the US$2.5/h agreed on 2026-11-09, user decision 2026-11-11).
    - Meet8 is sold three ways: perpetual with the customer paying Google
      Cloud, perpetual with Google Cloud billed through Beryl8 at cost plus
      HOST_MARKUP, or a per-user subscription on Beryl8's shared multi-tenant
@@ -141,6 +142,8 @@ const MEET8_SIZES = [
   { name: "L", maxRooms: 100, sql: 320, redis: 143, vm: 40 },
   { name: "XL", maxRooms: 200, sql: 655, redis: 190, vm: 60 },
 ] as const;
+/** Transcription + meeting AI per recorded hour, measured on prod 4–10 Nov 2026: STT 0.196 + AI 0.335 (list prices). */
+const MEET8_STT_PER_HOUR = 0.53;
 const MEET8_RUN = { floor: 61, warm: 18, roomsPerInstance: 4, perHour: 0.148, storagePerHour: 0.04 };
 /* Meet8 subscription on Beryl8's shared multi-tenant cloud, from prod 4–10 Nov 2026 (× 30/7, 111 users active in 30 days):
    fixed US$4.10 per user = (servers US$351 + Cloud Run floor and warm US$97 + chat US$7.5) / 111; per recorded hour
@@ -238,7 +241,9 @@ export const PRICING: Record<string, ProductPricing> = {
       const markup = meet8Host(v) === MEET8_HOST.viaBeryl8 ? HOST_MARKUP : undefined;
       const perAsk = 0.012 * (1 + (markup ?? 0)); // sell price per question
       return [
-        { id: "stt", label: L("Transcription and summary (US$2.5 per hour)", "ถอดเสียงและสรุป (US$2.5 ต่อชั่วโมง)"), payer: "beryl8", kind: "usage", sell: v.hours * 2.5, cost: v.hours * 0.74 },
+        { id: "stt", label: L("Transcription and summary (AI, at measured cost)", "ถอดเสียงและสรุป (AI ตามต้นทุนจริง)"), payer: markup === undefined ? "direct" : "beryl8", kind: "ai", draft: true,
+          sell: v.hours * MEET8_STT_PER_HOUR * (1 + (markup ?? 0)), cost: v.hours * MEET8_STT_PER_HOUR,
+          detail: L(`${n(v.hours)} h × US$${n(MEET8_STT_PER_HOUR * (1 + (markup ?? 0)))}`, `${n(v.hours)} ชม. × US$${n(MEET8_STT_PER_HOUR * (1 + (markup ?? 0)))}`) },
         { id: "ai", label: L("AI model for questions", "ค่าโมเดล AI สำหรับถาม-ตอบ"), payer: markup === undefined ? "direct" : "beryl8", kind: "ai", sell: users * v.asks * perAsk, cost: users * v.asks * 0.012, draft: true,
           detail: L(`${n(users)} users × ${n(v.asks)} questions × US$${n(perAsk)}`, `${n(users)} คน × ${n(v.asks)} คำถาม × US$${n(perAsk)}`) },
         ...meet8Gcp(users, v.conc, v.hours, markup),

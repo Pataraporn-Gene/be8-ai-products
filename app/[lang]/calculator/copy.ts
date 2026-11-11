@@ -106,7 +106,7 @@ const en = {
   perYearShort: "Per year",
   hostingNotes: [
     "Google Cloud at asia-southeast1 (Singapore) list prices, without committed-use discounts. One set of servers per product; Meet8 is sized from production measurements and Insight8 uses the stack from its pricing model; the others are drafts. Meet8 billed through Beryl8 or by subscription is not in this table.",
-    "AI is estimated from the usage you entered and current model prices per token. Voice8 AI, Meet8 transcription, the Ask 8 AI Pack, Meet8 subscriptions and Meet8 Google Cloud through Beryl8 (cloud and AI) are already in what Beryl8 bills.",
+    "AI is estimated from the usage you entered and current model prices per token. Voice8 AI, the Ask 8 AI Pack, Meet8 subscriptions and Meet8 Google Cloud through Beryl8 (cloud and AI) are already in what Beryl8 bills.",
     "Other: phone line charges (SIP) and SMS, LINE OA and email fees.",
     "Rough figures for budgeting. Actual bills depend on real usage.",
   ],
@@ -251,7 +251,7 @@ const th: CalcCopy = {
   perYearShort: "ต่อปี",
   hostingNotes: [
     "Google Cloud คิดจากราคามาตรฐาน region asia-southeast1 (สิงคโปร์) ยังไม่รวมส่วนลดแบบผูกสัญญา ใช้เซิร์ฟเวอร์แยกชุดต่อ product Meet8 คิดขนาดเครื่องจากการวัดบน production และ Insight8 มาจาก pricing model ของตัวเอง ที่เหลือเป็นราคาร่าง Meet8 ที่ซื้อผ่าน Beryl8 หรือแบบ subscription ไม่อยู่ในตารางนี้",
-    "ค่า AI ประมาณจากปริมาณการใช้งานที่กรอกและราคาโมเดลต่อ token ปัจจุบัน ค่า AI ของ Voice8 ค่าถอดเสียงของ Meet8 AI Pack ของ Ask 8, Meet8 แบบ subscription และค่า cloud กับ AI ของ Meet8 ที่ซื้อผ่าน Beryl8 รวมอยู่ในส่วนที่ Beryl8 เรียกเก็บแล้ว",
+    "ค่า AI ประมาณจากปริมาณการใช้งานที่กรอกและราคาโมเดลต่อ token ปัจจุบัน ค่า AI ของ Voice8, AI Pack ของ Ask 8, Meet8 แบบ subscription และค่า cloud กับ AI ของ Meet8 ที่ซื้อผ่าน Beryl8 รวมอยู่ในส่วนที่ Beryl8 เรียกเก็บแล้ว",
     "อื่นๆ: ค่าโทรศัพท์ (SIP) และค่าส่ง SMS, LINE OA, อีเมล",
     "เป็นตัวเลขคร่าวๆ สำหรับตั้งงบ ค่าใช้จ่ายจริงขึ้นกับการใช้งานจริง",
   ],
