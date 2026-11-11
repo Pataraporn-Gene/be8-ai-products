@@ -45,6 +45,8 @@ export type Input = {
   when?: (v: Record<string, number>) => boolean;
   /** A choice between ways of buying: the card shows every option side by side for the same usage. */
   compare?: boolean;
+  /** One line per choice: who that option suits. */
+  hints?: Localized[];
 };
 
 /** One monthly running cost. `sell` is what the customer pays, `cost` what it costs Beryl8 (same as sell when paid direct). */
@@ -199,6 +201,11 @@ export const PRICING: Record<string, ProductPricing> = {
           L("Buy once, you pay Google Cloud directly", "ซื้อขาด จ่ายค่า Google Cloud เอง"),
           L("Buy once, Google Cloud billed through Beryl8", "ซื้อขาด ซื้อ Google Cloud ผ่าน Beryl8"),
           L("Subscription, monthly per user on Beryl8's cloud", "Subscription รายเดือนต่อคน บน cloud ของ Beryl8"),
+        ],
+        hints: [
+          L("Best if you already run Google Cloud and want Meet8 and its data in your own project.", "เหมาะถ้ามี Google Cloud อยู่แล้ว และอยากเก็บระบบและข้อมูลไว้ใน project ของตัวเอง"),
+          L("Best if you want to own the license but get one invoice: Beryl8 bills the cloud and AI monthly.", "เหมาะถ้าอยากซื้อขาด แต่ได้บิลเดียว: Beryl8 เรียกเก็บค่า cloud และ AI รายเดือนให้"),
+          L("Best to start fast with no upfront license or servers to run: package hours are shared across the company.", "เหมาะถ้าอยากเริ่มเร็ว ไม่จ่าย license ก้อนแรกและไม่ต้องดูแลเครื่อง ชั่วโมงในแพ็กเกจใช้ร่วมกันทั้งบริษัท"),
         ] },
       { id: "pkg", label: L("Meeting hours per user per month", "ชั่วโมงประชุมต่อคนต่อเดือน"), unit: L("", ""), def: 1, max: 2,
         choices: MEET8_SUB.hours.map((h) => L(`${h} hours`, `${h} ชั่วโมง`)), when: isMeet8Sub },
@@ -235,11 +242,8 @@ export const PRICING: Record<string, ProductPricing> = {
       ];
     },
     notes: [
-      L("Monthly: Meet8 on Beryl8's cloud, shared with other companies and run by Beryl8. No license or maintenance; the package hours are shared across your company and extra hours are billed per hour.",
-        "รายเดือน: Meet8 บน cloud ที่ Beryl8 ดูแลและใช้ร่วมกับบริษัทอื่น ไม่มีค่า license และ MA ชั่วโมงในแพ็กเกจใช้ร่วมกันทั้งบริษัท ใช้เกินคิดต่อชั่วโมง"),
-      L("Buy once: Meet8 runs in your own Google Cloud project, sized from our production measurements by meetings at the same time (sizes S and M measured, L and XL estimated).",
-        "ซื้อขาด: Meet8 อยู่บน Google Cloud project ของลูกค้าเอง ขนาดเครื่องคิดจากการวัดบน production ตามจำนวนห้องประชุมพร้อมกัน (ขนาด S และ M วัดจริง L และ XL ประมาณ)"),
-      L("Google Cloud through Beryl8: Beryl8 bills your Meet8 cloud and AI monthly, in one invoice with the rest.", "ซื้อ Google Cloud ผ่าน Beryl8: Beryl8 เรียกเก็บค่า cloud และ AI ของ Meet8 รายเดือน รวมในบิลเดียวกัน"),
+      L("Buy once: servers sized from our production measurements by meetings at the same time (sizes S and M measured, L and XL estimated).",
+        "ซื้อขาด: ขนาดเครื่องคิดจากการวัดบน production ตามจำนวนห้องประชุมพร้อมกัน (ขนาด S และ M วัดจริง L และ XL ประมาณ)"),
     ],
   },
   agent8: {

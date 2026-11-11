@@ -760,6 +760,7 @@ function ItemCard(props: {
                               <span className="calc-compare-radio" aria-hidden />
                               <span>
                                 {r.choice[lang]}
+                                {compareInput.hints?.[r.k] && <small className="calc-compare-hint">{compareInput.hints[r.k][lang]}</small>}
                                 {(r.k === cheapMonth || r.k === cheap5) && (
                                   <span className="calc-badges">
                                     {r.k === cheapMonth && <span className="calc-badge">{c.cheapMonth}</span>}

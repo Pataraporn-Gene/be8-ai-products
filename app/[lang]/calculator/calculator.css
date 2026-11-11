@@ -246,6 +246,7 @@
 .calc-compare-h small { display: block; margin-top: 2px; font-size: 12px; font-weight: var(--weight-regular); color: var(--fg3); }
 .calc-compare-radio { flex: none; width: 16px; height: 16px; margin-top: 3px; border-radius: 999px; border: 1.5px solid var(--neutral-400, #9aa4ad); background: var(--bg1); }
 .calc-compare-pick[aria-pressed="true"] .calc-compare-radio { border: 5px solid var(--cyan-600); }
+.calc-compare-hint { display: block; margin-top: 2px; font-size: 12px; line-height: 1.45; color: var(--fg3); }
 .calc-badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
 .calc-badge { display: inline-flex; padding: 2px 8px; border-radius: 999px; background: #E7F6EC; color: #1E6B3A; font-size: 11px; font-weight: var(--weight-medium); line-height: 1.4; }
 .calc-table.calc-compare { font-size: 13px; }
