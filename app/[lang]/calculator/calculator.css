@@ -396,6 +396,12 @@
   .calc-grid { grid-template-columns: minmax(0, 1fr); }
   .calc-summary { position: static; scroll-margin-top: calc(var(--calc-top) + 16px); }
   .calc-sum-top { position: static; }
+  /* Phones and tablets: once there is an estimate, show it and its summary before the add-product row. */
+  .calc-grid[data-has-items] .calc-left { display: contents; }
+  .calc-grid[data-has-items] .calc-items { order: 1; }
+  .calc-grid[data-has-items] .calc-summary { order: 2; }
+  .calc-grid[data-has-items] .calc-sum-rest { order: 3; }
+  .calc-grid[data-has-items] .calc-add { order: 4; }
   .calc-actions { flex-direction: row; flex-wrap: wrap; }
   .calc-actions .calc-btn { flex: 1 1 180px; }
   .calc-bar {

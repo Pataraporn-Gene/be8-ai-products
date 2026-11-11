@@ -253,7 +253,7 @@ export function Calculator({ lang }: { lang: Locale }) {
           )}
         </div>
 
-        <div className="calc-grid">
+        <div className="calc-grid" data-has-items={items.length > 0 || undefined}>
           <div className="calc-left">
             <section className="calc-add" aria-labelledby="add-h">
               <div className="calc-sechead">
