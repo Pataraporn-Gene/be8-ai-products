@@ -1,43 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  ArrowRight,
-  Bot,
-  Brain,
-  ChartColumn,
-  Check,
-  Database,
-  Map,
-  Megaphone,
-  MessageCircleQuestion,
-  MessagesSquare,
-  PenLine,
-  Phone,
-  Workflow,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight, Calculator, Check } from "lucide-react";
 import { LangSwitch } from "@/components/LangSwitch";
 import { ProductLogo, hasProductLogo } from "@/components/ProductLogo";
 import { getDictionary, hasLocale } from "@/lib/i18n";
 import type { Dictionary, Locale } from "@/lib/i18n";
-import { products, type Product, type ProductIcon } from "@/lib/products";
+import { products, type Product } from "@/lib/products";
+import { productIcons as icons } from "@/components/productIcons";
 import { homeContent, siteUrl } from "./home-content";
 import "./home.css";
-
-const icons: Record<ProductIcon, LucideIcon> = {
-  brain: Brain,
-  bot: Bot,
-  phone: Phone,
-  chart: ChartColumn,
-  workflow: Workflow,
-  map: Map,
-  megaphone: Megaphone,
-  chat: MessagesSquare,
-  ask: MessageCircleQuestion,
-  database: Database,
-  signature: PenLine,
-};
 
 // Lucide at the brand stroke weight.
 const STROKE = 1.75;
@@ -64,6 +36,10 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             ))}
           </nav>
           <div className="hdr-right">
+            <Link href={`/${lang}/calculator`} className="hdr-calc">
+              <Calculator size={16} strokeWidth={STROKE} aria-hidden />
+              {dict.calculator}
+            </Link>
             <LangSwitch lang={lang} dark />
             <a className="pill" href={siteUrl(lang, "/contact-us")}>
               {t.contactNav}

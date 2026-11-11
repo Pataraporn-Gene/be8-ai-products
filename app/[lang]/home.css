@@ -14,6 +14,8 @@
 .b8-home .hdr-nav a { text-decoration: none; opacity: 0.92; transition: opacity var(--duration-fast) var(--ease-standard); }
 .b8-home .hdr-nav a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 6px; }
 .b8-home .hdr-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+.b8-home .hdr-calc { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border-radius: var(--radius-pill); font-size: 15px; text-decoration: none; opacity: 0.92; transition: background var(--duration-fast) var(--ease-standard), opacity var(--duration-fast) var(--ease-standard); }
+.b8-home .hdr-calc:hover { opacity: 1; background: rgba(255, 255, 255, 0.12); }
 .b8-home .pill { display: inline-flex; align-items: center; justify-content: center; height: 48px; padding: 0 24px; border-radius: var(--radius-pill); background: var(--cyan-500); color: var(--neutral-900); font: var(--weight-medium) 15px/1 var(--font-body); text-decoration: none; box-shadow: var(--shadow-pill); transition: transform var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard), background var(--duration-base) var(--ease-standard); }
 .b8-home .pill:hover { background: var(--accent-bright); transform: translateY(-1px); box-shadow: var(--shadow-pill-hover); }
 .b8-home .pill:active { transform: translateY(0); transition-duration: 50ms; }
