@@ -3,7 +3,7 @@
 // Run: node --test lib/pricing.money.test.ts
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_SETTINGS, PRICING, billedUsers, choiceIndex, costItem, decode, displayGrid, encode, isPriced, vatOf, newItem, roundMoney, roundPrice, toDisplay, totals, type Item } from "./pricing.ts";
+import { DEFAULT_SETTINGS, PRICING, billedUsers, choiceIndex, costItem, decode, displayGrid, encode, isPriced, vatOf, newItem, roundMoney, roundPrice, toDisplay, totals, values, type Item } from "./pricing.ts";
 
 const s = DEFAULT_SETTINGS;
 const YEARS_N = 5; // rate 33.5, ฿15,000 per man-day, no discount
@@ -27,7 +27,7 @@ test("C2 20-user minimum: 0, 5, 19, 20 users pay for 20; 21 pays for 21", () => 
 });
 
 test("C3 Voice8 1,000 min: $76/month billed by Beryl8, no license and no MA", () => {
-  const c = costItem({ ...newItem("voice8", "v"), inputs: { minutes: 1000, sip: 0 }, setup: false }, s);
+  const c = costItem({ ...newItem("voice8", "v"), inputs: { calls: 1000, callMin: 1, days: 1 }, setup: false }, s);
   near(c.license, 0, "license");
   near(c.ma, 0, "MA");
   near(c.monthlyBeryl8, 76, "billed per month");
@@ -66,10 +66,8 @@ test("C7 partner 30% of license + 4 years MA = $5,414.40", () => {
 });
 
 test("C8 float: 3 Voice minutes = $0.228, many small lines still add up", () => {
-  const c = costItem({ ...newItem("voice8", "v"), inputs: { minutes: 3, sip: 0.1 }, setup: false }, s);
+  const c = costItem({ ...newItem("voice8", "v"), inputs: { calls: 1, callMin: 3, days: 1 }, setup: false }, s);
   near(c.monthlyBeryl8, 0.228, "3 minutes");
-  // 0.1 x 3 minutes of phone line = 0.3 (the classic 0.1*3 case)
-  near(c.lines.find((l) => l.id === "sip")!.sell, 0.3, "sip");
 });
 
 /* ---- display rounding (added after the UI oracle found totals that did not add up) ---- */
@@ -172,11 +170,29 @@ test("C16 hosting estimate, Insight8 20 users at ฿33.5: GCP ฿17,471 + AI ฿
   assert.equal(g.hosting.total.total * 12, 402612);
 });
 
-test("C17 hosting puts Voice8 phone charges under Other, not AI (Voice8 AI is billed by Beryl8)", () => {
-  const v = { ...newItem("voice8", "v"), inputs: { minutes: 10000, sip: 0.02 }, setup: false };
+test("C17 Voice8 hosting is Google Cloud only: no AI (billed by Beryl8), no phone charges", () => {
+  const v = { ...newItem("voice8", "v"), setup: false }; // defaults: 10 concurrent, 1,000 calls × 3 min, 8 h, 30 days
   const g = displayGrid(totals([v], s), { cur: "THB", rate: 33.5, vat: false }, s);
-  // SIP 10,000 × $0.02 × 33.5 = ฿6,700; cloud $250 × 33.5 = ฿8,375
-  assert.deepEqual(g.hosting.total, { cloud: 8375, ai: 0, other: 6700, total: 15075 });
+  // cloud: fixed 207.9 + voice min 1 (0.1728 × 730 = 126.144), 131.5, 117.5, 55.3, 50.3, 12 + voice (3 + 1 spare − 1 always on) 3 × 0.1728 × 8.5 h (8 h + 15 min, rounded up) × 30 = 132.192 + egress 45 GB × 0.12 = 5.4, each × 33.5 half up
+  assert.deepEqual(g.items[0].lines.filter((l) => l.kind === "cloud").map((l) => l.sell), [6965, 4226, 4405, 3936, 1853, 1685, 402, 4428, 181]);
+  assert.deepEqual(g.hosting.total, { cloud: 28081, ai: 0, other: 0, total: 28081 });
+});
+
+test("C17b Voice8 matches the cost calculator: AI cost 90,000 min × $0.0218 = ฿65,845 at ฿33.56", () => {
+  const c = costItem({ ...newItem("voice8", "v"), setup: false }, s);
+  near(c.monthlyCost, 1962, "AI cost");
+  near(Math.round(c.monthlyCost * 33.56), 65845, "THB");
+  near(c.monthlyBeryl8, 90000 * 0.076, "billed");
+});
+
+test("C17c Voice8 100 concurrent adds a call-runtime/system pair and an Asterisk VM; setup = flows × man-days", () => {
+  const c = costItem({ ...newItem("voice8", "v"), inputs: { concurrent: 100, flows: 3, flowDays: 4 } }, s);
+  const row = (id: string) => c.lines.find((l) => l.id === id)!.sell;
+  near(row("gcp-voice"), 25 * 0.1728 * 8.5 * 30, "voice 25 + 1 spare − 1 always on");
+  near(row("gcp-runtime"), 1 * 2 * 0.0864 * 8.5 * 30, "runtime");
+  near(row("gcp-asterisk"), 67.3, "asterisk");
+  near(c.setup * s.rate, 12 * 15000, "12 man-days");
+  assert.equal(costItem({ ...newItem("voice8", "v") }, s).lines.some((l) => l.id === "gcp-asterisk"), false);
 });
 
 test("C19 Insight8 lean size is the default: GCP ฿9,771 / month for 20 users", () => {
@@ -449,4 +465,28 @@ test("M10 Meet8 subscription has no setup fee even when setup is ticked", () => 
   assert.equal(g.year1, 181704); // 12 × ฿15,142, no ฿45,000 setup
   // buying once still charges setup when ticked: 3 days × ฿15,000
   assert.equal(shown({ ...meet8(0), setup: true }).setup, 45000);
+});
+
+test("C17d Voice8 Jakarta uses Jakarta list prices for VMs, Valkey and other; Cloud Run and LB unchanged", () => {
+  const cloud = (region: number) => costItem({ ...newItem("voice8", "v"), inputs: { region }, setup: false }, s).lines
+    .filter((l) => l.kind === "cloud" && !l.id.startsWith("gcp-voice") && l.id !== "gcp-egress").map((l) => l.sell);
+  assert.deepEqual(cloud(0), [207.9, 0.1728 * 730, 131.5, 117.5, 55.3, 50.3, 12]);
+  assert.deepEqual(cloud(1), [207.9, 0.1728 * 730, 143.5, 128.7, 60.3, 50.3, 12.5]);
+  const big = costItem({ ...newItem("voice8", "v"), inputs: { region: 1, concurrent: 100 }, setup: false }, s);
+  near(big.lines.find((l) => l.id === "gcp-asterisk")!.sell, 73.3, "extra Asterisk in Jakarta");
+});
+
+test("C17e Voice8 call type: inbound and both keep 1 voice instance all month; outbound is min 0 and pre-warms every instance", () => {
+  const at = (direction: number) => costItem({ ...newItem("voice8", "v"), inputs: { direction, concurrent: 25, hours: 5, days: 30 }, setup: false }, s).lines;
+  const sum = (ls: { id: string; sell: number }[]) => ls.filter((l) => l.id.includes("voice")).reduce((a, l) => a + l.sell, 0);
+  near(sum(at(0)), 0.1728 * 730 + 7 * 0.1728 * 5.5 * 30, "inbound: min 1 + 7 extra (7 + 1 spare)");
+  near(sum(at(2)), sum(at(0)), "both = inbound");
+  near(sum(at(1)), 8 * 0.1728 * 5.5 * 30, "outbound: 8 instances × 5.5 h (5 h 25 min rounded up) = spec US$228.1");
+  assert.equal(at(1).some((l) => l.id === "gcp-cloud-run-voice-1-instance-always-on-"), false);
+});
+
+test("C17f Voice8 warns only when call minutes per day exceed concurrent × hours", () => {
+  const w = (inputs: Record<string, number>) => PRICING.voice8.warning!(values({ ...newItem("voice8", "v"), inputs: { ...newItem("voice8", "v").inputs, ...inputs } }));
+  assert.equal(w({ concurrent: 25, calls: 1500, callMin: 5, hours: 5 }), null); // 7,500 = 7,500 exactly
+  assert.match(w({ concurrent: 25, calls: 1501, callMin: 5, hours: 5 })!.th, /เกิน/);
 });

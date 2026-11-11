@@ -333,3 +333,6 @@ html:has(.p-agent8) { overflow-x: clip; scroll-behavior: smooth; scroll-padding-
 .p-agent8 .ticks svg, .p-agent8 .brand-mark svg, .p-agent8 .ic svg { display: block; }
 .p-agent8 small { font-size: smaller; }
 .p-agent8 .top .lang-switch { margin-left: auto; display: flex; }
+
+/* No sticky dock while pricing is hidden. */
+.p-agent8.no-pricing footer { padding-bottom: 28px; }

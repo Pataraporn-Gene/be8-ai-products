@@ -79,11 +79,11 @@ export type BarPlan = {
 
 const en = {
   meta: {
-    title: "MEET8 (Second Brain) · Every meeting recorded, written up and searchable",
+    title: "MEET8 · Every meeting recorded, written up and searchable",
     description:
       "Record and transcribe meetings in Thai, English or both. Decisions and action items are written up for you, and past meetings are searchable.",
   },
-  brand: "MEET8 (Second Brain)",
+  brand: "MEET8",
   menuLabel: "Main menu",
   menu: [
     { href: "#features", label: "Product" },
@@ -92,15 +92,15 @@ const en = {
     { href: "#faq", label: "FAQ" },
   ],
   hero: {
-    eyebrow: "MEET8 (Second Brain)",
+    eyebrow: "MEET8",
     h1: "Every meeting recorded,",
     h1Em: "written up and searchable",
     lead: "Record and transcribe meetings in Thai, English or both. Decisions and action items are written up for you, and you can search past meetings with a link to the exact moment something was said.",
     ctaPrimary: "See how it works",
     ctaSecondary: "View plans and pricing",
     mini: ["Unlimited users on every plan", "Web, macOS, iOS and Google Meet"],
-    shotUrl: "second-brain.beryl8.com/today",
-    mainAlt: "Today page showing a meeting being recorded and the Second Brain Ask box",
+    shotUrl: "meet8.beryl8.com/today",
+    mainAlt: "Today page showing a meeting being recorded and the Meet8 Ask box",
     floatCaption: "Action items · captured from the meeting",
     floatAlt: "Action item table with owners and due dates",
     pill: "Recording · Thai and English",
@@ -125,7 +125,7 @@ const en = {
     h2: "The screens your team will use",
     tabsLabel: "View screens",
     alt: "Sample product screen",
-    urlHost: "second-brain.beryl8.com",
+    urlHost: "meet8.beryl8.com",
     screens: [
       { key: "today", label: "Today", img: "today.jpg", url: "/today" },
       { key: "meetings", label: "Meetings", img: "meetings-full.png", url: "/meetings" },
@@ -144,14 +144,14 @@ const en = {
     eyebrow: "How it works",
     h2: "From the meeting room to answers you can check",
     stepsLabel: "Workflow steps",
-    urlHost: "second-brain.beryl8.com",
+    urlHost: "meet8.beryl8.com",
     steps: [
       {
         key: "live",
         num: "01",
         label: "Record",
-        h: "Press record and every word is captured",
-        p: "Start recording from the web, the desktop app, mobile or Google Meet. The transcript fills in as people talk.",
+        h: "Press record and the transcript starts building",
+        p: "Start from the web, the desktop app, mobile or Google Meet. Text appears live as people speak.",
         list: [
           "Handles Thai and English in the same sentence",
           "Speakers and timestamps on every line",
@@ -180,7 +180,7 @@ const en = {
         key: "ask",
         num: "03",
         label: "Ask",
-        h: "Ask about any meeting, and see the source",
+        h: "Ask about any meeting and check the source",
         p: "Ask a question the way you'd ask a colleague. The answer links back to the point in the transcript where it was said.",
         list: [
           "Searches every meeting you have access to",
@@ -189,7 +189,7 @@ const en = {
         ],
         img: "ask-close.jpg",
         url: "/chat",
-        alt: "Asking Second Brain in chat and getting an answer with sources",
+        alt: "Asking Meet8 in chat and getting an answer with sources",
       },
       {
         key: "minute",
@@ -214,7 +214,7 @@ const en = {
     chat: {
       k: "Team chat",
       h3: "Ask questions right in your team chat",
-      p: "Mention @be8-second-brain to ask about any meeting. Everyone in the channel sees the same answer and sources.",
+      p: "Mention @meet8 to ask about any meeting. Everyone in the channel sees the same answer and sources.",
       alt: "Team chat room where the AI replies with links back to the source meeting",
     },
     prep: {
@@ -242,7 +242,7 @@ const en = {
         h3: "Interviews and workshops",
         p: "Full transcripts with each speaker labeled, so you can spot themes that come up across sessions.",
       },
-      { h3: "Voice notes", p: "Record a quick voice note after a client visit and get a write-up ready for your CRM." },
+      { h3: "Voice notes", p: "Record a quick voice note after a client visit and get a written note you can paste into your CRM." },
     ],
   },
   plans: {
@@ -261,12 +261,12 @@ const en = {
         "Your own private environment and database",
         `${P.stdHrs} transcription hours a month, shared across your organization`,
         "Unlimited questions and in-depth answers",
-        "Second Brain assistant",
+        "Meet8 assistant",
         "Recap, Prep and PDF meeting minutes",
       ],
     },
     premium: {
-      tag: "Most popular · lower cost per hour",
+      tag: "Recommended · lower cost per hour",
       price: P.preYear,
       sub: `Avg. ${P.preMonth} per month`,
       for: "For organizations that want a searchable document library and manager visibility across teams.",
@@ -311,7 +311,7 @@ const en = {
       { group: "Assistant" },
       { label: "In-depth answers (Think)", std: true, prem: true, cus: true },
       { label: "Ask across every meeting", std: "Unlimited", prem: "Unlimited", cus: "Unlimited" },
-      { label: "Second Brain assistant", std: true, prem: true, cus: true },
+      { label: "Meet8 assistant", std: true, prem: true, cus: true },
       { label: "Knowledge assistant", std: false, prem: "2 assistants", cus: "As needed" },
       { label: "Documents in your library", std: false, prem: "Up to 4,000 documents", cus: "As needed" },
       { group: "Record and summarize" },
@@ -365,7 +365,7 @@ const en = {
       },
       {
         q: "Who can see my meetings?",
-        a: "Owners and attendees can see a meeting on every plan. Premium also lets managers see their team's meetings, and admins can review who accessed what in the audit log.",
+        a: "Owners and attendees can see a meeting. Managers can also see their team's meetings, and admins can review who accessed what in the audit log.",
       },
       {
         q: "Can I change plans mid-cycle?",
@@ -378,14 +378,14 @@ const en = {
     ],
   },
   footer: {
-    left: "© 2026 Beryl8 · MEET8 (Second Brain)",
-    right: "Prices shown in THB, excluding VAT",
+    left: "© 2026 Beryl8 · MEET8",
+    right: "Prices shown in THB, excluding VAT", // shown only when SHOW_PRICING
   },
   bar: {
     label: "Selected plan summary",
     plans: {
       standard: {
-        name: "MEET8 (Second Brain) · Standard",
+        name: "MEET8 · Standard",
         meta: `Unlimited users · ${P.stdHrs} hours per month`,
         priceLabel: "Price:",
         price: `${P.stdYear} / year`,
@@ -394,7 +394,7 @@ const en = {
         sent: "Request sent. Our sales team will be in touch.",
       },
       premium: {
-        name: "MEET8 (Second Brain) · Premium",
+        name: "MEET8 · Premium",
         meta: `Unlimited users · ${P.preHrs} hours per month`,
         priceLabel: "Price:",
         price: `${P.preYear} / year`,
@@ -403,7 +403,7 @@ const en = {
         sent: "Request sent. Our sales team will be in touch.",
       },
       customize: {
-        name: "MEET8 (Second Brain) · Customize",
+        name: "MEET8 · Customize",
         meta: "Unlimited users · usage and assistants tailored to you",
         price: "Contact sales",
         cta: "Contact sales",
@@ -413,15 +413,18 @@ const en = {
   },
 };
 
+/** FAQ indexes about plans, quotas and billing; hidden unless SHOW_PRICING. Same order in en and th. */
+export const PRICING_FAQ = new Set([0, 1, 2, 4, 5]);
+
 export type Meet8Content = typeof en;
 
 const th: Meet8Content = {
   meta: {
-    title: "MEET8 (Second Brain) · ทุกการประชุม บันทึก สรุป และค้นหาได้",
+    title: "MEET8 · ทุกการประชุม บันทึก สรุป และค้นหาได้",
     description:
       "บันทึกและถอดเสียงการประชุมได้ทั้งภาษาไทยและอังกฤษ ระบบสรุปมติและงานที่ต้องทำให้ และค้นย้อนหลังได้",
   },
-  brand: "MEET8 (Second Brain)",
+  brand: "MEET8",
   menuLabel: "เมนูหลัก",
   menu: [
     { href: "#features", label: "ผลิตภัณฑ์" },
@@ -430,22 +433,22 @@ const th: Meet8Content = {
     { href: "#faq", label: "คำถามที่พบบ่อย" },
   ],
   hero: {
-    eyebrow: "MEET8 (Second Brain)",
+    eyebrow: "MEET8",
     h1: "ทุกการประชุม บันทึกไว้",
     h1Em: "สรุปให้ และค้นหาได้",
     lead: "บันทึกและถอดเสียงการประชุมได้ทั้งภาษาไทยและอังกฤษ ระบบสรุปมติและงานที่ต้องทำให้ และค้นย้อนหลังได้ พร้อมลิงก์ไปยังช่วงที่พูดจริง",
     ctaPrimary: "ดูวิธีการทำงาน",
     ctaSecondary: "ดูแพ็กเกจและราคา",
     mini: ["ผู้ใช้ไม่จำกัดทุกแพ็กเกจ", "เว็บ, macOS, iOS และ Google Meet"],
-    shotUrl: "second-brain.beryl8.com/today",
-    mainAlt: "หน้า Today แสดงการประชุมที่กำลังบันทึกและช่องถาม Second Brain",
+    shotUrl: "meet8.beryl8.com/today",
+    mainAlt: "หน้า Today แสดงการประชุมที่กำลังบันทึกและช่องถาม Meet8",
     floatCaption: "งานที่ต้องทำ · ดึงจากการประชุมให้อัตโนมัติ",
     floatAlt: "ตารางงานที่ต้องทำพร้อมผู้รับผิดชอบและกำหนดส่ง",
     pill: "กำลังบันทึก · ไทยและอังกฤษ",
   },
   facts: [
     { b: "ไทย + อังกฤษ", span: "รองรับผู้พูดที่สลับภาษากลางประโยค" },
-    { b: "ตอบพร้อมแหล่งที่มา", span: "ลิงก์ไปยังช่วงที่พูดในบันทึกการประชุม" },
+    { b: "ตอบพร้อมแหล่งที่มา", span: "ลิงก์ไปยังช่วงที่พูดในข้อความถอดเสียง" },
     { b: "ค้นตามสิทธิ์การเข้าถึง", span: "ค้นเฉพาะการประชุมที่คุณมีสิทธิ์เห็น" },
     { b: "ข้อมูลเก็บในสิงคโปร์", span: "Google Cloud asia-southeast1" },
   ],
@@ -463,7 +466,7 @@ const th: Meet8Content = {
     h2: "หน้าจอที่ทีมของคุณจะใช้ทุกวัน",
     tabsLabel: "ดูหน้าจอ",
     alt: "ตัวอย่างหน้าจอผลิตภัณฑ์",
-    urlHost: "second-brain.beryl8.com",
+    urlHost: "meet8.beryl8.com",
     screens: [
       { key: "today", label: "Today", img: "today.jpg", url: "/today" },
       { key: "meetings", label: "การประชุม", img: "meetings-full.png", url: "/meetings" },
@@ -482,14 +485,14 @@ const th: Meet8Content = {
     eyebrow: "ทำงานอย่างไร",
     h2: "จากห้องประชุม ถึงคำตอบที่ตรวจสอบได้",
     stepsLabel: "ขั้นตอนการทำงาน",
-    urlHost: "second-brain.beryl8.com",
+    urlHost: "meet8.beryl8.com",
     steps: [
       {
         key: "live",
         num: "01",
         label: "บันทึก",
-        h: "กดบันทึก ได้ทุกคำที่พูด",
-        p: "เริ่มบันทึกได้จากเว็บ แอปบนเครื่อง มือถือ หรือ Google Meet ข้อความถอดเสียงขึ้นสดระหว่างที่ทุกคนพูด",
+        h: "กดบันทึก ถอดเสียงเริ่มทันที",
+        p: "เริ่มบันทึกจากเว็บ แอปบนเครื่อง มือถือ หรือ Google Meet ข้อความขึ้นสดขณะที่ทุกคนพูด",
         list: [
           "รองรับไทยและอังกฤษในประโยคเดียวกัน",
           "แยกผู้พูดและเวลาให้ทุกบรรทัด",
@@ -519,7 +522,7 @@ const th: Meet8Content = {
         num: "03",
         label: "ถามย้อนหลัง",
         h: "ถามได้ทุกการประชุม พร้อมดูแหล่งที่มา",
-        p: "ถามเหมือนถามเพื่อนร่วมงาน คำตอบมีลิงก์กลับไปยังช่วงที่มีคนพูดจริงในบันทึกการประชุม",
+        p: "ถามเหมือนถามเพื่อนร่วมงาน คำตอบมีลิงก์กลับไปยังช่วงที่พูดจริงในข้อความถอดเสียง",
         list: [
           "ค้นทุกการประชุมที่คุณมีสิทธิ์เข้าถึง",
           "ทุกคำตอบมีลิงก์ไปยังช่วงที่พูด",
@@ -527,7 +530,7 @@ const th: Meet8Content = {
         ],
         img: "ask-close.jpg",
         url: "/chat",
-        alt: "ถาม Second Brain ในแชต ได้คำตอบพร้อมแหล่งที่มา",
+        alt: "ถาม Meet8 ในแชต ได้คำตอบพร้อมแหล่งที่มา",
       },
       {
         key: "minute",
@@ -552,7 +555,7 @@ const th: Meet8Content = {
     chat: {
       k: "แชตของทีม",
       h3: "ถามได้ทันทีในแชตของทีม",
-      p: "แท็ก @be8-second-brain เพื่อถามเรื่องการประชุมใดก็ได้ ทุกคนในช่องเห็นคำตอบและแหล่งที่มาเดียวกัน",
+      p: "แท็ก @meet8 เพื่อถามเรื่องการประชุมใดก็ได้ ทุกคนในช่องเห็นคำตอบและแหล่งที่มาเดียวกัน",
       alt: "ห้องแชตทีมที่ AI ตอบพร้อมลิงก์กลับไปยังการประชุมต้นทาง",
     },
     prep: {
@@ -572,9 +575,9 @@ const th: Meet8Content = {
     h2: "ใช้ได้กับการประชุมทุกแบบ",
     items: [
       { h3: "ประชุมลูกค้า", p: "เก็บทุกข้อตกลงและข้อกังวลของลูกค้าไว้ครบ ไม่ต้องพึ่งความจำ" },
-      { h3: "ประชุมภายใน", p: "ประชุมประจำสัปดาห์ standup และประชุมผู้บริหาร ได้สรุปและงานต่อทันทีที่จบ" },
-      { h3: "สัมภาษณ์และเวิร์กช็อป", p: "บันทึกการประชุมครบทุกคำ ระบุผู้พูดแต่ละคน เห็นประเด็นที่ถูกพูดถึงซ้ำข้ามหลายรอบ" },
-      { h3: "Voice note", p: "อัดเสียงสั้น ๆ หลังพบลูกค้า แล้วได้บันทึกที่พร้อมใส่ CRM" },
+      { h3: "ประชุมภายใน", p: "ประชุมประจำสัปดาห์ standup และประชุมผู้บริหาร ได้สรุปและงานติดตามทันทีที่ประชุมจบ" },
+      { h3: "สัมภาษณ์และเวิร์กช็อป", p: "ได้ข้อความถอดเสียงครบ ระบุผู้พูดแต่ละคน และเห็นประเด็นที่ถูกพูดซ้ำข้ามหลายรอบ" },
+      { h3: "Voice note", p: "อัดเสียงสั้น ๆ หลังพบลูกค้า แล้วได้บันทึกที่คัดลอกไปใส่ CRM ได้ทันที" },
     ],
   },
   plans: {
@@ -590,15 +593,15 @@ const th: Meet8Content = {
       listLabel: "รวมในแพ็กเกจ",
       list: [
         "ผู้ใช้ไม่จำกัด",
-        "ระบบและฐานข้อมูลแยกเป็นของคุณเอง",
+        "ระบบและฐานข้อมูลแยกเฉพาะองค์กรของคุณ",
         `ถอดเสียง ${P.stdHrs} ชั่วโมงต่อเดือน ใช้ร่วมกันทั้งองค์กร`,
         "ถามได้ไม่จำกัด พร้อมคำตอบเชิงลึก",
-        "ผู้ช่วย Second Brain",
+        "ผู้ช่วย Meet8",
         "Recap, Prep และรายงานการประชุม PDF",
       ],
     },
     premium: {
-      tag: "ยอดนิยม · ต้นทุนต่อชั่วโมงต่ำกว่า",
+      tag: "แนะนำ · ต้นทุนต่อชั่วโมงต่ำกว่า",
       price: P.preYear,
       sub: `เฉลี่ย ${P.preMonth} ต่อเดือน`,
       for: "สำหรับองค์กรที่ต้องการคลังเอกสารที่ค้นหาได้ และให้ผู้จัดการเห็นภาพรวมข้ามทีม",
@@ -624,7 +627,7 @@ const th: Meet8Content = {
         "ทีมซัพพอร์ตเฉพาะ พร้อม SLA",
       ],
     },
-    note: "ราคาเป็นบาทต่อองค์กรต่อปี ยังไม่รวม VAT 7% · รวมค่าเซิร์ฟเวอร์ตามต้นทุนจริง · ราคาเป็นตัวอย่าง รอยืนยัน",
+    note: "ราคาเป็นบาทต่อองค์กรต่อปี ยังไม่รวม VAT 7% · รวมค่าเซิร์ฟเวอร์ตามต้นทุนจริง · ราคาเบื้องต้น อาจเปลี่ยนเมื่อยืนยัน",
   },
   compare: {
     heading: "เปรียบเทียบแพ็กเกจ",
@@ -643,7 +646,7 @@ const th: Meet8Content = {
       { group: "ผู้ช่วย" },
       { label: "คำตอบเชิงลึก (Think)", std: true, prem: true, cus: true },
       { label: "ถามข้ามทุกการประชุม", std: "ไม่จำกัด", prem: "ไม่จำกัด", cus: "ไม่จำกัด" },
-      { label: "ผู้ช่วย Second Brain", std: true, prem: true, cus: true },
+      { label: "ผู้ช่วย Meet8", std: true, prem: true, cus: true },
       { label: "ผู้ช่วยด้านความรู้", std: false, prem: "2 ตัว", cus: "ตามต้องการ" },
       { label: "เอกสารในคลัง", std: false, prem: "สูงสุด 4,000 ไฟล์", cus: "ตามต้องการ" },
       { group: "บันทึกและสรุป" },
@@ -652,14 +655,14 @@ const th: Meet8Content = {
       { label: "แม่แบบรายงานการประชุมของบริษัท", std: false, prem: true, cus: true },
       { label: "แชตของทีม", std: true, prem: true, cus: true },
       { label: "Google Calendar และ Outlook", std: true, prem: true, cus: true },
-      { label: "แอป Web, macOS, iOS และ Chrome extension", std: true, prem: true, cus: true },
+      { label: "แอปเว็บ, macOS, iOS และ Chrome extension", std: true, prem: true, cus: true },
       { label: "เชื่อมต่อกับเครื่องมือ AI อื่น (MCP)", std: false, prem: true, cus: true, beta: true },
       { group: "ความเป็นส่วนตัวและความปลอดภัย" },
       { label: "เข้ารหัสข้อมูลขณะส่งและจัดเก็บ", std: true, prem: true, cus: true },
       { label: "เจ้าของและผู้เข้าร่วมเห็นการประชุมของตัวเอง", std: true, prem: true, cus: true },
       { label: "ผู้จัดการเห็นการประชุมของทีม", std: false, prem: true, cus: true },
       { label: "Audit log การเข้าถึง", std: false, prem: true, cus: true },
-      { label: "ระบบและฐานข้อมูลแยกเป็นของคุณเอง", std: true, prem: true, cus: true },
+      { label: "ระบบและฐานข้อมูลแยกเฉพาะองค์กรของคุณ", std: true, prem: true, cus: true },
       { label: "ข้อมูลเก็บในสิงคโปร์ (asia-southeast1)", std: true, prem: true, cus: true },
       { group: "เฉพาะ Customize" },
       { label: "ผู้ช่วยที่ปรับให้เข้ากับงานของคุณ", std: false, prem: false, cus: true },
@@ -692,15 +695,15 @@ const th: Meet8Content = {
         a: "นับตามความยาวเสียงจริง ทั้งการบันทึกสด ไฟล์ที่อัปโหลด และ voice note ของทุกคนในองค์กรรวมกัน โควตารีเซ็ตทุกวันที่ 1 ของเดือน ชั่วโมงที่ไม่ได้ใช้ไม่สะสม",
       },
       {
-        q: "ถ้าใช้ชั่วโมงหมดก่อนสิ้นเดือน",
+        q: "ถ้าชั่วโมงถอดเสียงหมดก่อนสิ้นเดือนจะเป็นอย่างไร",
         a: "ยังบันทึกได้ตามปกติ ระบบเก็บไฟล์ไว้และถอดเสียงให้เมื่อเริ่มเดือนใหม่ หรืออัปเกรดแพ็กเกจเพื่อถอดเสียงต่อได้ทันที",
       },
       {
         q: "ใครเห็นการประชุมของฉันได้บ้าง",
-        a: "เจ้าของและผู้เข้าร่วมเห็นการประชุมได้ทุกแพ็กเกจ Premium เพิ่มให้ผู้จัดการเห็นการประชุมของทีม และผู้ดูแลระบบตรวจสอบได้ว่าใครเข้าถึงอะไรจาก Audit log",
+        a: "เจ้าของและผู้เข้าร่วมเห็นการประชุมได้ ผู้จัดการเห็นการประชุมของทีมได้ และผู้ดูแลระบบตรวจสอบได้ว่าใครเข้าถึงอะไรจาก Audit log",
       },
       {
-        q: "เปลี่ยนแพ็กเกจกลางรอบได้ไหม",
+        q: "เปลี่ยนแพ็กเกจกลางรอบบิลได้ไหม",
         a: "อัปเกรดได้ทันทีและจ่ายเฉพาะส่วนต่างตามวันที่เหลือ การลดแพ็กเกจมีผลเมื่อเริ่มรอบบิลถัดไป ข้อมูลการประชุมเดิมยังอยู่ครบ",
       },
       {
@@ -710,14 +713,14 @@ const th: Meet8Content = {
     ],
   },
   footer: {
-    left: "© 2026 Beryl8 · MEET8 (Second Brain)",
+    left: "© 2026 Beryl8 · MEET8",
     right: "ราคาแสดงเป็นบาท ยังไม่รวมภาษีมูลค่าเพิ่ม",
   },
   bar: {
     label: "สรุปแพ็กเกจที่เลือก",
     plans: {
       standard: {
-        name: "MEET8 (Second Brain) · Standard",
+        name: "MEET8 · Standard",
         meta: `ผู้ใช้ไม่จำกัด · ${P.stdHrs} ชั่วโมงต่อเดือน`,
         priceLabel: "ราคา:",
         price: `${P.stdYear} / ปี`,
@@ -726,7 +729,7 @@ const th: Meet8Content = {
         sent: "ส่งคำขอแล้ว ทีมขายจะติดต่อกลับ",
       },
       premium: {
-        name: "MEET8 (Second Brain) · Premium",
+        name: "MEET8 · Premium",
         meta: `ผู้ใช้ไม่จำกัด · ${P.preHrs} ชั่วโมงต่อเดือน`,
         priceLabel: "ราคา:",
         price: `${P.preYear} / ปี`,
@@ -735,7 +738,7 @@ const th: Meet8Content = {
         sent: "ส่งคำขอแล้ว ทีมขายจะติดต่อกลับ",
       },
       customize: {
-        name: "MEET8 (Second Brain) · Customize",
+        name: "MEET8 · Customize",
         meta: "ผู้ใช้ไม่จำกัด · ปริมาณการใช้งานและผู้ช่วยตามความต้องการ",
         price: "ติดต่อทีมขาย",
         cta: "ติดต่อทีมขาย",

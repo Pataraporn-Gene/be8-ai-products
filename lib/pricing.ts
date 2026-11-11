@@ -40,8 +40,10 @@ export type Input = {
   max: number;
   step?: number;
   help?: Localized;
-  /** Choice stored as its index (0, 1, 2…); shown as radio buttons, last option first. */
+  /** Choice stored as its index (0, 1, 2…). Radio buttons show the last option first; a `dropdown` shows them in order. */
   choices?: Localized[];
+  /** Show `choices` as a drop-down in the field grid, in their own order, instead of radio buttons. */
+  dropdown?: boolean;
   /** Shown only when this returns true; a hidden input keeps its value but the lines ignore it. */
   when?: (v: Record<string, number>) => boolean;
   /** A choice between ways of buying: the card shows every option side by side for the same usage. */
@@ -79,17 +81,25 @@ export type ProductPricing = {
   switchTo?: (v: Record<string, number>, users: number, k: number) => Record<string, number>;
   unitLabel: Localized;
   setupDays: number;
+  /** Implementation man-days worked out from the inputs; overrides `setupDays`. */
+  setupDaysFor?: (v: Record<string, number>) => number;
   inputs: Input[];
   lines: (v: Record<string, number>, users: number, size: Size) => Line[];
+  /** A red warning under the inputs when they cannot work together, e.g. more call minutes than the lines can carry. */
+  warning?: (v: Record<string, number>) => Localized | null;
   /** Products with a measured cheaper server setup offer a size choice. */
   sizes?: Record<Size, Localized>;
   notes: Localized[];
+  /** Date the prices were checked, shown centred under the breakdown. */
+  asOf?: string;
 };
 
 const L = (en: string, th: string): Localized => ({ en, th });
 const blocks = (n: number, size: number) => Math.max(1, Math.ceil(n / size));
 /** Which option of an `n`-way choice a stored value means. A hand-edited share link can hold any number. */
 export const choiceIndex = (x: number, n = 2) => Math.min(n - 1, Math.max(0, Math.round(x) || 0));
+/** Index of a drop-down option; a hand-edited link can hold anything. */
+export const optionIndex = (x: number, count: number) => choiceIndex(x, count);
 
 /* Ask 8 per answered question, all draft. Cost is Sonnet 5.5 at a 60% cache hit, not yet measured from real usage. */
 const ASK8 = {
@@ -98,6 +108,25 @@ const ASK8 = {
   ask: { credits: 1, cost: 0.0389 },
   data: { credits: 2, cost: 0.0792 },
   action: { credits: 4, cost: 0.1805 },
+};
+
+/* Voice8 Pipeline, from the Voice8 cost calculator (prod config + load test 2026-10-20). */
+const VOICE8 = {
+  sell: 0.076, // per minute billed by Beryl8, AI included
+  callsPerVoice: 4,
+  voiceBuffer: 1, // one spare voice instance on top of concurrent ÷ 4
+  callsPerAsterisk: 80, // ~90 per VM at 85% CPU, 80 leaves headroom
+  voiceHour: 0.1728, // 2 vCPU / 2 GiB always-on
+  runtimeHour: 0.0864, // 1 vCPU / 1 GiB always-on
+  idleTail: 0.25, // instances stay ~15 min after the last call
+  warmUp: 1 / 6, // outbound only: pre-warmed ~10 min before calling starts
+  mbPerMin: 0.5,
+  egressGb: 0.12,
+  /** Region list prices. Singapore = prod bill (docs/cost.md) with Asterisk on e2-standard-2; Jakarta = Cloud Billing Catalog 2026-11-09. */
+  region: {
+    sg: { asterisk: 131.5, qdrant: 117.5, valkey: 55.3, ops: 12, asteriskVm: 67.3 },
+    jkt: { asterisk: 143.5, qdrant: 128.7, valkey: 60.3, ops: 12.5, asteriskVm: 73.3 },
+  },
 };
 
 const USERS = L("users", "คน");
@@ -286,22 +315,78 @@ export const PRICING: Record<string, ProductPricing> = {
     licenseDraft: false,
     unitLabel: L("Studio users", "ผู้ใช้ Studio"),
     setupDays: 10,
+    // Implementation = call flows × man-days per flow (Voice8 cost calculator).
+    setupDaysFor: (v) => v.flows * v.flowDays,
+    warning: (v) => {
+      const daily = v.calls * v.callMin;
+      const capacity = v.concurrent * v.hours * 60;
+      return daily > capacity
+        ? L(`${n(v.calls)} calls × ${n(v.callMin)} min = ${n(daily)} min a day, more than ${n(v.concurrent)} lines × ${n(v.hours)} h can carry (${n(capacity)} min). Add concurrent calls or calling hours.`,
+            `${n(v.calls)} สาย × ${n(v.callMin)} นาที = ${n(daily)} นาที/วัน เกินที่ ${n(v.concurrent)} สายพร้อมกัน × ${n(v.hours)} ชม. รับได้ (${n(capacity)} นาที) เพิ่มสายพร้อมกันหรือชั่วโมงทำงาน`)
+        : null;
+    },
     inputs: [
-      { id: "minutes", label: L("Conversation minutes per month", "นาทีสนทนาต่อเดือน"), unit: L("minutes", "นาที"), def: 10000, max: 10000000, step: 1000, help: L("Example: 1,000 calls x 5 minutes x 2 batches.", "ตัวอย่าง: 1,000 สาย x 5 นาที x 2 รอบ") },
-      { id: "sip", label: L("Phone line charge per minute (your carrier)", "ค่าโทรต่อนาที (ผู้ให้บริการสายของคุณ)"), unit: L("US$", "US$"), def: 0.02, max: 5, step: 0.005 },
+      { id: "region", label: L("Google Cloud region", "Region ของ Google Cloud"), unit: L("", ""), def: 0, max: 1, dropdown: true,
+        choices: [L("Singapore (asia-southeast1)", "Singapore (asia-southeast1)"), L("Jakarta (asia-southeast2)", "Jakarta (asia-southeast2)")] },
+      { id: "direction", label: L("Call type", "ประเภทสาย"), unit: L("", ""), def: 0, max: 2, dropdown: true,
+        choices: [L("Inbound", "Inbound (รับสายเข้า)"), L("Outbound", "Outbound (โทรออก)"), L("Inbound + outbound", "Inbound (รับสายเข้า) + Outbound (โทรออก)")] },
+      { id: "concurrent", label: L("Concurrent calls", "สายพร้อมกัน (concurrent)"), unit: L("calls", "สาย"), def: 10, max: 10000, step: 1 },
+      { id: "calls", label: L("Calls per day", "จำนวนสายต่อวัน"), unit: L("calls/day", "สาย/วัน"), def: 1000, max: 1000000, step: 100 },
+      { id: "callMin", label: L("Minutes per call", "นาทีต่อสาย"), unit: L("minutes", "นาที"), def: 3, max: 60, step: 0.5 },
+      { id: "hours", label: L("Calling hours per day", "ชั่วโมงทำงานต่อวัน"), unit: L("hours", "ชม."), def: 8, max: 23.75, step: 0.5,
+        help: L("Hours with the full concurrent capacity open.", "ช่วงที่เปิดรับ concurrent เต็มจำนวน") },
+      { id: "days", label: L("Days per month", "วันต่อเดือน"), unit: L("days", "วัน"), def: 30, max: 31, step: 1 },
+      { id: "aiMin", label: L("AI cost per minute", "ค่า AI ต่อนาที"), unit: L("US$/min", "USD/นาที"), def: 0.0218, max: 1, step: 0.0001 },
+      { id: "flows", label: L("Call flows to build", "จำนวน Call flow"), unit: L("flows", "flow"), def: 2, max: 1000, step: 1 },
+      { id: "flowDays", label: L("Man-days per call flow", "Man-day ต่อ Call flow"), unit: L("man-days", "man-day"), def: 5, max: 100, step: 0.5 },
     ],
-    lines: (v) => [
-      { id: "min", label: L("AI conversation minutes (US$0.076 per minute, AI included)", "นาทีสนทนา AI (US$0.076 ต่อนาที รวมค่า AI)"), payer: "beryl8", kind: "usage", sell: v.minutes * 0.076, cost: v.minutes * 0.03 },
-      { id: "sip", label: L("Phone line charges (SIP trunk)", "ค่าโทรศัพท์ (SIP trunk)"), payer: "direct", kind: "telco", sell: v.minutes * v.sip, cost: v.minutes * v.sip, draft: true,
-        detail: L(`${n(v.minutes)} min × US$${n(v.sip)}`, `${n(v.minutes)} นาที × US$${n(v.sip)}`) },
-      ...gcp([
-        ["Compute Engine (call and media servers)", "Compute Engine (เซิร์ฟเวอร์สายและเสียง)", 140],
-        ["Cloud Run (Studio and API)", "Cloud Run (Studio และ API)", 50, "run"],
-        ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 46, "sql"],
-        ["Storage, logging and other", "Storage, logging และอื่นๆ", 14],
-      ], blocks(v.minutes, 200000), true),
-    ],
-    notes: [L("Priced per minute with no per-user license. AI hands over to staff after 5 minutes.", "คิดตามนาที ไม่มี license ต่อผู้ใช้ AI คุยไม่เกิน 5 นาทีต่อสาย เกินแล้วโอนให้เจ้าหน้าที่")],
+    lines: (v) => {
+      const V = VOICE8;
+      const R = V.region[choiceIndex(v.region) === 1 ? "jkt" : "sg"];
+      const daily = v.calls * v.callMin;
+      const minutes = daily * v.days;
+      // Billed hours per day are rounded up to the next half hour, as in the customer specs (5 h 25 min → 5.5 h).
+      const halfUp = (h: number) => Math.ceil(Number((h * 2).toPrecision(12))) / 2;
+      const dayHours = halfUp(v.hours + V.idleTail);
+      const billedHours = dayHours * v.days;
+      const voices = Math.max(1, Math.ceil(v.concurrent / V.callsPerVoice)) + V.voiceBuffer;
+      // Inbound can ring at any hour, so one voice instance stays warm all month (min 1).
+      // Outbound only dials in calling hours: min 0, every instance pre-warmed before calling starts.
+      const outbound = optionIndex(v.direction, 3) === 1;
+      const voiceExtra = outbound ? voices : voices - 1;
+      const voiceDay = outbound ? halfUp(v.hours + V.warmUp + V.idleTail) : dayHours;
+      const voiceHours = voiceDay * v.days;
+      const tierExtra = Math.max(0, Math.ceil(v.concurrent / V.callsPerAsterisk) - 1);
+      return [
+        { id: "min", label: L("AI conversation minutes (US$0.076 per minute, AI included)", "นาทีสนทนา AI (US$0.076 ต่อนาที รวมค่า AI)"), payer: "beryl8", kind: "usage",
+          sell: minutes * V.sell, cost: minutes * v.aiMin,
+          detail: L(`${n(v.calls)} calls × ${n(v.callMin)} min × ${n(v.days)} days = ${n(minutes)} min`, `${n(v.calls)} สาย × ${n(v.callMin)} นาที × ${n(v.days)} วัน = ${n(minutes)} นาที`) },
+        // Fixed stack: prod in docs/cost.md (~$640) with both Asterisk VMs on e2-standard-2; Cloud Run and LB cost the same in both regions.
+        ...gcp([
+          ["Cloud Run (call runtime, business, system, engine, studio)", "Cloud Run (call runtime, business, system, engine, studio)", 207.9, "run"],
+          ...(outbound ? [] : [["Cloud Run (voice, 1 instance always on)", "Cloud Run (voice, 1 instance เปิดตลอด)", V.voiceHour * 730, "run"] as Svc]),
+          ["Compute Engine (Asterisk active/standby, e2-standard-2 × 2)", "Compute Engine (Asterisk active/standby, e2-standard-2 × 2)", R.asterisk],
+          ["Compute Engine (Qdrant cluster, 3 VMs + internal LB)", "Compute Engine (Qdrant cluster, 3 VM + internal LB)", R.qdrant],
+          ["Memorystore Valkey (HA)", "Memorystore Valkey (HA)", R.valkey],
+          ["Load Balancer and Cloud Armor", "Load Balancer และ Cloud Armor", 50.3],
+          ["NAT, build, storage and other", "NAT, build, storage และอื่นๆ", R.ops],
+        ], 1, true),
+        gcpUsage("gcp-voice", outbound ? "Cloud Run (voice instances in calling hours)" : "Cloud Run (extra voice instances)", outbound ? "Cloud Run (voice instance ช่วงโทร)" : "Cloud Run (voice instance ที่เพิ่ม)", voiceExtra * V.voiceHour * voiceHours,
+          outbound
+            ? L(`${voiceExtra} × US$${V.voiceHour}/h × ${n(voiceDay)} h (10 min warm-up + ${n(v.hours)} h + 15 min, rounded up) × ${n(v.days)} days · ${V.callsPerVoice} calls per instance + ${V.voiceBuffer} spare · min 0 outside calling hours`, `${voiceExtra} × US$${V.voiceHour}/ชม. × ${n(voiceDay)} ชม. (warm-up 10 นาที + ${n(v.hours)} ชม. + 15 นาที ปัดขึ้น) × ${n(v.days)} วัน · ${V.callsPerVoice} สายต่อ instance + เผื่อ ${V.voiceBuffer} · min 0 นอกเวลาโทร`)
+            : L(`${voiceExtra} × US$${V.voiceHour}/h × ${n(voiceDay)} h (${n(v.hours)} h + 15 min, rounded up) × ${n(v.days)} days · ${V.callsPerVoice} calls per instance + ${V.voiceBuffer} spare`, `${voiceExtra} × US$${V.voiceHour}/ชม. × ${n(voiceDay)} ชม. (${n(v.hours)} ชม. + 15 นาที ปัดขึ้น) × ${n(v.days)} วัน · ${V.callsPerVoice} สายต่อ instance + เผื่อ ${V.voiceBuffer}`), "run"),
+        ...(tierExtra > 0 ? [
+          gcpUsage("gcp-runtime", "Cloud Run (extra call runtime and system)", "Cloud Run (call runtime และ system ที่เพิ่ม)", tierExtra * 2 * V.runtimeHour * billedHours,
+            L(`${tierExtra} × 2 × US$${V.runtimeHour}/h × ${n(billedHours)} h`, `${tierExtra} × 2 × US$${V.runtimeHour}/ชม. × ${n(billedHours)} ชม.`), "run"),
+          gcpUsage("gcp-asterisk", "Compute Engine (extra Asterisk VMs)", "Compute Engine (Asterisk VM ที่เพิ่ม)", tierExtra * R.asteriskVm,
+            L(`${tierExtra} × US$${R.asteriskVm} · ${V.callsPerAsterisk} calls per VM`, `${tierExtra} × US$${R.asteriskVm} · ${V.callsPerAsterisk} สายต่อ VM`)),
+        ] : []),
+        gcpUsage("gcp-egress", "Network egress (call audio)", "Network egress (เสียงออก internet)", minutes * V.mbPerMin / 1000 * V.egressGb,
+          L(`${n(minutes)} min × ${V.mbPerMin} MB × US$${V.egressGb}/GB`, `${n(minutes)} นาที × ${V.mbPerMin} MB × US$${V.egressGb}/GB`)),
+      ];
+    },
+    notes: [],
+    asOf: "2026-11-10",
   },
   insight8: {
     id: "insight8",
@@ -545,6 +630,11 @@ export const licenseOf = (item: Item): number | null => {
   return p.licenseFor ? p.licenseFor(values(item)) : p.license;
 };
 
+export const setupDaysOf = (item: Item) => {
+  const p = PRICING[item.pid];
+  return p.setupDaysFor ? p.setupDaysFor(values(item)) : p.setupDays;
+};
+
 /** Seats billed: the 20-user minimum applies to every per-user license (and to Meet8 subscriptions). */
 export const billedUsers = (item: Item) =>
   licenseOf(item) === null ? 0 : Math.max(MIN_USERS, Math.round(clamp(item.users, 0, 1e6, MIN_USERS)));
@@ -568,7 +658,7 @@ export function costItem(item: Item, s: Settings): ItemCost {
   const listLicense = (licenseOf(item) ?? 0) * users;
   const license = listLicense * (1 - clamp(s.discount, 0, 100, 0) / 100);
   const ma = license * MA_RATE;
-  const setup = item.setup && !p.noSetup?.(values(item)) ? (p.setupDays * s.dayRate) / s.rate : 0;
+  const setup = item.setup && !p.noSetup?.(values(item)) ? (setupDaysOf(item) * s.dayRate) / s.rate : 0;
   const lines = p.lines(values(item), users, item.size === "standard" ? "standard" : "lean").map((l) => {
     const k = s.cud && l.cud ? 1 - l.cud : 1;
     const detail = k !== 1 && l.detail ? L(`${l.detail.en} − ${Math.round(l.cud! * 100)}% committed use`, `${l.detail.th} − ส่วนลดผูกสัญญา ${Math.round(l.cud! * 100)}%`) : l.detail;

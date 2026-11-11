@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ProductLogo } from "@/components/ProductLogo";
 import { LangSwitch } from "@/components/LangSwitch";
 import { hasLocale } from "@/lib/i18n";
 import { content } from "./content";
@@ -27,20 +28,9 @@ export default async function Page({ params }: PageProps<"/[lang]/collab8">) {
     <div className="p-collab8">
       <header className="top">
         <div className="wrap">
-          <a className="brand" href="#top">
-            <span className="brand-mark" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 16 16">
-                <path
-                  d="M2.5 4.5h8v6h-4l-2.5 2v-2h-1.5zM11.5 6.5h2v5h-1.5v1.5l-2-1.5h-2"
-                  fill="none"
-                  stroke="#00C4D6"
-                  strokeWidth="1.75"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-            Collab8
-          </a>
+          <a className="brand" href="#top" aria-label="COLLAB8">
+              <ProductLogo id="collab8" kind="wordmark" alt="COLLAB8" priority />
+            </a>
           <nav className="menu" aria-label={t.header.menuAria}>
             <a href="#how">{t.header.menu.how}</a>
             <a href="#features">{t.header.menu.features}</a>

@@ -2,6 +2,9 @@ import type { CSSProperties, ReactNode } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { SHOW_PRICING } from "@/lib/site-config";
+import { siteUrl } from "../home-content";
+import { ProductLogo } from "@/components/ProductLogo";
 import { hasLocale } from "@/lib/i18n";
 import { content, type Voice8Content, type TourKey } from "./content";
 import { SPRITE_DEFS, type IconName } from "./sprite";
@@ -534,10 +537,11 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
   const m = c.mock;
 
   const logRows = [
-    { phone: "08x-xxx-4417", result: m.results[0], time: "10:42", meta: "12 turns · $0.05", w: "55%", on: true },
-    { phone: "09x-xxx-2051", result: m.results[1], time: "10:17", meta: "18 turns · $0.09", w: "100%" },
-    { phone: "08x-xxx-7730", result: m.results[2], time: "09:55", meta: "6 turns · $0.02", w: "22%" },
+    { phone: "08x-xxx-4417", result: m.results[0], time: "10:42", meta: SHOW_PRICING ? "12 turns · $0.05" : "12 turns", w: "55%", on: true },
+    { phone: "09x-xxx-2051", result: m.results[1], time: "10:17", meta: SHOW_PRICING ? "18 turns · $0.09" : "18 turns", w: "100%" },
+    { phone: "08x-xxx-7730", result: m.results[2], time: "09:55", meta: SHOW_PRICING ? "6 turns · $0.02" : "6 turns", w: "22%" },
   ];
+  const CALL_CHARGES_FAQ = c.faq.items.length - 1;
   const featIcons: IconName[] = ["fwd", "hash", "msg", "timer", "help", "searchx", "type", "wave"];
   const caseIcons: IconName[] = ["pkg", "shield", "bell", "head"];
   const cell = (v: string | boolean) =>
@@ -563,17 +567,14 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
 
       <header className="top">
         <div className="wrap">
-          <a className="brand" href="#top">
-            <svg aria-hidden="true">
-              <use href="#v8-logo" />
-            </svg>
-            VOICE8
-          </a>
+          <a className="brand" href="#top" aria-label="VOICE8">
+              <ProductLogo id="voice8" kind="wordmark" alt="VOICE8" priority />
+            </a>
           <nav className="menu" aria-label={c.header.menuAria}>
             <a href="#features">{c.header.menu.features}</a>
             <a href="#phone">{c.header.menu.phone}</a>
             <a href="#cases">{c.header.menu.cases}</a>
-            <a href="#plans">{c.header.menu.plans}</a>
+            {SHOW_PRICING && <a href="#plans">{c.header.menu.plans}</a>}
             <a href="#faq">{c.header.menu.faq}</a>
           </nav>
           <div className="top-r">
@@ -599,9 +600,11 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
                 <a className="btn btn-primary" href="#features">
                   {c.hero.ctaPrimary}
                 </a>
-                <a className="btn btn-ghost" href="#plans">
-                  {c.hero.ctaGhost}
-                </a>
+                {SHOW_PRICING && (
+                  <a className="btn btn-ghost" href="#plans">
+                    {c.hero.ctaGhost}
+                  </a>
+                )}
               </div>
               <ul className="tickli mini">
                 {c.hero.ticks.map((t) => (
@@ -775,7 +778,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
             <a href="#features">{c.tabs.features}</a>
             <a href="#phone">{c.tabs.phone}</a>
             <a href="#cases">{c.tabs.cases}</a>
-            <a href="#plans">{c.tabs.plans}</a>
+            {SHOW_PRICING && <a href="#plans">{c.tabs.plans}</a>}
             <a href="#spec">{c.tabs.spec}</a>
             <a href="#faq">{c.tabs.faq}</a>
           </div>
@@ -944,16 +947,20 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
                             <div className="v num">Not set</div>
                             <div className="hn">per turn</div>
                           </div>
+                          {SHOW_PRICING && (
                           <div className="st-stat">
                             <div className="l">Spend</div>
                             <div className="v num">$7.12</div>
                             <div className="hn">model · judge · extractor · STT · TTS</div>
                           </div>
+                          )}
+                          {SHOW_PRICING && (
                           <div className="st-stat">
                             <div className="l">Avg $/min</div>
                             <div className="v num">$0.022</div>
                             <div className="hn">over 327.4 min</div>
                           </div>
+                          )}
                         </div>
                         <div className="st-split">
                           <div className="st-list">
@@ -978,9 +985,11 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
                                     {r.meta}
                                   </span>
                                 </div>
-                                <div className="st-cost">
-                                  <i style={{ width: r.w }} />
-                                </div>
+                                {SHOW_PRICING && (
+                                  <div className="st-cost">
+                                    <i style={{ width: r.w }} />
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>
@@ -1268,6 +1277,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
           </div>
         </section>
 
+        {SHOW_PRICING && (
         <section className="section wrap" id="plans">
           <div className="s-head">
             <p className="eyebrow">{c.plans.eyebrow}</p>
@@ -1386,6 +1396,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
             </table>
           </div>
         </section>
+        )}
 
         <section className="section wrap" id="spec">
           <div className="s-head">
@@ -1406,7 +1417,9 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
             <h2>{c.faq.h2}</h2>
           </div>
           <div className="faq">
-            {c.faq.items.map((f, i) => (
+            {c.faq.items
+              .filter((_, i) => SHOW_PRICING || i !== CALL_CHARGES_FAQ)
+              .map((f, i) => (
               <details key={f.q} open={i === 0}>
                 <summary>{f.q}</summary>
                 <p>{f.a}</p>
@@ -1419,7 +1432,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
               <h2>{c.cta.h2}</h2>
               <p>{c.cta.p}</p>
             </div>
-            <a className="btn btn-primary" href="#plans">
+            <a className="btn btn-primary" href={siteUrl(lang, "/contact-us")}>
               {c.cta.btn}
             </a>
           </div>

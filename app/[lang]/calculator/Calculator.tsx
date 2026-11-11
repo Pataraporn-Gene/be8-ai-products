@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
-import { ChevronDown, Copy, Link2, Plus, Printer, RotateCcw, Trash2, X } from "lucide-react";
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { Check, ChevronDown, TriangleAlert, Copy, Link2, Plus, Printer, RotateCcw, Trash2, X } from "lucide-react";
 import { LangSwitch } from "@/components/LangSwitch";
 import { productIcons } from "@/components/productIcons";
 import type { Locale } from "@/lib/i18n";
@@ -14,6 +14,8 @@ import {
   PRICING,
   billedUsers,
   choiceIndex,
+  optionIndex,
+  setupDaysOf,
   decode,
   displayGrid,
   isPriced,
@@ -722,7 +724,7 @@ function ItemCard(props: {
             {sh.ma > 0 && <> {c.sayMa(f.whole(sh.ma))}</>}
           </p>
         )}
-        {visible.map(({ id, label, choices, compare }) => choices && !compare && (
+        {visible.map(({ id, label, choices, compare, dropdown }) => choices && !compare && !dropdown && (
           <fieldset key={id} className="calc-size">
             <legend>{label[lang]}</legend>
             <div className="calc-size-opts">
@@ -793,6 +795,19 @@ function ItemCard(props: {
           );
         })()}
 
+        {pr.inputs.some((inp) => inp.dropdown) && (
+          <div className="calc-fields calc-fields-grid calc-fields-pick">
+          {pr.inputs.filter((inp) => inp.dropdown && inp.choices).map((inp) => (
+            <SelectField
+              key={inp.id}
+              label={inp.label[lang]}
+              options={inp.choices!.map((ch) => ch[lang])}
+              value={optionIndex(item.inputs[inp.id] ?? inp.def, inp.choices!.length)}
+              onChange={(k) => props.onChange({ inputs: { ...item.inputs, [inp.id]: k } })}
+            />
+          ))}
+          </div>
+        )}
         <div className="calc-fields calc-fields-grid">
           {lic !== null && (
             <NumField
@@ -826,6 +841,16 @@ function ItemCard(props: {
           ))}
         </div>
 
+        {(() => {
+          const w = pr.warning?.(values(item));
+          return w && (
+            <p className="calc-warn" role="alert">
+              <TriangleAlert size={16} strokeWidth={STROKE} aria-hidden />
+              <span>{w[lang]}</span>
+            </p>
+          );
+        })()}
+
         {pr.sizes && (
           <fieldset className="calc-size">
             <legend>{c.sizeLabel}</legend>
@@ -844,7 +869,7 @@ function ItemCard(props: {
         <label className="calc-check">
           <input type="checkbox" checked={item.setup} onChange={(e) => props.onChange({ setup: e.target.checked })} />
           <span>
-            {c.setup(pr.setupDays)}
+            {c.setup(setupDaysOf(item))}
             <small>{c.setupHint}</small>
           </span>
         </label>
@@ -861,7 +886,7 @@ function ItemCard(props: {
                 value={f.whole(sh?.license ?? 0)}
               />
             )}
-            {sh && sh.setup > 0 && <Row label={c.impl} detail={c.days(pr.setupDays)} value={f.whole(sh?.setup ?? 0)} />}
+            {sh && sh.setup > 0 && <Row label={c.impl} detail={c.days(setupDaysOf(item))} value={f.whole(sh?.setup ?? 0)} />}
             {!(lic !== null && lic > 0) && !(sh && sh.setup > 0) && <Row label={c.none} value="—" />}
           </BreakGroup>
 
@@ -897,6 +922,7 @@ function ItemCard(props: {
             ))}
           </ul>
         )}
+        {pr.asOf && <p className="calc-asof">{pr.asOf}</p>}
       </div>
     </article>
   );
@@ -979,6 +1005,77 @@ function LineRow({ l, shown, f, c, lang, internal }: { l: Line; shown?: { sell: 
 }
 
 /** Number input that lets people clear and retype; only valid numbers reach the estimate. */
+/** Drop-down with a styled list (a native <select> list cannot be styled). Keyboard: arrows, Home/End, Enter/Space, Escape. */
+function SelectField(props: { label: string; options: string[]; value: number; onChange: (k: number) => void }) {
+  const id = useId();
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(props.value);
+  const root = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const last = props.options.length - 1;
+
+  useEffect(() => {
+    if (!open) return;
+    const away = (e: PointerEvent) => { if (!root.current?.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("pointerdown", away);
+    return () => document.removeEventListener("pointerdown", away);
+  }, [open]);
+
+  const show = () => { setActive(props.value); setOpen(true); };
+  const pick = (k: number) => { props.onChange(k); setOpen(false); button.current?.focus(); };
+  const onKey = (e: React.KeyboardEvent) => {
+    const move: Record<string, number> = { ArrowDown: Math.min(last, active + 1), ArrowUp: Math.max(0, active - 1), Home: 0, End: last };
+    if (!open) {
+      if (["ArrowDown", "ArrowUp", "Enter", " "].includes(e.key)) { e.preventDefault(); show(); }
+      return;
+    }
+    if (e.key in move) { e.preventDefault(); setActive(move[e.key]); }
+    else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(active); }
+    else if (e.key === "Escape") { e.preventDefault(); setOpen(false); }
+    else if (e.key === "Tab") setOpen(false);
+  };
+
+  return (
+    <div className="calc-field calc-dd" ref={root} data-open={open || undefined}>
+      <span className="calc-dd-label" id={`${id}-l`}>{props.label}</span>
+      <button
+        ref={button}
+        type="button"
+        role="combobox"
+        className="calc-input calc-dd-btn"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-labelledby={`${id}-l ${id}-v`}
+        aria-controls={`${id}-list`}
+        aria-activedescendant={open ? `${id}-${active}` : undefined}
+        onClick={() => (open ? setOpen(false) : show())}
+        onKeyDown={onKey}
+      >
+        <span id={`${id}-v`}>{props.options[props.value]}</span>
+        <ChevronDown className="calc-dd-chev" size={16} strokeWidth={STROKE} aria-hidden />
+      </button>
+      {open && (
+        <ul className="calc-dd-list" role="listbox" id={`${id}-list`} aria-labelledby={`${id}-l`}>
+          {props.options.map((o, k) => (
+            <li
+              key={k}
+              id={`${id}-${k}`}
+              role="option"
+              aria-selected={k === props.value}
+              data-active={k === active || undefined}
+              onPointerEnter={() => setActive(k)}
+              onClick={() => pick(k)}
+            >
+              <span>{o}</span>
+              {k === props.value && <Check size={16} strokeWidth={STROKE} aria-hidden />}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function NumField(props: {
   label: string;
   value: number;

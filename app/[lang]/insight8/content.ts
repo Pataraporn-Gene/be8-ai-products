@@ -124,7 +124,7 @@ const en = {
         h: "Get a dashboard where every tile is editable",
         p: "The agent builds the dashboard as sheets on the shelf, complete with KPIs, charts and masthead filters, not a static image. Everyone who opens it sees data according to their own permissions.",
         list: [
-          "Queries run fresh on every open; live databases such as PostgreSQL and BigQuery refresh every minute while the dashboard stays open",
+          "Data is queried again each time you open the dashboard. Live databases such as PostgreSQL and BigQuery refresh every minute while it stays open",
           "See which sources a dashboard draws on",
           "Share, download or subscribe from the same page",
         ],
@@ -193,14 +193,14 @@ const en = {
       },
       {
         h: "Frontline teams",
-        p: "Ask the agent in Atrium what the manual says about a procedure and get an answer with page references.",
+        p: "Ask the agent in Atrium what the manual says about a procedure and get an answer with page references (Premium).",
       },
     ],
   },
   plans: {
     eyebrow: "Plans",
     h2: "Choose a plan",
-    p: "Every plan includes unlimited users, priced by total agent questions across the organization per month",
+    p: "Unlimited users on every plan. Pricing is based on total agent questions across the organization each month.",
     perYear: "/ year",
     monthly: "Avg. {x} per month",
     setup: "+ {x} one-time setup fee",
@@ -318,7 +318,7 @@ const en = {
         span: "Every query the agent writes is checked and runs with the asker's access. Per-person data limits apply to the agent too",
       },
       {
-        b: "No data stored without permission",
+        b: "Your data stays in your systems by default",
         span: "By default every read goes to your own system. Copies exist only when the connection owner turns on Extract",
       },
       {
@@ -365,7 +365,7 @@ const en = {
       },
       {
         q: "What happens when we reach the question quota?",
-        a: "(Draft; metering is not built yet.) We propose alerting admins at 80% usage, with additional questions available at the plan's per-question price. Dashboards, Pulse and alerts keep working as normal in the meantime.",
+        a: "This policy is still a draft because usage metering is not built yet. We propose alerting admins at 80% usage, with additional questions available at the plan's per-question price. Dashboards, Pulse and alerts keep working as normal in the meantime.",
       },
       {
         q: "Is our data stored in Insight8?",
@@ -377,7 +377,7 @@ const en = {
       },
       {
         q: "Can it connect to databases on an internal network?",
-        a: "Yes (Beta). Connect over SSH tunnel through a bastion you already have (all plans), or install Insight8 Bridge in that network (Premium). If the database is behind a firewall, add Insight8's egress IPs to the allowlist.",
+        a: "Yes (Beta). Connect over SSH tunnel through a bastion you already have, or install Insight8 Bridge in that network. If the database is behind a firewall, add Insight8's egress IPs to the allowlist.",
       },
       {
         q: "Is the interface in Thai?",
@@ -401,7 +401,7 @@ const en = {
     contact: "Contact sales",
     copy: "Copy price summary",
     copied: "Copied",
-    copyFail: "Couldn't copy, try again",
+    copyFail: "Couldn't copy. Try again.",
   },
   summary: {
     custom: "Insight8 Studio · Customize: agent quota and system size per contract. Please contact sales.",
@@ -503,7 +503,7 @@ const th: Insight8Content = {
     steps: {
       ask: {
         label: "ถาม",
-        h: "พิมพ์คำถาม แล้วถามต่อได้เรื่อยๆ",
+        h: "พิมพ์คำถาม แล้วถามต่อได้เรื่อย ๆ",
         p: "พิมพ์ที่กล่องคำถามหน้า Home หรือในบทสนทนา agent ดู data source ที่ผู้ถามมีสิทธิ์เข้าถึง เขียนคำสั่งค้นข้อมูลและตรวจก่อนรัน แล้วตอบเป็นกราฟพร้อมคำอธิบาย",
         list: [
           "ทุกคำสั่งค้นข้อมูลของ agent ใช้สิทธิ์ของผู้ถาม",
@@ -543,7 +543,7 @@ const th: Insight8Content = {
           "มี IP ขาออกคงที่ให้ลูกค้าอนุญาตผ่าน firewall",
           "Agent activity บอกว่าใครถามอะไร ใช้ไปกี่ token",
         ],
-        alt: "หน้า AI settings มีสวิตช์ Analytics agent, Pulse Inspector summaries, Explain Data narratives และอื่นๆ",
+        alt: "หน้า AI settings มีสวิตช์ Analytics agent, Pulse Inspector summaries, Explain Data narratives และอื่น ๆ",
       },
     },
   },
@@ -565,7 +565,7 @@ const th: Insight8Content = {
     conn: {
       k: "Connections",
       h: "เชื่อมระบบครั้งเดียว ทั้งทีมใช้ได้",
-      p: "admin ตั้ง site connection ให้กลุ่มที่เลือก ไม่มีใครเห็นรหัสผ่าน รหัสผ่านถูกเข้ารหัสและไม่แสดงให้ใครเห็น ต่อฐานข้อมูลใน network ภายในผ่าน SSH tunnel ได้ (Beta) และมี IP ขาออกคงที่ให้อนุญาตใน firewall",
+      p: "admin ตั้ง site connection ให้กลุ่มที่เลือก รหัสผ่านถูกเข้ารหัสและไม่แสดงให้ใครเห็น ต่อฐานข้อมูลใน network ภายในผ่าน SSH tunnel ได้ (Beta) และมี IP ขาออกคงที่ให้อนุญาตใน firewall",
       alt: "หน้า Connections แสดง site connection Retail Data Warehouse ที่เปิด Extract พร้อมปุ่ม Test, Network และ Audience and schemas",
     },
   },
@@ -581,7 +581,7 @@ const th: Insight8Content = {
         h: "ทีม BI และ data",
         p: "เชื่อม warehouse ครั้งเดียว จำกัดให้แต่ละคนเห็นเฉพาะข้อมูลของสาขาตัวเอง (Premium) แล้วเปิดให้ทุกคนถามเองได้อย่างปลอดภัย",
       },
-      { h: "ทีมหน้างาน", p: "ถาม agent ใน Atrium ว่าคู่มือกำหนดขั้นตอนไว้อย่างไร แล้วได้คำตอบที่บอกเลขหน้าอ้างอิงมาด้วย" },
+      { h: "ทีมหน้างาน", p: "ถาม agent ใน Atrium ว่าคู่มือกำหนดขั้นตอนไว้อย่างไร แล้วได้คำตอบที่บอกเลขหน้าอ้างอิงมาด้วย (Premium)" },
     ],
   },
   plans: {
@@ -675,7 +675,7 @@ const th: Insight8Content = {
       { l: "Insight8 Connect: แอปกว่า 100 ตัว + custom app", s: false, p: true },
       { l: "Oracle, Snowflake, Redshift, Databricks", s: false, p: true, c: true, beta: true },
       { l: "Insight8 Bridge", s: false, p: true, c: true, beta: true },
-      { l: "Extract per connection", s: false, p: true },
+      { l: "Extract ราย connection", s: false, p: true },
       { l: "พัฒนา connector เฉพาะระบบของลูกค้า", s: false, p: false, c: true },
       { g: "Governance และ security" },
       { l: "เข้าสู่ระบบด้วยบัญชี Google ขององค์กร", s: true, p: true },
@@ -705,11 +705,11 @@ const th: Insight8Content = {
         span: "ทุกคำสั่งค้นข้อมูลของ agent ถูกตรวจและรันด้วยสิทธิ์ของผู้ถาม การจำกัดข้อมูลรายคนมีผลกับ agent ด้วย",
       },
       {
-        b: "ไม่เก็บข้อมูลโดยไม่ได้รับอนุญาต",
+        b: "ข้อมูลอยู่ในระบบของคุณเป็นค่าเริ่มต้น",
         span: "ค่าเริ่มต้นคืออ่านจากระบบของคุณทุกครั้ง สำเนาจะมีก็ต่อเมื่อเจ้าของ connection เปิด Extract",
       },
       {
-        b: "รหัสผ่านเข้ารหัส IP ขาออกคงที่",
+        b: "รหัสผ่านเข้ารหัส และ IP ขาออกคงที่",
         span: "รหัสผ่านของ connection ถูกเข้ารหัสและไม่แสดงอีก การเชื่อมต่อขาออกใช้ IP ที่จองไว้",
       },
       {
@@ -752,7 +752,7 @@ const th: Insight8Content = {
       },
       {
         q: "ถ้าใช้คำถามครบโควตาแล้วจะเป็นอย่างไร",
-        a: "(ร่าง ยังไม่มีระบบนับ) เสนอให้เตือน admin เมื่อใช้ถึง 80% และซื้อคำถามเพิ่มได้ในราคาต่อคำถามตามแพ็กเกจ ระหว่างนั้น dashboard, Pulse และการแจ้งเตือนยังใช้ได้ตามปกติ",
+        a: "นโยบายนี้ยังเป็นร่าง เพราะระบบนับการใช้งานยังไม่เสร็จ เราเสนอให้เตือน admin เมื่อใช้ถึง 80% และซื้อคำถามเพิ่มได้ในราคาต่อคำถามตามแพ็กเกจ ระหว่างนั้น dashboard, Pulse และการแจ้งเตือนยังใช้ได้ตามปกติ",
       },
       {
         q: "ข้อมูลของเราจะถูกเก็บไว้ที่ Insight8 ไหม",
@@ -764,7 +764,7 @@ const th: Insight8Content = {
       },
       {
         q: "ต่อฐานข้อมูลที่อยู่ใน network ภายในได้ไหม",
-        a: "ได้ (Beta) ต่อผ่าน SSH tunnel ด้วย bastion ที่ลูกค้ามีอยู่แล้ว (ทุกแพ็กเกจ) หรือติดตั้ง Insight8 Bridge ใน network นั้น (Premium) ถ้าฐานข้อมูลมี firewall ให้เพิ่ม IP ขาออกของ Insight8 ในรายการที่อนุญาต",
+        a: "ได้ (Beta) ต่อผ่าน SSH tunnel ด้วย bastion ที่ลูกค้ามีอยู่แล้ว หรือติดตั้ง Insight8 Bridge ใน network นั้น ถ้าฐานข้อมูลมี firewall ให้เพิ่ม IP ขาออกของ Insight8 ในรายการที่อนุญาต",
       },
       {
         q: "หน้าจอเป็นภาษาไทยไหม",
@@ -788,7 +788,7 @@ const th: Insight8Content = {
     contact: "ติดต่อทีมขาย",
     copy: "คัดลอกสรุปราคา",
     copied: "คัดลอกแล้ว",
-    copyFail: "คัดลอกไม่ได้ ลองอีกครั้ง",
+    copyFail: "คัดลอกไม่สำเร็จ ลองอีกครั้ง",
   },
   summary: {
     custom: "Insight8 Studio · Customize: โควตา agent และขนาดระบบตามสัญญา ติดต่อทีมขาย",

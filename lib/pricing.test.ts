@@ -16,7 +16,7 @@ test("Insight8: US$480 per user, 20-user minimum, MA 22% from year 2", () => {
 });
 
 test("Voice8: no license, US$0.076 per minute billed by Beryl8", () => {
-  const item: Item = { ...newItem("voice8", "v"), inputs: { minutes: 1000, sip: 0 }, setup: false };
+  const item: Item = { ...newItem("voice8", "v"), inputs: { calls: 1000, callMin: 1, days: 1 }, setup: false };
   const c = costItem(item, s);
   close(c.license, 0);
   close(c.monthlyBeryl8, 76);

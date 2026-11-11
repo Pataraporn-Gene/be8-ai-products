@@ -398,7 +398,7 @@ html:has(.p-voice8){scroll-behavior:smooth;scroll-padding-top:72px}
 .p-voice8 .pc .tickli .h::before{display:none}
 .p-voice8 .pc-note{font-size:13px;color:var(--muted);text-align:center;margin-top:20px}
 .p-voice8 .ct-h{margin:88px 0 16px;font-size:clamp(22px,2.6vw,28px)}
-.p-voice8 .ct-wrap{border:1px solid var(--line);border-radius:20px;overflow-x:auto;padding:0 8px 8px;background:var(--paper);box-shadow:var(--shadow-card-soft)}
+.p-voice8 .ct-wrap{position:relative;border:1px solid var(--line);border-radius:20px;overflow-x:auto;padding:0 8px 8px;background:var(--paper);box-shadow:var(--shadow-card-soft)}
 .p-voice8 .ct{width:100%;min-width:720px;border-collapse:collapse;font-size:15px;table-layout:fixed}
 .p-voice8 .ct col.c-f{width:36%}
 .p-voice8 .ct th,.p-voice8 .ct td{padding:13px 16px;text-align:center;vertical-align:middle;border-bottom:1px solid var(--line)}
