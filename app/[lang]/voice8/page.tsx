@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
-import { SHOW_PRICING } from "@/lib/site-config";
+import { SHOW_PRICING, SHOW_VOICE8_PLANS } from "@/lib/site-config";
 import { siteUrl } from "../home-content";
 import { ProductLogo } from "@/components/ProductLogo";
 import { hasLocale } from "@/lib/i18n";
@@ -94,6 +94,8 @@ function Node({
   noTop?: boolean;
 }) {
   const cls = ["st-node", start && "start", sel && "sel"].filter(Boolean).join(" ");
+  // Long descriptions end in "..." instead of the browser's clamp glyph, so the cut is the same in every renderer.
+  const short = desc.length > 56 ? desc.slice(0, 56).replace(/\s+\S*$/, "").replace(/[.,;:]$/, "") + "..." : desc;
   return (
     <div className={cls} style={{ left, top }}>
       {!start && !noTop && <span className="st-h t" />}
@@ -106,7 +108,7 @@ function Node({
           <div className="tt">{title}</div>
         </div>
       </div>
-      <div className="sm">{desc}</div>
+      <div className="sm">{short}</div>
       <span className="st-h b" />
     </div>
   );
@@ -574,7 +576,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
             <a href="#features">{c.header.menu.features}</a>
             <a href="#phone">{c.header.menu.phone}</a>
             <a href="#cases">{c.header.menu.cases}</a>
-            {SHOW_PRICING && <a href="#plans">{c.header.menu.plans}</a>}
+            {SHOW_VOICE8_PLANS && <a href="#plans">{c.header.menu.plans}</a>}
             <a href="#faq">{c.header.menu.faq}</a>
           </nav>
           <div className="top-r">
@@ -778,7 +780,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
             <a href="#features">{c.tabs.features}</a>
             <a href="#phone">{c.tabs.phone}</a>
             <a href="#cases">{c.tabs.cases}</a>
-            {SHOW_PRICING && <a href="#plans">{c.tabs.plans}</a>}
+            {SHOW_VOICE8_PLANS && <a href="#plans">{c.tabs.plans}</a>}
             <a href="#spec">{c.tabs.spec}</a>
             <a href="#faq">{c.tabs.faq}</a>
           </div>
@@ -791,6 +793,9 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
             <p>{c.how.p}</p>
           </div>
           <div className="hub">
+            <span className="beam l" aria-hidden="true" />
+            <span className="beam r" aria-hidden="true" />
+            <span className="beam d" aria-hidden="true" />
             <div className="cl left">
               <span className="hub-pill">{c.how.phonePill}</span>
               <div className="cl-ring">
@@ -802,7 +807,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
               </div>
               <div className="tile t2">
                 <I n="network" />
-                <span>Phone line</span>
+                <span>SIP trunk</span>
               </div>
               <div className="tile t3">
                 <I n="globe" />
@@ -814,6 +819,10 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
               </div>
             </div>
             <div className="core" aria-label="VOICE8 by Beryl8">
+              <span className="orbit" aria-hidden="true">
+                <i />
+                <i />
+              </span>
               <div className="core-disc">
                 <svg aria-hidden="true">
                   <use href="#v8-eight" />
@@ -840,16 +849,16 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
               </div>
               <div className="tile t4">
                 <I n="puzzle" />
-                <span>Back office</span>
+                <span>MCP</span>
               </div>
             </div>
             <div className="tray-wrap">
-              <span className="hub-pill">Separate voice steps</span>
+              <span className="hub-pill">Pipeline</span>
               <div className="tray">
                 <div className="tile">
                   <I n="mic" />
                   <span>
-                    Speech to text
+                    STT
                     <br />
                     Gemini
                   </span>
@@ -858,7 +867,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
                 <div className="tile">
                   <I n="spark" />
                   <span>
-                    Reply
+                    LLM
                     <br />
                     Gemini
                   </span>
@@ -867,7 +876,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
                 <div className="tile">
                   <I n="wave" />
                   <span>
-                    Voice
+                    TTS
                     <br />
                     Gemini TTS
                   </span>
@@ -1277,7 +1286,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
           </div>
         </section>
 
-        {SHOW_PRICING && (
+        {SHOW_VOICE8_PLANS && (
         <section className="section wrap" id="plans">
           <div className="s-head">
             <p className="eyebrow">{c.plans.eyebrow}</p>
@@ -1285,59 +1294,39 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
             <span className="mock-flag">{c.plans.flag}</span>
           </div>
           <div className="pc-grid">
-            <article className="pc">
-              <h3 className="pc-name">Standard</h3>
-              <div className="pc-price num">
-                <b>{c.plans.priceNotSet}</b>
-                <span>{c.plans.perMonth}</span>
-              </div>
-              <p className="pc-sub">{c.plans.minutes}</p>
-              <p className="pc-for">{c.plans.standard.for}</p>
-              <a className="btn btn-ghost" href="#contact">
-                {c.plans.contactSales}
-              </a>
-              <ul className="tickli">
-                <li className="h">{c.plans.standard.head}</li>
-                {c.plans.standard.items.map((t) => (
-                  <li key={t}>{t}</li>
-                ))}
-              </ul>
-            </article>
-            <article className="pc rec">
-              <span className="pc-tag">{c.plans.recommended}</span>
-              <h3 className="pc-name">Premium</h3>
-              <div className="pc-price num">
-                <b>{c.plans.priceNotSet}</b>
-                <span>{c.plans.perMonth}</span>
-              </div>
-              <p className="pc-sub">{c.plans.minutes}</p>
-              <p className="pc-for">{c.plans.premium.for}</p>
-              <a className="btn btn-primary" href="#contact">
-                {c.plans.contactSales}
-              </a>
-              <ul className="tickli">
-                <li className="h">{c.plans.premium.head}</li>
-                {c.plans.premium.items.map((t) => (
-                  <li key={t}>{t}</li>
-                ))}
-              </ul>
-            </article>
+            {c.plans.tiers.map((t) => {
+              const rec = t.name === "M";
+              return (
+                <article key={t.name} className={rec ? "pc rec" : "pc"}>
+                  {rec && <span className="pc-tag">{c.plans.recommended}</span>}
+                  <h3 className="pc-name">{t.name}</h3>
+                  <div className="pc-price num set">
+                    <b>{t.price}</b>
+                    <span>{c.plans.perMonth}</span>
+                  </div>
+                  <p className="pc-for">{t.for}</p>
+                  <a className={rec ? "btn btn-primary" : "btn btn-ghost"} href="#contact">
+                    {c.plans.contactSales}
+                  </a>
+                  <ul className="tickli">
+                    <li className="h">{t.head}</li>
+                    {t.items.map((x) => (
+                      <li key={x}>{x}</li>
+                    ))}
+                  </ul>
+                </article>
+              );
+            })}
             <article className="pc">
               <h3 className="pc-name">Customize</h3>
               <div className="pc-price">
                 <b style={{ fontSize: 22, color: "var(--tint-ink)" }}>{c.plans.contactSales}</b>
               </div>
-              <p className="pc-sub">{c.plans.customize.sub}</p>
               <p className="pc-for">{c.plans.customize.for}</p>
               <a className="btn btn-ghost" href="#contact">
                 {c.plans.contactSales}
               </a>
-              <ul className="tickli">
-                <li className="h">{c.plans.customize.head}</li>
-                {c.plans.customize.items.map((t) => (
-                  <li key={t}>{t}</li>
-                ))}
-              </ul>
+              <p className="pc-sub pc-after">{c.plans.customize.sub}</p>
             </article>
           </div>
           <p className="pc-note">{c.plans.note}</p>
@@ -1350,20 +1339,21 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
                 <col />
                 <col />
                 <col />
+                <col />
               </colgroup>
               <thead>
                 <tr>
                   <th scope="col">
                     <span className="sr">{c.plans.featureSr}</span>
                   </th>
-                  <th scope="col">
-                    <span className="ct-n">Standard</span>
-                    <span className="ct-p">{c.plans.priceLine}</span>
-                  </th>
-                  <th scope="col" className="prem">
-                    <span className="ct-n">Premium</span>
-                    <span className="ct-p">{c.plans.priceLine}</span>
-                  </th>
+                  {c.plans.tiers.map((t) => (
+                    <th key={t.name} scope="col" className={t.name === "M" ? "prem" : undefined}>
+                      <span className="ct-n">{t.name}</span>
+                      <span className="ct-p num">
+                        {t.price} {c.plans.perMonth}
+                      </span>
+                    </th>
+                  ))}
                   <th scope="col">
                     <span className="ct-n">Customize</span>
                     <span className="ct-p">{c.plans.contactSales}</span>
@@ -1380,6 +1370,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
                         </th>
                         <td className="prem"></td>
                         <td></td>
+                        <td></td>
                       </tr>
                     );
                   const txt = typeof r[1] === "string";
@@ -1389,6 +1380,7 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
                       <td className={txt ? "txt" : undefined}>{cell(r[1])}</td>
                       <td className={txt ? "prem txt" : "prem"}>{cell(r[2])}</td>
                       <td className={txt ? "txt" : undefined}>{cell(r[3])}</td>
+                      <td className={txt ? "txt" : undefined}>{cell(r[4])}</td>
                     </tr>
                   );
                 })}
