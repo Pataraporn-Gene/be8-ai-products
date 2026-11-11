@@ -357,6 +357,7 @@ export function Calculator({ lang }: { lang: Locale }) {
                   </div>
                 ))}
               </dl>
+              {!vat && <p className="calc-hint calc-big-note">{c.exVatTotal}</p>}
               <p className="calc-run">
                 <span>
                   {c.running}
@@ -423,7 +424,7 @@ export function Calculator({ lang }: { lang: Locale }) {
                   <table className="calc-table calc-host" aria-labelledby="hosting-h">
                     <thead>
                       <tr>
-                        <th scope="col">{cur === "THB" ? "฿" : "US$"}</th>
+                        <th scope="col">{cur === "THB" ? c.baht : "US$"}</th>
                         <th scope="col">{c.perMonthShort}</th>
                         <th scope="col">{c.perYearShort}</th>
                       </tr>
@@ -463,8 +464,8 @@ export function Calculator({ lang }: { lang: Locale }) {
                     <tfoot>
                       {(
                         [
-                          ["GCP", g.hosting.total.cloud],
-                          ["AI", g.hosting.total.ai],
+                          [c.gcpName, g.hosting.total.cloud],
+                          [c.aiName, g.hosting.total.ai],
                           [c.hostOther, g.hosting.total.other],
                         ] as const
                       ).map(([label, v]) => (
