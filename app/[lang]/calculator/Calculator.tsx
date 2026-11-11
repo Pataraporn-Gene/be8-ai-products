@@ -257,7 +257,7 @@ export function Calculator({ lang }: { lang: Locale }) {
                 <h2 id="add-h">{c.addH}</h2>
                 <span>{c.addCount(items.length)}</span>
               </div>
-              <ul className="calc-catalog">
+              <ul className="calc-catalog" data-compact={items.length > 0 || undefined}>
                 {CATALOG.map((p) => {
                   const pr = PRICING[p.id];
                   const Icon = productIcons[p.icon];

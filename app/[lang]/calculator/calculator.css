@@ -76,6 +76,15 @@
 
 /* ---------- catalog ---------- */
 .calc-catalog { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+/* Once something is in the estimate, the catalogue shrinks to a row of names: the estimate is the main thing now. */
+.calc-catalog[data-compact] { display: flex; flex-wrap: wrap; gap: 6px; }
+.calc-catalog[data-compact] .calc-pick { flex-direction: row; align-items: center; gap: 6px; min-height: 44px; padding: 6px 12px; border-radius: 999px; }
+.calc-catalog[data-compact] .calc-ico,
+.calc-catalog[data-compact] .calc-pick-cat,
+.calc-catalog[data-compact] .calc-pick-price,
+.calc-catalog[data-compact] .calc-pick-alt { display: none; }
+.calc-catalog[data-compact] .calc-pick-name { font-size: 14px; }
+.calc-catalog[data-compact] .calc-pick-plus { position: static; margin: 0; order: -1; }
 .calc-pick {
   width: 100%; height: 100%;
   display: flex; align-items: flex-start; gap: 12px;
