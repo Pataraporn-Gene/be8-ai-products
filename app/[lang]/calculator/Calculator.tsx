@@ -689,10 +689,11 @@ function ItemCard(props: {
           <span className="calc-item-tot">
             <span className="calc-item-month">
               {c.perMonth} <strong>{f.whole(sh ? sh.monthlyBeryl8 + sh.monthlyDirect : 0)}</strong>
-              {sh?.perUser && <small>{f.whole(sh.perUser.monthly)} {c.perUserShort}</small>}
+              {!open && sh?.perUser && <small>{f.whole(sh.perUser.monthly)} {c.perUserShort}</small>}
             </span>
-            <span>{c.firstYear} <strong>{f.whole(sh?.year1 ?? 0)}</strong></span>
-            <span>{c.fiveYear} <strong>{f.whole(sh?.total ?? 0)}</strong></span>
+            {/* Open cards say the rest in their price sentence; a closed card keeps its totals in view. */}
+            {!open && <span>{c.firstYear} <strong>{f.whole(sh?.year1 ?? 0)}</strong></span>}
+            {!open && <span>{c.fiveYear} <strong>{f.whole(sh?.total ?? 0)}</strong></span>}
           </span>
           <ChevronDown className="calc-chev" size={18} strokeWidth={STROKE} aria-hidden />
           <span className="sr-only">{open ? c.collapse : c.expand}</span>
