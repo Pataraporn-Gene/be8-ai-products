@@ -144,6 +144,8 @@ const MEET8_SIZES = [
 ] as const;
 /** Transcription + meeting AI per recorded hour, measured on prod 4–10 Nov 2026: STT 0.196 + AI 0.335 (list prices). */
 const MEET8_STT_PER_HOUR = 0.53;
+/** Meet8 chat answer, Gemini Flash at 2027 list price (US$0.048 a message, measured 2026-11-03; was US$0.012). */
+const MEET8_ASK_COST = 0.048;
 const MEET8_RUN = { floor: 61, warm: 18, roomsPerInstance: 4, perHour: 0.148, storagePerHour: 0.04 };
 /* Meet8 subscription on Beryl8's shared multi-tenant cloud, from prod 4–10 Nov 2026 (× 30/7, 111 users active in 30 days):
    fixed US$4.10 per user = (servers US$351 + Cloud Run floor and warm US$97 + chat US$7.5) / 111; per recorded hour
@@ -239,12 +241,12 @@ export const PRICING: Record<string, ProductPricing> = {
           detail: L(`${n(v.extra)} h × US$${n(hourSell)}`, `${n(v.extra)} ชม. × US$${n(hourSell)}`) }];
       }
       const markup = meet8Host(v) === MEET8_HOST.viaBeryl8 ? HOST_MARKUP : undefined;
-      const perAsk = 0.012 * (1 + (markup ?? 0)); // sell price per question
+      const perAsk = MEET8_ASK_COST * (1 + (markup ?? 0)); // sell price per question
       return [
         { id: "stt", label: L("Transcription and summary (AI, at measured cost)", "ถอดเสียงและสรุป (AI ตามต้นทุนจริง)"), payer: markup === undefined ? "direct" : "beryl8", kind: "ai", draft: true,
           sell: v.hours * MEET8_STT_PER_HOUR * (1 + (markup ?? 0)), cost: v.hours * MEET8_STT_PER_HOUR,
           detail: L(`${n(v.hours)} h × US$${n(MEET8_STT_PER_HOUR * (1 + (markup ?? 0)))}`, `${n(v.hours)} ชม. × US$${n(MEET8_STT_PER_HOUR * (1 + (markup ?? 0)))}`) },
-        { id: "ai", label: L("AI model for questions", "ค่าโมเดล AI สำหรับถาม-ตอบ"), payer: markup === undefined ? "direct" : "beryl8", kind: "ai", sell: users * v.asks * perAsk, cost: users * v.asks * 0.012, draft: true,
+        { id: "ai", label: L("AI model for questions", "ค่าโมเดล AI สำหรับถาม-ตอบ"), payer: markup === undefined ? "direct" : "beryl8", kind: "ai", sell: users * v.asks * perAsk, cost: users * v.asks * MEET8_ASK_COST, draft: true,
           detail: L(`${n(users)} users × ${n(v.asks)} questions × US$${n(perAsk)}`, `${n(users)} คน × ${n(v.asks)} คำถาม × US$${n(perAsk)}`) },
         ...meet8Gcp(users, v.conc, v.hours, markup),
       ];
