@@ -709,7 +709,7 @@ function ItemCard(props: {
             {sh.ma > 0 && <> {c.sayMa(f.whole(sh.ma))}</>}
           </p>
         )}
-        {visible.map(({ id, label, choices }) => choices && (
+        {visible.map(({ id, label, choices, compare }) => choices && !compare && (
           <fieldset key={id} className="calc-size">
             <legend>{label[lang]}</legend>
             <div className="calc-size-opts">
@@ -726,40 +726,58 @@ function ItemCard(props: {
           </fieldset>
         ))}
 
-        {compareInput?.choices && (
-          <div className="calc-compare-wrap">
-            <h4 className="calc-compare-h">{c.compareH}</h4>
-            <div className="calc-scroll">
-              <table className="calc-table calc-compare">
-                <thead>
-                  <tr>{c.compareCols.map((h, k) => <th key={k} scope="col">{h}</th>)}</tr>
-                </thead>
-                <tbody>
-                  {compareInput.choices.map((choice, k) => {
-                    const it = { ...item, inputs: switchInputs(compareInput.id, k) };
-                    const v = props.preview(it);
-                    const on = choiceIndex(vals[compareInput.id], compareInput.choices?.length) === k;
-                    return { k, row: (
-                      <tr key={k} data-on={on || undefined}>
-                        <th scope="row">
-                          <button type="button" className="calc-compare-pick" aria-pressed={on} onClick={() => props.onChange({ inputs: switchInputs(compareInput.id, k) })}>
-                            {choice[lang]}
-                            <small>{on ? c.chosen : c.choose}</small>
-                          </button>
-                        </th>
-                        <td data-label={c.compareCols[1]}>{usage === undefined ? "—" : f.num(usage)}</td>
-                        <td data-label={c.compareCols[2]}>{f.whole(v ? v.monthlyBeryl8 + v.monthlyDirect : 0)}</td>
-                        <td data-label={c.compareCols[3]}>{f.whole(v?.year1 ?? 0)}</td>
-                        <td data-label={c.compareCols[4]}>{f.whole(v?.total ?? 0)}</td>
-                        <td data-label={c.compareCols[5]}>{v?.perUser ? f.whole(v.perUser.monthly) : "—"}</td>
-                      </tr>
-                    ) };
-                  }).reverse().map((r) => r.row)}
-                </tbody>
-              </table>
+        {compareInput?.choices && (() => {
+          const rows = compareInput.choices.map((choice, k) => {
+            const it = { ...item, inputs: switchInputs(compareInput.id, k) };
+            const v = props.preview(it);
+            return { k, choice, monthly: v ? v.monthlyBeryl8 + v.monthlyDirect : 0, year1: v?.year1 ?? 0, total: v?.total ?? 0, perUser: v?.perUser?.monthly };
+          });
+          const cheapest = (key: "monthly" | "total") => rows.reduce((a, r) => (r[key] < a[key] ? r : a)).k;
+          const cheapMonth = cheapest("monthly");
+          const cheap5 = cheapest("total");
+          return (
+            <div className="calc-compare-wrap" role="group" aria-labelledby={`cmp-${item.uid}`}>
+              <h4 className="calc-compare-h" id={`cmp-${item.uid}`}>
+                {compareInput.label[lang]}
+                {usage !== undefined && <small>{c.compareAt(f.num(usage))}</small>}
+              </h4>
+              <div className="calc-scroll">
+                <table className="calc-table calc-compare">
+                  <thead>
+                    <tr>{c.compareCols.map((h, k) => <th key={k} scope="col">{h}</th>)}</tr>
+                  </thead>
+                  <tbody>
+                    {[...rows].reverse().map((r) => {
+                      const on = choiceIndex(vals[compareInput.id], rows.length) === r.k;
+                      return (
+                        <tr key={r.k} data-on={on || undefined}>
+                          <th scope="row">
+                            <button type="button" className="calc-compare-pick" aria-pressed={on} onClick={() => props.onChange({ inputs: switchInputs(compareInput.id, r.k) })}>
+                              <span className="calc-compare-radio" aria-hidden />
+                              <span>
+                                {r.choice[lang]}
+                                {(r.k === cheapMonth || r.k === cheap5) && (
+                                  <span className="calc-badges">
+                                    {r.k === cheapMonth && <span className="calc-badge">{c.cheapMonth}</span>}
+                                    {r.k === cheap5 && <span className="calc-badge">{c.cheap5}</span>}
+                                  </span>
+                                )}
+                              </span>
+                            </button>
+                          </th>
+                          <td data-label={c.compareCols[1]}>{f.whole(r.monthly)}</td>
+                          <td data-label={c.compareCols[2]}>{f.whole(r.year1)}</td>
+                          <td data-label={c.compareCols[3]}>{f.whole(r.total)}</td>
+                          <td data-label={c.compareCols[4]}>{r.perUser !== undefined ? f.whole(r.perUser) : "—"}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         <div className="calc-fields calc-fields-grid">
           {lic !== null && (
