@@ -15,14 +15,14 @@ test("Insight8: US$480 per user, 20-user minimum, MA 22% from year 2", () => {
   close(c.years[1].beryl8, 2112);
 });
 
-test("Voice8: no license, US$0.076 per minute billed by Beryl8", () => {
+test("Voice8: no license, AI billed by Beryl8 at the AI cost per minute (default US$0.0218)", () => {
   const item: Item = { ...newItem("voice8", "v"), inputs: { calls: 1000, callMin: 1, days: 1 }, setup: false };
   const c = costItem(item, s);
   close(c.license, 0);
-  close(c.monthlyBeryl8, 76);
-  close(c.years[0].beryl8, 76 * 12);
-  close(c.years[4].beryl8, 76 * 12); // no MA without a license
-  close(c.monthlyBeryl8 * s.rate, 2546); // 1,000 min ≈ ฿2.55 per minute at the default rate
+  close(c.monthlyBeryl8, 21.8);
+  close(c.years[0].beryl8, 21.8 * 12);
+  close(c.years[4].beryl8, 21.8 * 12); // no MA without a license
+  close(costItem({ ...item, inputs: { ...item.inputs, aiMin: 0.05 } }, s).monthlyBeryl8, 50); // follows the input
 });
 
 test("Meet8 transcription at measured cost US$0.53/h, paid to providers on your own cloud", () => {

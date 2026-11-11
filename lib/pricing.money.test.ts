@@ -26,14 +26,13 @@ test("C2 20-user minimum: 0, 5, 19, 20 users pay for 20; 21 pays for 21", () => 
   near(costItem(insight({ users: 21 }), s).license, 10080, "21 users");
 });
 
-test("C3 Voice8 1,000 min: $76/month billed by Beryl8, no license and no MA", () => {
+test("C3 Voice8 1,000 min × $0.0218 AI: $21.8/month billed by Beryl8, no license and no MA", () => {
   const c = costItem({ ...newItem("voice8", "v"), inputs: { calls: 1000, callMin: 1, days: 1 }, setup: false }, s);
   near(c.license, 0, "license");
   near(c.ma, 0, "MA");
-  near(c.monthlyBeryl8, 76, "billed per month");
-  near(c.years[0].beryl8, 912, "year 1");
-  near(c.years[4].beryl8, 912, "year 5");
-  near(0.076 * s.rate, 2.546, "THB per minute"); // ฿2.55 as quoted
+  near(c.monthlyBeryl8, 21.8, "billed per month");
+  near(c.years[0].beryl8, 261.6, "year 1");
+  near(c.years[4].beryl8, 261.6, "year 5");
 });
 
 test("C4 Meet8 100 h on your own cloud: transcription at measured cost US$0.53/h = $53, paid to providers, nothing billed by Beryl8", () => {
@@ -65,9 +64,9 @@ test("C7 partner 30% of license + 4 years MA = $5,414.40", () => {
   near(totals([insight()], { ...s, viaPartner: false, partner: 30 }).internal.partnerShare, 0, "no partner");
 });
 
-test("C8 float: 3 Voice minutes = $0.228, many small lines still add up", () => {
+test("C8 float: 3 Voice minutes = $0.0654, many small lines still add up", () => {
   const c = costItem({ ...newItem("voice8", "v"), inputs: { calls: 1, callMin: 3, days: 1 }, setup: false }, s);
-  near(c.monthlyBeryl8, 0.228, "3 minutes");
+  near(c.monthlyBeryl8, 0.0654, "3 minutes");
 });
 
 /* ---- display rounding (added after the UI oracle found totals that did not add up) ---- */
@@ -182,7 +181,12 @@ test("C17b Voice8 matches the cost calculator: AI cost 90,000 min × $0.0218 = �
   const c = costItem({ ...newItem("voice8", "v"), setup: false }, s);
   near(c.monthlyCost, 1962, "AI cost");
   near(Math.round(c.monthlyCost * 33.56), 65845, "THB");
-  near(c.monthlyBeryl8, 90000 * 0.076, "billed");
+  near(c.monthlyBeryl8, 90000 * 0.0218, "billed at the AI cost per minute");
+  const g = displayGrid(totals([{ ...newItem("voice8", "v"), setup: false }], s), { cur: "THB", rate: 33.5, vat: false }, s);
+  assert.equal(g.month.ai, g.items[0].lines.find((l) => l.id === "min")!.sell); // summary "AI per month" = minutes × input
+  assert.equal(g.month.cloud + g.month.ai + g.month.other, g.monthly);
+  const more = costItem({ ...newItem("voice8", "v"), inputs: { aiMin: 0.03 }, setup: false }, s);
+  near(more.lines.find((l) => l.id === "min")!.sell, 90000 * 0.03, "AI follows the input");
 });
 
 test("C17c Voice8 100 concurrent adds a call-runtime/system pair and an Asterisk VM; setup = flows × man-days", () => {
@@ -440,7 +444,7 @@ test("P1 per user, Meet8 through Beryl8 at ฿33.5: ฿21,202 / 20 = ฿1,060 a 
 
 test("P2 per user uses billed seats (20-user minimum) and is null for Voice8 with no per-user license", () => {
   assert.equal(shown({ ...meet8(1), users: 5 }).perUser!.monthly, 1060);
-  const v = { ...newItem("voice8", "v"), inputs: { minutes: 1000, sip: 0 }, setup: false };
+  const v = { ...newItem("voice8", "v"), setup: false };
   assert.equal(shown(v).perUser, null);
 });
 

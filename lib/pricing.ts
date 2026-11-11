@@ -6,7 +6,7 @@ import type { Localized } from "./i18n";
    - Perpetual license per named user, minimum 20 users per customer.
    - MA 22% of the license per year, mandatory from year 2.
    - License excludes AI, cloud and implementation. Exceptions billed by
-     Beryl8: Voice per minute (US$0.076 incl. AI) and the Ask 8 AI
+     Beryl8: Voice AI per minute (the "AI cost per minute" input) and the Ask 8 AI
      Pack (draft, about ฿4 per credit at ฿33.5/US$).
    - Meet8 transcription + summary is priced at measured cost (US$0.53/h,
      replacing the US$2.5/h agreed on 2026-11-09, user decision 2026-11-11).
@@ -23,7 +23,7 @@ export const MA_RATE = 0.22;
 export const MIN_USERS = 20;
 export const YEARS = 5;
 export const VAT = 0.07;
-export const DEFAULT_RATE = 33.5; // THB per USD; makes US$0.076 = ฿2.55 as quoted
+export const DEFAULT_RATE = 33.5; // THB per USD
 export const DEFAULT_DAY_RATE_THB = 15000;
 export const DEFAULT_PARTNER = 30;
 /** Markup on Google Cloud and AI billed through Beryl8 (Meet8 perpetual). Draft until finance confirms. */
@@ -71,6 +71,8 @@ export type ProductPricing = {
   /** Per-item license when it depends on the inputs (Meet8 subscription has none); see `licenseOf`. */
   licenseFor?: (v: Record<string, number>) => number | null;
   licenseDraft: boolean;
+  /** US$ per minute shown in the product picker for products priced by the minute (no license). */
+  perMinute?: number;
   /** Cheapest monthly price per user (US$) when the product can also be bought monthly. */
   fromMonthly?: number;
   /** True when this way of buying has no setup fee (Meet8 subscription runs on Beryl8's cloud). */
@@ -112,7 +114,7 @@ const ASK8 = {
 
 /* Voice8 Pipeline, from the Voice8 cost calculator (prod config + load test 2026-10-20). */
 const VOICE8 = {
-  sell: 0.076, // per minute billed by Beryl8, AI included
+  aiMin: 0.0218, // default AI cost per minute (LLM + STT + TTS + judge + extractor), billed by Beryl8 at this rate
   callsPerVoice: 4,
   voiceBuffer: 1, // one spare voice instance on top of concurrent ÷ 4
   callsPerAsterisk: 80, // ~90 per VM at 85% CPU, 80 leaves headroom
@@ -313,6 +315,7 @@ export const PRICING: Record<string, ProductPricing> = {
     id: "voice8",
     license: null,
     licenseDraft: false,
+    perMinute: VOICE8.aiMin,
     unitLabel: L("Studio users", "ผู้ใช้ Studio"),
     setupDays: 10,
     // Implementation = call flows × man-days per flow (Voice8 cost calculator).
@@ -336,7 +339,7 @@ export const PRICING: Record<string, ProductPricing> = {
       { id: "hours", label: L("Calling hours per day", "ชั่วโมงทำงานต่อวัน"), unit: L("hours", "ชม."), def: 8, max: 23.75, step: 0.5,
         help: L("Hours with the full concurrent capacity open.", "ช่วงที่เปิดรับ concurrent เต็มจำนวน") },
       { id: "days", label: L("Days per month", "วันต่อเดือน"), unit: L("days", "วัน"), def: 30, max: 31, step: 1 },
-      { id: "aiMin", label: L("AI cost per minute", "ค่า AI ต่อนาที"), unit: L("US$/min", "USD/นาที"), def: 0.0218, max: 1, step: 0.0001 },
+      { id: "aiMin", label: L("AI cost per minute", "ค่า AI ต่อนาที"), unit: L("US$/min", "USD/นาที"), def: VOICE8.aiMin, max: 1, step: 0.0001 },
       { id: "flows", label: L("Call flows to build", "จำนวน Call flow"), unit: L("flows", "flow"), def: 2, max: 1000, step: 1 },
       { id: "flowDays", label: L("Man-days per call flow", "Man-day ต่อ Call flow"), unit: L("man-days", "man-day"), def: 5, max: 100, step: 0.5 },
     ],
@@ -358,9 +361,9 @@ export const PRICING: Record<string, ProductPricing> = {
       const voiceHours = voiceDay * v.days;
       const tierExtra = Math.max(0, Math.ceil(v.concurrent / V.callsPerAsterisk) - 1);
       return [
-        { id: "min", label: L("AI conversation minutes (US$0.076 per minute, AI included)", "นาทีสนทนา AI (US$0.076 ต่อนาที รวมค่า AI)"), payer: "beryl8", kind: "usage",
-          sell: minutes * V.sell, cost: minutes * v.aiMin,
-          detail: L(`${n(v.calls)} calls × ${n(v.callMin)} min × ${n(v.days)} days = ${n(minutes)} min`, `${n(v.calls)} สาย × ${n(v.callMin)} นาที × ${n(v.days)} วัน = ${n(minutes)} นาที`) },
+        { id: "min", label: L("AI conversation minutes", "นาทีสนทนา AI"), payer: "beryl8", kind: "ai",
+          sell: minutes * v.aiMin, cost: minutes * v.aiMin,
+          detail: L(`${n(v.calls)} calls × ${n(v.callMin)} min × ${n(v.days)} days = ${n(minutes)} min × US$${n(v.aiMin)}`, `${n(v.calls)} สาย × ${n(v.callMin)} นาที × ${n(v.days)} วัน = ${n(minutes)} นาที × US$${n(v.aiMin)}`) },
         // Fixed stack: prod in docs/cost.md (~$640) with both Asterisk VMs on e2-standard-2; Cloud Run and LB cost the same in both regions.
         ...gcp([
           ["Cloud Run (call runtime, business, system, engine, studio)", "Cloud Run (call runtime, business, system, engine, studio)", 207.9, "run"],
@@ -757,6 +760,8 @@ export type Grid = {
   monthly: number;
   /** What the customer pays providers directly each month, split by provider type. */
   hosting: { rows: (HostingSplit & { uid: string })[]; total: HostingSplit };
+  /** Everything paid each month (Beryl8 and providers), split into Google Cloud, AI and the rest; adds up to `monthly`. */
+  month: HostingSplit;
   internal: { revenue: number; partnerShare: number; usageCost: number; net: number };
 };
 
@@ -823,14 +828,17 @@ export function displayGrid(t: Totals, d: Display, s: Settings): Grid {
   const licenseAndMa = items.reduce((a, i) => a + i.license + i.ma * (YEARS - 1), 0);
   const partnerShare = s.viaPartner ? roundMoney(licenseAndMa * (clamp(s.partner, 0, 100, DEFAULT_PARTNER) / 100)) : 0;
   const usageCost = items.reduce((a, i) => a + i.monthlyCost * 12 * YEARS, 0);
+  const monthly = items.reduce((a, i) => a + i.monthlyBeryl8 + i.monthlyDirect, 0);
+  const byKind = (k: Kind) => items.reduce((a, i) => a + i.lines.reduce((b, l) => b + (l.kind === k ? l.sell : 0), 0), 0);
   return {
     items,
     years,
     foot,
     year1: years[0].total,
     tco: foot.total,
-    monthly: items.reduce((a, i) => a + i.monthlyBeryl8 + i.monthlyDirect, 0),
+    monthly,
     hosting: hostingOf(items),
+    month: { cloud: byKind("cloud"), ai: byKind("ai"), other: monthly - byKind("cloud") - byKind("ai"), total: monthly },
     internal: { revenue: foot.beryl8, partnerShare, usageCost, net: foot.beryl8 - partnerShare - usageCost },
   };
 }
