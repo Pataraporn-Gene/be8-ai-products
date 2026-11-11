@@ -165,6 +165,9 @@ export function Calculator({ lang }: { lang: Locale }) {
   /** Hosting table cells: the currency is in the column header, so plain numbers keep it narrow. */
   const n0 = (n: number) => f.num(n);
   const cell = (id: string) => g.items.find((i) => i.uid === id);
+  /** Per-user price makes sense for one product only; the one-time sum adds every license and setup. */
+  const single = g.items.length === 1 ? g.items[0] : undefined;
+  const oneTime = g.items.reduce((a, i) => a + i.license + i.setup, 0);
   /** The same item bought another way, rounded exactly as the card would show it (for the comparison table). */
   const preview = (it: Item) => displayGrid(totals([it], s), { cur, rate: s.rate, vat: false }, s).items[0];
   const counts = items.reduce<Record<string, number>>((a, i) => ({ ...a, [i.pid]: (a[i.pid] ?? 0) + 1 }), {});
@@ -341,6 +344,19 @@ export function Calculator({ lang }: { lang: Locale }) {
                 </div>
               </div>
 
+              <p className="calc-run calc-run-main">
+                <span>
+                  {c.running}
+                  {vat && <small className="calc-run-tag">{c.exVat}</small>}
+                </span>
+                <strong>{f.whole(g.monthly)}</strong>
+              </p>
+              {(single?.perUser || oneTime > 0) && (
+                <p className="calc-run-sub">
+                  {single?.perUser && <span>{c.sayPerUser(f.whole(single.perUser.monthly))}</span>}
+                  {oneTime > 0 && <span>{c.sayOnce} <strong>{f.whole(oneTime)}</strong></span>}
+                </p>
+              )}
               <dl className="calc-big">
                 {[
                   [c.firstYear, g.year1],
@@ -358,14 +374,6 @@ export function Calculator({ lang }: { lang: Locale }) {
                 ))}
               </dl>
               {!vat && <p className="calc-hint calc-big-note">{c.exVatTotal}</p>}
-              <p className="calc-run">
-                <span>
-                  {c.running}
-                  {vat && <small className="calc-run-tag">{c.exVat}</small>}
-                </span>
-                <strong>{f.whole(g.monthly)}</strong>
-              </p>
-              <p className="calc-hint">{c.runningHint}</p>
               {g.hosting.total.total > 0 && (
                 <p className="calc-run calc-run-host">
                   <span>{c.hostingLine}</span>
