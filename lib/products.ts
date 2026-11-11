@@ -1,6 +1,6 @@
 import type { Localized } from "./i18n";
 
-export type ProductIcon = "brain" | "bot" | "phone" | "chart" | "workflow" | "map" | "megaphone" | "chat" | "ask" | "database";
+export type ProductIcon = "brain" | "bot" | "phone" | "chart" | "workflow" | "map" | "megaphone" | "chat" | "ask" | "database" | "signature";
 
 export type Product = {
   id: string;
@@ -93,7 +93,7 @@ export const products: Product[] = [
     category: { en: "Data analytics", th: "วิเคราะห์ข้อมูล" },
     tagline: {
       en: "Ask in plain language, get dashboards your team can keep editing",
-      th: "พิมพ์คำถามธรรมดา ได้ dashboard ที่ทีมแก้ต่อได้จริง",
+      th: "ถามด้วยภาษาธรรมดา ได้ dashboard ที่ทีมแก้ต่อได้เอง",
     },
     description: {
       en: "Ask a question and an agent reads the data you are allowed to see, writes the query and builds the dashboard in a workbook. The BI team stays in charge of connections and access.",
@@ -185,7 +185,7 @@ export const products: Product[] = [
     },
     description: {
       en: "Mention an agent in a channel and it works in its own isolated workspace. Risky actions wait for approval. Admins decide what agents can do and which documents they can search.",
-      th: "แท็ก Agent ในช่องแล้วให้ทำงานในพื้นที่ทำงานแยกของตัวเอง การกระทำที่เสี่ยงต้องรออนุมัติ และแอดมินกำหนดได้ว่า Agent ทำอะไรได้และค้นเอกสารชุดไหนได้",
+      th: "แท็ก Agent ในช่องแชต แล้ว Agent จะรับงานไปทำในพื้นที่ทำงานแยกของตัวเอง งานเสี่ยงต้องรออนุมัติ และแอดมินกำหนดได้ว่า Agent ทำอะไรได้ ค้นเอกสารชุดไหนได้",
     },
     features: [
       { en: "Rooms, DMs and threads for people and agents", th: "ห้อง DM และเธรดสำหรับคนและ Agent" },
@@ -229,12 +229,34 @@ export const products: Product[] = [
     },
     description: {
       en: "Bring in CRM, shop and email data, merge duplicates into one profile per customer, build segments with live counts and send them to your marketing tools on a schedule.",
-      th: "นำข้อมูล CRM ร้านค้า และอีเมลเข้ามา รวมข้อมูลซ้ำเป็นโปรไฟล์เดียว สร้าง segment พร้อมจำนวนคนแบบสด แล้วส่งต่อไปยังเครื่องมือการตลาดตามรอบ",
+      th: "นำข้อมูล CRM ร้านค้า และอีเมลเข้ามา รวมข้อมูลซ้ำเป็นโปรไฟล์เดียว สร้างกลุ่มลูกค้าพร้อมจำนวนคนแบบสด แล้วส่งต่อไปยังเครื่องมือการตลาดตามรอบ",
     },
     features: [
       { en: "Duplicate matching, with rules for which source wins", th: "จับคู่ข้อมูลซ้ำ พร้อมกฎว่าแหล่งไหนให้ค่าก่อน" },
-      { en: "Segments and calculated figures such as lifetime value", th: "Segment และตัวเลขที่คำนวณเอง เช่น lifetime value" },
+      { en: "Segments and calculated figures such as lifetime value", th: "กลุ่มลูกค้า และตัวเลขที่คำนวณเอง เช่น lifetime value" },
       { en: "Scheduled sends to CSV, webhook and Cloud Storage, with run history", th: "ส่งตามรอบไป CSV, webhook และ Cloud Storage พร้อมประวัติการรัน" },
+    ],
+  },
+  {
+    id: "signature8",
+    number: 11,
+    name: "SIGNATURE8",
+    linkType: "page",
+    url: "/signature8",
+    icon: "signature",
+    category: { en: "E-signature", th: "ลงนามอิเล็กทรอนิกส์" },
+    tagline: {
+      en: "Send a PDF, get it signed, keep the proof",
+      th: "ส่ง PDF ให้เซ็น ได้หลักฐานครบ",
+    },
+    description: {
+      en: "Add the signers and the boxes they fill, send it, and track every agreement. Signers need no account and can sign on a phone. You keep a sealed PDF and a certificate of completion.",
+      th: "เพิ่มผู้เซ็นและช่องที่ต้องกรอก กดส่ง แล้วติดตามได้ทุกฉบับ ผู้เซ็นไม่ต้องมีบัญชีและเซ็นบนมือถือได้ เมื่อเซ็นครบคุณได้ PDF ที่ผนึกแล้วพร้อมใบรับรองการเซ็น",
+    },
+    features: [
+      { en: "Sign on any device, in Thai or English", th: "เซ็นได้ทุกอุปกรณ์ ทั้งไทยและอังกฤษ" },
+      { en: "Templates, bulk send and public sign-up links", th: "เทมเพลต ส่งเป็นชุด และลิงก์ให้กรอกเอง" },
+      { en: "Sealed PDF and certificate of completion", th: "PDF ที่ผนึกแล้วพร้อมใบรับรองการเซ็น" },
     ],
   },
 ];

@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Check, Minus } from "lucide-react";
 import type { ReactNode } from "react";
+import { ProductLogo } from "@/components/ProductLogo";
 import { LangSwitch } from "@/components/LangSwitch";
 import { hasLocale } from "@/lib/i18n";
+import { SHOW_PRICING } from "@/lib/site-config";
 import { getAgent8Content } from "./content";
 import { Dock, HowTabs, PickButton, PlanCard, PlanProvider, SubNav } from "./interactive";
 import "./agent8.css";
@@ -273,23 +275,17 @@ export default async function Page({ params }: PageProps<"/[lang]/agent8">) {
   const p = c.plans;
 
   return (
-    <div className="p-agent8">
+    <div className={SHOW_PRICING ? "p-agent8" : "p-agent8 no-pricing"}>
       <PlanProvider>
         <header className="top">
           <div className="wrap">
-            <a className="brand" href="#top">
-              <span className="brand-mark" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 16 16">
-                  <circle cx="8" cy="4.8" r="2.9" fill="none" stroke="currentColor" strokeWidth="1.75" />
-                  <circle cx="8" cy="11.4" r="3.3" fill="none" stroke="currentColor" strokeWidth="1.75" />
-                </svg>
-              </span>
-              AGENT8
+            <a className="brand" href="#top" aria-label="AGENT8">
+              <ProductLogo id="agent8" kind="wordmark" alt="AGENT8" priority />
             </a>
             <nav aria-label={c.aria.mainNav}>
               <a href="#features">{c.nav.features}</a>
               <a href="#uses">{c.nav.uses}</a>
-              <a href="#plans">{c.nav.plans}</a>
+              {SHOW_PRICING && <a href="#plans">{c.nav.plans}</a>}
               <a href="#faq">{c.nav.help}</a>
             </nav>
             <div className="lang-switch">
@@ -312,9 +308,11 @@ export default async function Page({ params }: PageProps<"/[lang]/agent8">) {
                   <a className="btn fill" href="#features">
                     {c.hero.ctaPrimary}
                   </a>
-                  <a className="btn" href="#plans">
-                    {c.hero.ctaSecondary}
-                  </a>
+                  {SHOW_PRICING && (
+                    <a className="btn" href="#plans">
+                      {c.hero.ctaSecondary}
+                    </a>
+                  )}
                 </div>
                 <Ticks items={c.hero.ticks} />
               </div>
@@ -403,7 +401,7 @@ export default async function Page({ params }: PageProps<"/[lang]/agent8">) {
               { id: "how", label: c.subnav.how },
               { id: "features", label: c.subnav.features },
               { id: "uses", label: c.subnav.uses },
-              { id: "plans", label: c.subnav.plans },
+              ...(SHOW_PRICING ? [{ id: "plans", label: c.subnav.plans }] : []),
               { id: "specs", label: c.subnav.specs },
               { id: "faq", label: c.subnav.faq },
             ]}
@@ -822,6 +820,7 @@ export default async function Page({ params }: PageProps<"/[lang]/agent8">) {
           </section>
 
           {/* Packages */}
+          {SHOW_PRICING && (
           <section className="section" id="plans">
             <div className="wrap">
               <div className="head">
@@ -946,6 +945,7 @@ export default async function Page({ params }: PageProps<"/[lang]/agent8">) {
               </div>
             </div>
           </section>
+          )}
 
           {/* Security */}
           <section className="section">
@@ -999,7 +999,9 @@ export default async function Page({ params }: PageProps<"/[lang]/agent8">) {
                 <h2>{c.faq.h2}</h2>
               </div>
               <div className="faq">
-                {c.faq.items.map((f) => (
+                {c.faq.items
+                  .filter((_, i) => SHOW_PRICING || i !== 1)
+                  .map((f) => (
                   <details key={f.q}>
                     <summary>{f.q}</summary>
                     <p>{f.a}</p>
@@ -1030,17 +1032,19 @@ export default async function Page({ params }: PageProps<"/[lang]/agent8">) {
         <footer>
           <div className="wrap">
             <span>{c.footer.copy}</span>
-            <span>{c.footer.note}</span>
+            {SHOW_PRICING && <span>{c.footer.note}</span>}
           </div>
         </footer>
 
-        <Dock
+        {SHOW_PRICING && (
+          <Dock
           ariaLabel={c.aria.dock}
           descs={p.desc}
           priceLabel={c.dock.priceLabel}
           price={c.dock.price}
           cta={c.bookDemo}
         />
+        )}
       </PlanProvider>
     </div>
   );

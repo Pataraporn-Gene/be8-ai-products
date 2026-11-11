@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ArrowRight,
-  ArrowUpRight,
   Bot,
   Brain,
   ChartColumn,
@@ -13,14 +12,18 @@ import {
   Megaphone,
   MessageCircleQuestion,
   MessagesSquare,
+  PenLine,
   Phone,
   Workflow,
   type LucideIcon,
 } from "lucide-react";
 import { LangSwitch } from "@/components/LangSwitch";
+import { ProductLogo, hasProductLogo } from "@/components/ProductLogo";
 import { getDictionary, hasLocale } from "@/lib/i18n";
-import { products, type Product, type ProductIcon } from "@/lib/products";
 import type { Dictionary, Locale } from "@/lib/i18n";
+import { products, type Product, type ProductIcon } from "@/lib/products";
+import { homeContent, siteUrl } from "./home-content";
+import "./home.css";
 
 const icons: Record<ProductIcon, LucideIcon> = {
   brain: Brain,
@@ -33,6 +36,7 @@ const icons: Record<ProductIcon, LucideIcon> = {
   chat: MessagesSquare,
   ask: MessageCircleQuestion,
   database: Database,
+  signature: PenLine,
 };
 
 // Lucide at the brand stroke weight.
@@ -42,119 +46,170 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const dict = getDictionary(lang);
+  const t = homeContent[lang];
 
   return (
     <div className="b8-home flex flex-1 flex-col">
-      <header className="glass sticky top-0 z-20 border-b border-line1">
-        <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-6">
-          <Link href={`/${lang}`} className="flex items-center gap-3">
-            <Image src="/beryl8-logo.svg" alt="Beryl8" width={36} height={28} priority />
-            <span className="font-display text-[15px] font-medium tracking-[-0.01em] text-fg1">AI Solutions</span>
-          </Link>
-          <LangSwitch lang={lang} />
-        </div>
-      </header>
-
-      <main className="flex-1">
-        <section>
-          <div className="mx-auto max-w-[1280px] px-6 pb-16 pt-20 sm:pb-20 sm:pt-28">
-            <p className="eyebrow">{dict.eyebrow}</p>
-            <h1 className="mt-4 max-w-[920px] font-display text-[40px] font-medium leading-[1.08] tracking-[-0.028em] text-fg1 sm:text-[56px] lg:text-[72px]">
-              {dict.heroLead} <span className="text-cyan-700">{dict.heroAccent}</span>
-            </h1>
-            <p className="mt-6 max-w-[720px] text-lg leading-relaxed text-fg3 sm:text-xl">{dict.heroBody}</p>
+      <section className="hero">
+        <Image src="/home/banner.webp" alt="" fill priority sizes="100vw" className="hero-img" />
+        <header className="hdr">
+          <a className="hdr-logo" href={siteUrl(lang, "/home")} aria-label="Beryl8">
+            <Image src="/home/logo-white.svg" alt="Beryl8" width={92} height={73} priority />
+          </a>
+          <nav className="hdr-nav" aria-label={lang === "th" ? "เมนูหลัก" : "Main menu"}>
+            {t.nav.map((item) => (
+              <a key={item.path} href={siteUrl(lang, item.path)}>
+                {item.label}
+              </a>
+            ))}
+          </nav>
+          <div className="hdr-right">
+            <LangSwitch lang={lang} dark />
+            <a className="pill" href={siteUrl(lang, "/contact-us")}>
+              {t.contactNav}
+            </a>
           </div>
+        </header>
+
+        <nav className="crumbs" aria-label={t.breadcrumbAria}>
+          <ol>
+            <li>
+              <a href={siteUrl(lang, "/home")}>{t.crumbs.home}</a>
+            </li>
+            <li>
+              <a href={siteUrl(lang, "/technology/partners")}>{t.crumbs.technology}</a>
+            </li>
+            <li aria-current="page">{t.crumbs.current}</li>
+          </ol>
+        </nav>
+        <h1>{t.title}</h1>
+      </section>
+
+      <main>
+        <section className="intro">
+          <h2>{t.introHeading()}</h2>
+          <p className="intro-lead">{t.introLead}</p>
+          <p className="intro-body">{dict.heroBody}</p>
         </section>
 
-        <section className="mx-auto max-w-[1280px] px-6 pb-24">
-          <div className="flex items-baseline justify-between gap-4 border-t border-line1 pb-8 pt-10">
-            <h2 className="font-display text-2xl font-medium tracking-[-0.01em] text-fg1">{dict.productsHeading}</h2>
-            <span className="text-[13px] text-fg3">{dict.productCount(products.length)}</span>
+        <ul className="grid">
+          {products.map((product) => (
+            <li key={product.id}>
+              <SolutionCard product={product} lang={lang} dict={dict} />
+            </li>
+          ))}
+        </ul>
+      </main>
+
+      <section className="band">
+        <Image src="/home/contact.webp" alt="" fill sizes="100vw" className="band-img" />
+        <div className="band-in">
+          <div className="band-copy">
+            <h2>{t.cta.heading}</h2>
+            <p>{t.cta.body}</p>
+            <ul>
+              {t.cta.points.map((point) => (
+                <li key={point}>
+                  <Check size={18} strokeWidth={STROKE} aria-hidden />
+                  {point}
+                </li>
+              ))}
+            </ul>
+            <a className="pill" href={siteUrl(lang, "/contact-us")}>
+              {t.cta.button}
+            </a>
           </div>
-          <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((product) => (
-              <li key={product.id} className="flex">
-                <ProductCard product={product} lang={lang} dict={dict} />
+        </div>
+      </section>
+
+      <footer className="ftr">
+        <div className="ftr-in">
+          <div className="ftr-brand">
+            <a className="ftr-logo" href={siteUrl(lang, "/home")} aria-label="Beryl8">
+              <Image src="/home/logo-white.svg" alt="Beryl8" width={92} height={73} />
+            </a>
+            <p className="ftr-about">{dict.footerAbout}</p>
+          </div>
+          <ul>
+            <li>
+              <a href={siteUrl(lang, "/home")}>{t.footer.home}</a>
+            </li>
+            {t.nav.slice(0, 3).map((item) => (
+              <li key={item.path}>
+                <a href={siteUrl(lang, item.path)}>{item.label}</a>
               </li>
             ))}
           </ul>
-        </section>
-      </main>
-
-      <footer className="bg-navy text-white">
-        <div className="mx-auto max-w-[1280px] px-6 pb-9 pt-14">
-          <div className="flex flex-col gap-6 border-b border-white/10 pb-10 sm:flex-row sm:items-start sm:justify-between">
-            <Image src="/beryl8-logo-white.png" alt="Beryl8" width={45} height={32} />
-            <p className="max-w-[420px] text-[13.5px] leading-relaxed text-white/60">{dict.footerAbout}</p>
+          <ul>
+            {t.nav.slice(3).map((item) => (
+              <li key={item.path}>
+                <a href={siteUrl(lang, item.path)}>{item.label}</a>
+              </li>
+            ))}
+            <li>
+              <a href={siteUrl(lang, "/contact-us")}>{t.footer.contact}</a>
+            </li>
+          </ul>
+          <div className="ftr-news">
+            <h3>{t.footer.newsHeading}</h3>
+            <p>{t.footer.newsBody}</p>
+            <a className="pill" href={siteUrl(lang, "/investor-relations/news-subscription")}>
+              {t.footer.subscribe}
+            </a>
           </div>
-          <div className="flex flex-wrap justify-between gap-3 pt-7 text-xs text-white/50">
-            <span>{dict.copyright}</span>
-            <span>{dict.footerNote}</span>
-          </div>
+        </div>
+        <div className="ftr-bar">
+          <span>
+            {dict.copyright} {dict.footerNote}
+          </span>
+          <a href={siteUrl(lang, "/cookie-policy")}>{t.footer.legal}</a>
         </div>
       </footer>
     </div>
   );
 }
 
-function ProductCard({ product, lang, dict }: { product: Product; lang: Locale; dict: Dictionary }) {
+function SolutionCard({ product, lang, dict }: { product: Product; lang: Locale; dict: Dictionary }) {
   const isLive = product.linkType === "live";
   const Icon = icons[product.icon];
-  const CtaIcon = isLive ? ArrowUpRight : ArrowRight;
 
-  const className = "card-soft hoverable group flex w-full flex-col p-7";
   const body = (
     <>
-      <div className="flex items-start justify-between gap-3">
-        <span className="grid size-11 place-items-center rounded-full bg-cyan-50 text-cyan-700">
-          <Icon size={20} strokeWidth={STROKE} aria-hidden />
+      {hasProductLogo(product.id) ? (
+        <span className="sol-ico sol-ico--logo">
+          <ProductLogo id={product.id} kind="symbol" alt={product.name} height={109} />
         </span>
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
-            isLive ? "bg-green-50 text-green-700" : "bg-bg2 text-fg3"
-          }`}
-        >
-          {isLive && <span className="size-1.5 rounded-full bg-green-600" aria-hidden />}
-          {isLive ? dict.live : dict.mockup}
+      ) : (
+        <span className="sol-ico">
+          <Icon size={52} strokeWidth={1.5} aria-hidden />
+        </span>
+      )}
+      <div>
+        <p className="sol-cat">{product.category[lang]}</p>
+        <h3>
+          {product.name}
+          {isLive && (
+            <span className="sol-tag">
+              <i aria-hidden />
+              {dict.live}
+            </span>
+          )}
+        </h3>
+        <p>{product.description[lang]}</p>
+        <span className="sol-go">
+          {isLive ? dict.openSite : dict.openPage}
+          <ArrowRight size={16} strokeWidth={STROKE} aria-hidden />
         </span>
       </div>
-
-      <p className="eyebrow mt-6 text-cyan-700">
-        {String(product.number).padStart(2, "0")} · {product.category[lang]}
-      </p>
-      <h3 className="mt-2 font-display text-[26px] font-medium leading-tight tracking-[-0.015em] text-fg1">
-        {product.name}
-      </h3>
-      <p className="mt-3 font-display text-base font-medium leading-snug text-fg1">{product.tagline[lang]}</p>
-      <p className="mt-2 text-[14.5px] leading-relaxed text-fg3">{product.description[lang]}</p>
-
-      <ul className="mt-5 flex flex-col gap-2.5 border-t border-line1 pt-5">
-        {product.features.map((feature) => (
-          <li key={feature.en} className="flex gap-2.5 text-[13.5px] text-fg2">
-            <Check size={16} strokeWidth={STROKE} className="mt-0.5 shrink-0 text-cyan-700" aria-hidden />
-            {feature[lang]}
-          </li>
-        ))}
-      </ul>
-
-      <span className="mt-auto inline-flex items-center gap-1 pt-7 text-sm font-medium text-cyan-700">
-        {isLive ? dict.openSite : dict.openPage}
-        <CtaIcon
-          size={16}
-          strokeWidth={STROKE}
-          className="transition-transform duration-[250ms] ease-standard group-hover:translate-x-0.5"
-          aria-hidden
-        />
-      </span>
     </>
   );
 
   return isLive ? (
-    <a href={product.url} target="_blank" rel="noopener noreferrer" className={className}>
+    <a href={product.url} target="_blank" rel="noopener noreferrer" className="sol">
       {body}
     </a>
   ) : (
-    <Link href={`/${lang}${product.url}`} className={className}>
+    <Link href={`/${lang}${product.url}`} className="sol">
       {body}
     </Link>
   );

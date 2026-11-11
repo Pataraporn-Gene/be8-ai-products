@@ -47,7 +47,7 @@ const en = {
     zone: "Meeting room · Recording to Meet8",
     wave: "On my way, what do you need?",
     near: "Anyone free to look at this page?",
-    duo: "Got a minute? Just came over to chat",
+    duo: "Got a minute? Came over to chat",
   } satisfies SceneStrings as SceneStrings,
   hero: {
     h1a: "Walk over to your team, ",
@@ -55,7 +55,7 @@ const en = {
     h1b: "",
     lede: "Space8 is a 2D virtual office for teams in Thailand. Walk up to a teammate, talk to whoever is nearby, join a meeting room and share your screen, all on one map. No scheduling or links for a quick question.",
     ctaPrimary: "Create your team's Space",
-    ctaTour: "Take a tour",
+    ctaTour: "See what it can do",
     facts: ["Thai-language app", "Runs in the browser, nothing to install", "Syncs with Google Calendar"],
   },
   stage: {
@@ -239,8 +239,8 @@ const en = {
   },
   pricing: {
     eyebrow: "Pricing",
-    h2: "Pay per person, per month",
-    lede: "Priced per member in your Space. Every plan includes maps, characters, voice and video.",
+    h2: "Pay only for the people on your team",
+    lede: "Every plan includes maps, characters, voice and video.",
     recommended: "Recommended",
     perPerson: "per person / month",
     standard: {
@@ -286,7 +286,7 @@ const en = {
     noteRest: " for page layout only. These are not final prices and do not include 7% VAT.",
   },
   faq: {
-    eyebrow: "Frequently asked",
+    eyebrow: "FAQ",
     h2: "Common questions",
     items: [
       {
@@ -500,7 +500,7 @@ const th: Space8Content = {
       atlas: "แผนที่แอตลาส",
     },
     aiNote:
-      "อยากได้แบบอื่น พิมพ์บอกว่าทีมมีกี่คน ต้องการห้องแบบไหน แล้วให้ AI ร่างแผนที่ให้ตอนสร้าง Space",
+      "อยากได้แบบอื่น ลองพิมพ์บอกว่าทีมมีกี่คน ต้องการห้องแบบไหน แล้วให้ AI ร่างแผนที่ให้ตอนสร้าง Space",
   },
   avatars: {
     eyebrow: "ตัวละคร",
@@ -524,7 +524,7 @@ const th: Space8Content = {
     eyebrow: "ใหม่",
     h2: "ประชุมจบ งานไม่หาย",
     lede: "Space8 เชื่อมกับผลิตภัณฑ์อื่นของ BE8 บันทึกการประชุมส่งไปให้ Meet8 สรุป และมี AI agent ยืนอยู่บนแผนที่ให้ทีมเดินไปถาม",
-    recPill: "มีแล้ว",
+    recPill: "ใช้ได้แล้ว",
     recTitle: "อัดห้องประชุมเข้า Meet8",
     recBody:
       "กดอัดที่แถบด้านล่างระหว่างอยู่ในห้องประชุม เสียงของทั้งห้องจะไปเป็นประชุมใหม่ใน Meet8 ของคนที่กดเริ่ม ซึ่งถอดเสียงและสรุปเรื่องที่ตกลงกันให้",
@@ -535,7 +535,7 @@ const th: Space8Content = {
     ],
     recFine:
       "เชื่อมบัญชีครั้งเดียวที่ Settings > General > Meet8 แต่ละห้องอัดได้ทีละรายการ และหยุดอัดเองเมื่อไม่มีใครอยู่ในห้อง",
-    agentPill: "มีบางส่วน",
+    agentPill: "ใช้ได้บางส่วน",
     agentTitle: "AI agent บนแผนที่",
     agentBody:
       "สร้างผู้ช่วยส่วนตัวหรือผู้ช่วยประจำ Space ให้ยืนบนแผนที่ คลิกที่ตัวละครเพื่อคุย แต่ละคนเห็นเฉพาะบทสนทนาของตัวเอง ตอนนี้ agent ตอบคำถามได้ แต่ยังทำงานแทนใครไม่ได้",
@@ -552,15 +552,15 @@ const th: Space8Content = {
     cta: "สร้าง Space ของทีม",
     steps: [
       { tag: "2 นาที", title: "เลือกแผนที่", body: "ใช้แผนที่สำเร็จรูป หรือให้ AI ร่างจากคำอธิบาย" },
-      { tag: "1 ลิงก์", title: "เชิญทีม", body: "ส่งลิงก์จากปุ่ม People เพื่อนกดเข้ามาก็อยู่บนแผนที่เลย" },
-      { tag: "ทันที", title: "เริ่มทำงานด้วยกัน", body: "เลือกตัวละคร เดินไปที่โต๊ะ แล้วทักเพื่อนได้" },
+      { tag: "1 ลิงก์", title: "เชิญทีม", body: "ส่งลิงก์จากปุ่ม People ทีมกดลิงก์แล้วเข้าแผนที่ได้เลย" },
+      { tag: "ทันที", title: "เริ่มทำงานด้วยกัน", body: "เลือกตัวละคร เดินไปที่โต๊ะ แล้วทักเพื่อนร่วมทีมได้เลย" },
     ],
     seePlans: "ดูแพ็กเกจ",
   },
   pricing: {
     eyebrow: "ราคา",
-    h2: "จ่ายต่อคน ต่อเดือน",
-    lede: "คิดราคาตามจำนวนสมาชิกใน Space ทุกแพ็กเกจมีแผนที่ ตัวละคร และการคุยด้วยเสียงและวิดีโอ",
+    h2: "จ่ายตามจำนวนคนในทีม",
+    lede: "ทุกแพ็กเกจมีแผนที่ ตัวละคร และการคุยด้วยเสียงและวิดีโอ",
     recommended: "แนะนำ",
     perPerson: "ต่อคน ต่อเดือน",
     standard: {
@@ -607,7 +607,7 @@ const th: Space8Content = {
   },
   faq: {
     eyebrow: "คำถามที่พบบ่อย",
-    h2: "คำถามที่ลูกค้าถามบ่อย",
+    h2: "สิ่งที่ทีมมักถามก่อนเริ่มใช้",
     items: [
       {
         q: "ออฟฟิศเสมือนคืออะไร",

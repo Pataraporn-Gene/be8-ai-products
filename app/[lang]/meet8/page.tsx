@@ -2,16 +2,27 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { hasLocale } from "@/lib/i18n";
+import { SHOW_PRICING } from "@/lib/site-config";
+import { ProductLogo } from "@/components/ProductLogo";
 import { LangSwitch } from "@/components/LangSwitch";
-import { getMeet8Content, type Cell } from "./content";
+import { getMeet8Content, type Cell, PRICING_FAQ } from "./content";
 import { Fx } from "./Fx";
 import { HeroViewer } from "./HeroViewer";
 import { HeroVisual, ScrollProgress } from "./ScrollFx";
 import { Tour } from "./Tour";
-import { BuyBar, CountUp, CountUpGrid, PlanButton, PlanProvider, PlansSection } from "./Pricing";
+import {
+  BuyBar,
+  CountUp,
+  CountUpGrid,
+  PlanButton,
+  PlanProvider,
+  PlansSection,
+} from "./Pricing";
 import "./meet8.css";
 
-export async function generateMetadata({ params }: PageProps<"/[lang]/meet8">): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[lang]/meet8">): Promise<Metadata> {
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const c = getMeet8Content(lang);
@@ -23,7 +34,15 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/meet8">): 
 }
 
 /** s-head reveal delays: (index of .s-head on the source page % 4) × 0.09s; the hidden trust section held index 5. */
-const HEAD_D = { tryit: 0, features: 0.09, more: 0.18, cases: 0.27, plans: 0, spec: 0.18, faq: 0.27 };
+const HEAD_D = {
+  tryit: 0,
+  features: 0.09,
+  more: 0.18,
+  cases: 0.27,
+  plans: 0,
+  spec: 0.18,
+  faq: 0.27,
+};
 const d = (i: number) => (i % 4) * 0.09;
 
 function CellView({ v, yes, no }: { v: Cell; yes: string; no: string }) {
@@ -55,20 +74,17 @@ export default async function Page({ params }: PageProps<"/[lang]/meet8">) {
       <PlanProvider>
         <header className="top">
           <div className="wrap">
-            <a className="brand" href="#top">
-              <span className="brand-mark" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 16 16">
-                  <path d="M3 4.5h10M3 8h7M3 11.5h4" stroke="var(--cyan-400)" strokeWidth="1.75" strokeLinecap="round" />
-                </svg>
-              </span>
-              {c.brand}
+            <a className="brand" href="#top" aria-label="MEET8">
+              <ProductLogo id="meet8" kind="wordmark" alt="MEET8" priority />
             </a>
             <nav className="menu" aria-label={c.menuLabel}>
-              {c.menu.map((m) => (
-                <a key={m.href} href={m.href}>
-                  {m.label}
-                </a>
-              ))}
+              {c.menu
+                .filter((m) => SHOW_PRICING || m.href !== "#plans")
+                .map((m) => (
+                  <a key={m.href} href={m.href}>
+                    {m.label}
+                  </a>
+                ))}
             </nav>
             <div className="top-right">
               <LangSwitch lang={lang} path="/meet8" dark={false} />
@@ -86,17 +102,26 @@ export default async function Page({ params }: PageProps<"/[lang]/meet8">) {
                 </h1>
                 <p className="lead">{c.hero.lead}</p>
                 <div className="cta-row">
-                  <Fx as="a" className="btn btn-primary" href="#features" magnetic>
+                  <Fx
+                    as="a"
+                    className="btn btn-primary"
+                    href="#features"
+                    magnetic
+                  >
                     {c.hero.ctaPrimary}
                   </Fx>
-                  <Fx as="a" className="btn btn-ghost" href="#plans" magnetic>
-                    {c.hero.ctaSecondary}
-                  </Fx>
+                  {SHOW_PRICING && (
+                    <Fx as="a" className="btn btn-ghost" href="#plans" magnetic>
+                      {c.hero.ctaSecondary}
+                    </Fx>
+                  )}
                 </div>
                 <ul className="mini">
-                  {c.hero.mini.map((x) => (
-                    <li key={x}>{x}</li>
-                  ))}
+                  {c.hero.mini
+                    .filter((_, i) => SHOW_PRICING || i !== 0)
+                    .map((x) => (
+                      <li key={x}>{x}</li>
+                    ))}
                 </ul>
               </div>
               <HeroVisual
@@ -121,11 +146,16 @@ export default async function Page({ params }: PageProps<"/[lang]/meet8">) {
 
           <div className="mq" aria-hidden="true">
             <div className="mq-track">
-              {[...c.marquee, ...c.marquee, ...c.marquee, ...c.marquee].map((x, i) => (
-                <span key={i} className={i >= c.marquee.length ? "dup" : undefined}>
-                  {x}
-                </span>
-              ))}
+              {[...c.marquee, ...c.marquee, ...c.marquee, ...c.marquee].map(
+                (x, i) => (
+                  <span
+                    key={i}
+                    className={i >= c.marquee.length ? "dup" : undefined}
+                  >
+                    {x}
+                  </span>
+                ),
+              )}
             </div>
           </div>
           <ScrollProgress />
@@ -145,11 +175,13 @@ export default async function Page({ params }: PageProps<"/[lang]/meet8">) {
 
           <nav className="tabs" aria-label={c.tabsLabel}>
             <div className="wrap">
-              {c.tabs.map((t) => (
-                <a key={t.href} href={t.href}>
-                  {t.label}
-                </a>
-              ))}
+              {c.tabs
+                .filter((t) => SHOW_PRICING || t.href !== "#plans")
+                .map((t) => (
+                  <a key={t.href} href={t.href}>
+                    {t.label}
+                  </a>
+                ))}
             </div>
           </nav>
 
@@ -158,7 +190,11 @@ export default async function Page({ params }: PageProps<"/[lang]/meet8">) {
               <p className="eyebrow">{c.features.eyebrow}</p>
               <h2>{c.features.h2}</h2>
             </Fx>
-            <Tour steps={c.features.steps} stepsLabel={c.features.stepsLabel} urlHost={c.features.urlHost} />
+            <Tour
+              steps={c.features.steps}
+              stepsLabel={c.features.stepsLabel}
+              urlHost={c.features.urlHost}
+            />
           </section>
 
           <section className="section wrap" id="more">
@@ -174,7 +210,12 @@ export default async function Page({ params }: PageProps<"/[lang]/meet8">) {
                   <p>{c.more.chat.p}</p>
                 </div>
                 <div className="card-media">
-                  <img src="/products/meet8/chat-close.jpg" alt={c.more.chat.alt} width={850} height={300} />
+                  <img
+                    src="/products/meet8/chat-close.jpg"
+                    alt={c.more.chat.alt}
+                    width={850}
+                    height={300}
+                  />
                 </div>
               </Fx>
               <Fx as="article" className="card c-prep" reveal={d(1)} glow>
@@ -184,7 +225,12 @@ export default async function Page({ params }: PageProps<"/[lang]/meet8">) {
                   <p>{c.more.prep.p}</p>
                 </div>
                 <div className="card-media">
-                  <img src="/products/meet8/prep-close.jpg" alt={c.more.prep.alt} width={702} height={820} />
+                  <img
+                    src="/products/meet8/prep-close.jpg"
+                    alt={c.more.prep.alt}
+                    width={702}
+                    height={820}
+                  />
                 </div>
               </Fx>
               <Fx as="article" className="card c-access" reveal={d(2)} glow>
@@ -194,7 +240,12 @@ export default async function Page({ params }: PageProps<"/[lang]/meet8">) {
                   <p>{c.more.access.p}</p>
                 </div>
                 <div className="card-media">
-                  <img src="/products/meet8/meetings-close.jpg" alt={c.more.access.alt} width={1232} height={574} />
+                  <img
+                    src="/products/meet8/meetings-close.jpg"
+                    alt={c.more.access.alt}
+                    width={1232}
+                    height={574}
+                  />
                 </div>
               </Fx>
             </div>
@@ -217,161 +268,163 @@ export default async function Page({ params }: PageProps<"/[lang]/meet8">) {
             </div>
           </section>
 
-          <PlansSection>
-            <Fx className="s-head" reveal={HEAD_D.plans}>
-              <p className="eyebrow">{pl.eyebrow}</p>
-              <h2>{pl.h2}</h2>
-              <p>{pl.p}</p>
-            </Fx>
-            <CountUpGrid>
-              <Fx as="article" className="pc" reveal={d(0)} glow>
-                <h3 className="pc-name">Standard</h3>
-                <div className="pc-price num">
-                  <b>
-                    <CountUp text={pl.standard.price} />
-                  </b>
-                  <span>{pl.perYear}</span>
-                </div>
-                <p className="pc-sub num">{pl.standard.sub}</p>
-                <p className="pc-for">{pl.standard.for}</p>
-                <PlanButton plan="standard" className="btn btn-ghost">
-                  {pl.standard.cta}
-                </PlanButton>
-                <ul className="pc-list">
-                  <li className="lbl">{pl.standard.listLabel}</li>
-                  {pl.standard.list.map((x) => (
-                    <li key={x}>
-                      <span>{x}</span>
-                    </li>
-                  ))}
-                </ul>
+          {SHOW_PRICING && (
+            <PlansSection>
+              <Fx className="s-head" reveal={HEAD_D.plans}>
+                <p className="eyebrow">{pl.eyebrow}</p>
+                <h2>{pl.h2}</h2>
+                <p>{pl.p}</p>
               </Fx>
-              <Fx as="article" className="pc rec" reveal={d(1)} glow>
-                <span className="pc-tag">{pl.premium.tag}</span>
-                <h3 className="pc-name">Premium</h3>
-                <div className="pc-price num">
-                  <b>
-                    <CountUp text={pl.premium.price} />
-                  </b>
-                  <span>{pl.perYear}</span>
-                </div>
-                <p className="pc-sub num">{pl.premium.sub}</p>
-                <p className="pc-for">{pl.premium.for}</p>
-                <PlanButton plan="premium" className="btn btn-primary">
-                  {pl.premium.cta}
-                </PlanButton>
-                <ul className="pc-list">
-                  <li className="lbl">{pl.premium.listLabel}</li>
-                  {pl.premium.list.map((x) => (
-                    <li key={x}>
-                      <span>{x}</span>
-                    </li>
-                  ))}
-                </ul>
-              </Fx>
-              <Fx as="article" className="pc cus" reveal={d(2)} glow>
-                <h3 className="pc-name">Customize</h3>
-                <div className="pc-price ask">
-                  <b>{pl.customize.price}</b>
-                </div>
-                <p className="pc-for">{pl.customize.for}</p>
-                <PlanButton plan="customize" className="btn btn-ghost">
-                  {pl.customize.cta}
-                </PlanButton>
-                <ul className="pc-list">
-                  <li className="lbl">{pl.customize.listLabel}</li>
-                  {pl.customize.list.map((x) => (
-                    <li key={x}>{x}</li>
-                  ))}
-                </ul>
-              </Fx>
-            </CountUpGrid>
-            <p className="pc-note">{pl.note}</p>
+              <CountUpGrid>
+                <Fx as="article" className="pc" reveal={d(0)} glow>
+                  <h3 className="pc-name">Standard</h3>
+                  <div className="pc-price num">
+                    <b>
+                      <CountUp text={pl.standard.price} />
+                    </b>
+                    <span>{pl.perYear}</span>
+                  </div>
+                  <p className="pc-sub num">{pl.standard.sub}</p>
+                  <p className="pc-for">{pl.standard.for}</p>
+                  <PlanButton plan="standard" className="btn btn-ghost">
+                    {pl.standard.cta}
+                  </PlanButton>
+                  <ul className="pc-list">
+                    <li className="lbl">{pl.standard.listLabel}</li>
+                    {pl.standard.list.map((x) => (
+                      <li key={x}>
+                        <span>{x}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </Fx>
+                <Fx as="article" className="pc rec" reveal={d(1)} glow>
+                  <span className="pc-tag">{pl.premium.tag}</span>
+                  <h3 className="pc-name">Premium</h3>
+                  <div className="pc-price num">
+                    <b>
+                      <CountUp text={pl.premium.price} />
+                    </b>
+                    <span>{pl.perYear}</span>
+                  </div>
+                  <p className="pc-sub num">{pl.premium.sub}</p>
+                  <p className="pc-for">{pl.premium.for}</p>
+                  <PlanButton plan="premium" className="btn btn-primary">
+                    {pl.premium.cta}
+                  </PlanButton>
+                  <ul className="pc-list">
+                    <li className="lbl">{pl.premium.listLabel}</li>
+                    {pl.premium.list.map((x) => (
+                      <li key={x}>
+                        <span>{x}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </Fx>
+                <Fx as="article" className="pc cus" reveal={d(2)} glow>
+                  <h3 className="pc-name">Customize</h3>
+                  <div className="pc-price ask">
+                    <b>{pl.customize.price}</b>
+                  </div>
+                  <p className="pc-for">{pl.customize.for}</p>
+                  <PlanButton plan="customize" className="btn btn-ghost">
+                    {pl.customize.cta}
+                  </PlanButton>
+                  <ul className="pc-list">
+                    <li className="lbl">{pl.customize.listLabel}</li>
+                    {pl.customize.list.map((x) => (
+                      <li key={x}>{x}</li>
+                    ))}
+                  </ul>
+                </Fx>
+              </CountUpGrid>
+              <p className="pc-note">{pl.note}</p>
 
-            <Fx as="h3" className="ct-h" reveal={0}>
-              {cmp.heading}
-            </Fx>
-            <Fx className="ct-wrap" reveal={0}>
-              <table className="ct">
-                <colgroup>
-                  <col className="c-f" />
-                  <col />
-                  <col />
-                  <col />
-                </colgroup>
-                <thead>
-                  <tr>
-                    <th scope="col">
-                      <span className="sr">{cmp.featureCol}</span>
-                    </th>
-                    <th scope="col">
-                      <span className="ct-n">Standard</span>
-                      <span className="ct-p num">
-                        {cmp.std.year}
-                        <br />
-                        {cmp.std.month}
-                      </span>
-                      <PlanButton plan="standard" className="ct-b">
-                        {cmp.std.cta}
-                      </PlanButton>
-                    </th>
-                    <th scope="col" className="prem">
-                      <span className="ct-n">Premium</span>
-                      <span className="ct-p num">
-                        {cmp.prem.year}
-                        <br />
-                        {cmp.prem.month}
-                      </span>
-                      <PlanButton plan="premium" className="ct-b fill">
-                        {cmp.prem.cta}
-                      </PlanButton>
-                    </th>
-                    <th scope="col">
-                      <span className="ct-n">Customize</span>
-                      <span className="ct-p">{cmp.cus.price}</span>
-                      <PlanButton plan="customize" className="ct-b">
-                        {cmp.cus.cta}
-                      </PlanButton>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cmp.rows.map((r, i) =>
-                    "group" in r ? (
-                      <tr className="g" key={i}>
-                        <th scope="rowgroup" colSpan={2}>
-                          {r.group}
-                        </th>
-                        <td className="prem"></td>
-                        <td></td>
-                      </tr>
-                    ) : (
-                      <tr key={i}>
-                        <th scope="row">
-                          {r.label}
-                          {r.beta && (
-                            <>
-                              {" "}
-                              <span className="beta">{cmp.beta}</span>
-                            </>
-                          )}
-                        </th>
-                        <td>
-                          <CellView v={r.std} yes={cmp.yes} no={cmp.no} />
-                        </td>
-                        <td className="prem">
-                          <CellView v={r.prem} yes={cmp.yes} no={cmp.no} />
-                        </td>
-                        <td className="cusv">
-                          <CellView v={r.cus} yes={cmp.yes} no={cmp.no} />
-                        </td>
-                      </tr>
-                    ),
-                  )}
-                </tbody>
-              </table>
-            </Fx>
-          </PlansSection>
+              <Fx as="h3" className="ct-h" reveal={0}>
+                {cmp.heading}
+              </Fx>
+              <Fx className="ct-wrap" reveal={0}>
+                <table className="ct">
+                  <colgroup>
+                    <col className="c-f" />
+                    <col />
+                    <col />
+                    <col />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th scope="col">
+                        <span className="sr">{cmp.featureCol}</span>
+                      </th>
+                      <th scope="col">
+                        <span className="ct-n">Standard</span>
+                        <span className="ct-p num">
+                          {cmp.std.year}
+                          <br />
+                          {cmp.std.month}
+                        </span>
+                        <PlanButton plan="standard" className="ct-b">
+                          {cmp.std.cta}
+                        </PlanButton>
+                      </th>
+                      <th scope="col" className="prem">
+                        <span className="ct-n">Premium</span>
+                        <span className="ct-p num">
+                          {cmp.prem.year}
+                          <br />
+                          {cmp.prem.month}
+                        </span>
+                        <PlanButton plan="premium" className="ct-b fill">
+                          {cmp.prem.cta}
+                        </PlanButton>
+                      </th>
+                      <th scope="col">
+                        <span className="ct-n">Customize</span>
+                        <span className="ct-p">{cmp.cus.price}</span>
+                        <PlanButton plan="customize" className="ct-b">
+                          {cmp.cus.cta}
+                        </PlanButton>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cmp.rows.map((r, i) =>
+                      "group" in r ? (
+                        <tr className="g" key={i}>
+                          <th scope="rowgroup" colSpan={2}>
+                            {r.group}
+                          </th>
+                          <td className="prem"></td>
+                          <td></td>
+                        </tr>
+                      ) : (
+                        <tr key={i}>
+                          <th scope="row">
+                            {r.label}
+                            {r.beta && (
+                              <>
+                                {" "}
+                                <span className="beta">{cmp.beta}</span>
+                              </>
+                            )}
+                          </th>
+                          <td>
+                            <CellView v={r.std} yes={cmp.yes} no={cmp.no} />
+                          </td>
+                          <td className="prem">
+                            <CellView v={r.prem} yes={cmp.yes} no={cmp.no} />
+                          </td>
+                          <td className="cusv">
+                            <CellView v={r.cus} yes={cmp.yes} no={cmp.no} />
+                          </td>
+                        </tr>
+                      ),
+                    )}
+                  </tbody>
+                </table>
+              </Fx>
+            </PlansSection>
+          )}
 
           <section className="section wrap" id="spec">
             <Fx className="s-head" reveal={HEAD_D.spec}>
@@ -392,22 +445,30 @@ export default async function Page({ params }: PageProps<"/[lang]/meet8">) {
               <h2>{c.faq.h2}</h2>
             </Fx>
             <div className="faq">
-              {c.faq.items.map((f, i) => (
-                <Fx as="details" key={f.q} reveal={d(i)} open={i === 0 ? true : undefined}>
-                  <summary>{f.q}</summary>
-                  <p>{f.a}</p>
-                </Fx>
-              ))}
+              {c.faq.items
+                .map((f, i) => ({ f, i }))
+                .filter(({ i }) => SHOW_PRICING || !PRICING_FAQ.has(i))
+                .map(({ f }, n) => (
+                  <Fx
+                    as="details"
+                    key={f.q}
+                    reveal={d(n)}
+                    open={n === 0 ? true : undefined}
+                  >
+                    <summary>{f.q}</summary>
+                    <p>{f.a}</p>
+                  </Fx>
+                ))}
             </div>
           </section>
 
           <footer className="wrap foot">
             <span>{c.footer.left}</span>
-            <span>{c.footer.right}</span>
+            {SHOW_PRICING && <span>{c.footer.right}</span>}
           </footer>
         </main>
 
-        <BuyBar label={c.bar.label} plans={c.bar.plans} />
+        {SHOW_PRICING && <BuyBar label={c.bar.label} plans={c.bar.plans} />}
       </PlanProvider>
     </div>
   );

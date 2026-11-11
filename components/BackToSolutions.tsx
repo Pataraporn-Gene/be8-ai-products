@@ -8,7 +8,7 @@ import { hasLocale } from "@/lib/i18n";
 /** Product pages that already pin a bar to the bottom edge; the button sits above it. */
 const PAGES_WITH_BOTTOM_BAR = new Set(["meet8", "insight8", "agent8", "pulse8"]);
 
-const LABEL = { en: "Back to AI Solutions", th: "กลับไปโซลูชัน AI" } as const;
+const LABEL = { en: "Back to AI Solutions", th: "กลับไปหน้าโซลูชัน AI" } as const;
 
 /** Floating exit from a product page to the catalog. Product logos no longer link home, so this is the way back. */
 export function BackToSolutions() {

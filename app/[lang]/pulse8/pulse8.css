@@ -410,3 +410,6 @@ html:has(.p-pulse8) { scroll-behavior: smooth; scroll-padding-top: 64px; scroll-
   .p-pulse8 .marquee ul + ul { display: flex; }
   .p-pulse8 .marquee ul { flex-wrap: nowrap; }
 }
+
+/* no reserved space for the quote bar while pricing is hidden */
+.p-pulse8.no-quote { padding-bottom: 0; }
