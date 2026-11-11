@@ -284,11 +284,11 @@ export function Calculator({ lang }: { lang: Locale }) {
                               <>
                                 {f.price(pr.license)} <small>{c.perUser}</small>
                               </>
-                            ) : (
+                            ) : pr.perMinute !== undefined ? (
                               <>
-                                {f.unit(0.076)} <small>{c.perMinute}</small>
+                                {f.unit(pr.perMinute)} <small>{c.perMinute}</small>
                               </>
-                            )}
+                            ) : null}
                             {pr.licenseDraft && <span className="calc-tag" title={c.draftHint}>{c.draft}</span>}
                           </span>
                           {pr.fromMonthly !== undefined && <span className="calc-pick-alt">{c.fromMonthly(cur === "USD" ? f.price(pr.fromMonthly) : f.whole(Math.round(f.priceValue(pr.fromMonthly))))}</span>}
@@ -358,6 +358,20 @@ export function Calculator({ lang }: { lang: Locale }) {
                   {single?.perUser && <span>{c.sayPerUser(f.whole(single.perUser.monthly))}</span>}
                   {oneTime > 0 && <span>{c.sayOnce} <strong>{f.whole(oneTime)}</strong></span>}
                 </p>
+              )}
+              {g.monthly > 0 && (
+                <dl className="calc-month">
+                  {[
+                    [c.monthInfra, g.month.cloud],
+                    [c.monthAi, g.month.ai],
+                    ...(g.month.other > 0 ? [[c.monthOther, g.month.other]] : []),
+                  ].map(([label, n]) => (
+                    <div key={label as string}>
+                      <dt>{label}</dt>
+                      <dd>{f.whole(n as number)}</dd>
+                    </div>
+                  ))}
+                </dl>
               )}
               <dl className="calc-big">
                 {[
