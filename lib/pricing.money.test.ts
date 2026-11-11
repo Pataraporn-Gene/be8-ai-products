@@ -435,3 +435,14 @@ test("M9 switching how Meet8 is bought keeps the same monthly usage (review find
   // between the two buy-once ways the hours stay as they are
   assert.equal(sw({ hours: 640, asks: 30, conc: 30, host: 0, pkg: 1, extra: 0 }, 20, 1).hours, 640);
 });
+
+test("M10 Meet8 subscription has no setup fee even when setup is ticked", () => {
+  const it = { ...meet8(2), setup: true };
+  const c = costItem(it, s);
+  near(c.setup, 0, "setup");
+  const g = shown(it);
+  assert.equal(g.setup, 0);
+  assert.equal(g.year1, 181704); // 12 × ฿15,142, no ฿45,000 setup
+  // buying once still charges setup when ticked: 3 days × ฿15,000
+  assert.equal(shown({ ...meet8(0), setup: true }).setup, 45000);
+});

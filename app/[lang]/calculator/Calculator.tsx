@@ -840,6 +840,7 @@ function ItemCard(props: {
           </fieldset>
         )}
 
+        {!pr.noSetup?.(vals) && (
         <label className="calc-check">
           <input type="checkbox" checked={item.setup} onChange={(e) => props.onChange({ setup: e.target.checked })} />
           <span>
@@ -847,6 +848,7 @@ function ItemCard(props: {
             <small>{c.setupHint}</small>
           </span>
         </label>
+        )}
 
         <details className="calc-break-wrap">
           <summary>{c.breakdownShow}</summary>
@@ -859,8 +861,8 @@ function ItemCard(props: {
                 value={f.whole(sh?.license ?? 0)}
               />
             )}
-            {item.setup && <Row label={c.impl} detail={c.days(pr.setupDays)} value={f.whole(sh?.setup ?? 0)} />}
-            {!(lic !== null && lic > 0) && !item.setup && <Row label={c.none} value="—" />}
+            {sh && sh.setup > 0 && <Row label={c.impl} detail={c.days(pr.setupDays)} value={f.whole(sh?.setup ?? 0)} />}
+            {!(lic !== null && lic > 0) && !(sh && sh.setup > 0) && <Row label={c.none} value="—" />}
           </BreakGroup>
 
           {lic !== null && lic > 0 && (

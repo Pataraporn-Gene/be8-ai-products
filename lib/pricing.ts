@@ -70,6 +70,8 @@ export type ProductPricing = {
   licenseDraft: boolean;
   /** Cheapest monthly price per user (US$) when the product can also be bought monthly. */
   fromMonthly?: number;
+  /** True when this way of buying has no setup fee (Meet8 subscription runs on Beryl8's cloud). */
+  noSetup?: (v: Record<string, number>) => boolean;
   /** Meeting hours a month the estimate assumes, so ways of buying can be compared on the same usage. */
   monthlyHours?: (v: Record<string, number>, users: number) => number;
   /** Inputs for buying option `k` of the `compare` choice with the same monthly usage as `v`. */
@@ -183,6 +185,7 @@ export const PRICING: Record<string, ProductPricing> = {
     id: "meet8",
     license: MEET8_LICENSE,
     licenseFor: (v) => (isMeet8Sub(v) ? 0 : MEET8_LICENSE),
+    noSetup: isMeet8Sub,
     monthlyHours: (v, users) =>
       isMeet8Sub(v) ? users * MEET8_SUB.hours[choiceIndex(v.pkg, MEET8_SUB.hours.length)] + Math.max(0, v.extra) : v.hours,
     // A subscription is priced as if its package is used in full, so its usage is the package plus extra hours.
@@ -558,7 +561,7 @@ export function costItem(item: Item, s: Settings): ItemCost {
   const listLicense = (licenseOf(item) ?? 0) * users;
   const license = listLicense * (1 - clamp(s.discount, 0, 100, 0) / 100);
   const ma = license * MA_RATE;
-  const setup = item.setup ? (p.setupDays * s.dayRate) / s.rate : 0;
+  const setup = item.setup && !p.noSetup?.(values(item)) ? (p.setupDays * s.dayRate) / s.rate : 0;
   const lines = p.lines(values(item), users, item.size === "standard" ? "standard" : "lean").map((l) => {
     const k = s.cud && l.cud ? 1 - l.cud : 1;
     const detail = k !== 1 && l.detail ? L(`${l.detail.en} − ${Math.round(l.cud! * 100)}% committed use`, `${l.detail.th} − ส่วนลดผูกสัญญา ${Math.round(l.cud! * 100)}%`) : l.detail;
