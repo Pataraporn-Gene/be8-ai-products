@@ -395,6 +395,8 @@ export function Calculator({ lang }: { lang: Locale }) {
             </div>
           </aside>
           <section className="calc-sum-in calc-sum-rest" aria-label={c.summaryH}>
+            <details className="calc-more">
+              <summary>{c.moreShow}</summary>
 
               {t.items.length > 0 && (
                 <>
@@ -586,6 +588,7 @@ export function Calculator({ lang }: { lang: Locale }) {
                 </div>
               )}
 
+            </details>
               <p className="calc-fine">
                 {vat ? c.vatOn : c.vatOff} · {c.fine}
               </p>

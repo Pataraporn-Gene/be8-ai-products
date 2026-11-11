@@ -273,6 +273,8 @@
 /* The detail tables sit under the estimate in the left column, so the sticky totals never cover them. */
 .calc-sum-rest { grid-column: 1; }
 .calc-sum-rest > :first-child { margin-top: 0; }
+.calc-more > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-size: 14px; font-weight: var(--weight-medium); color: var(--cyan-800); }
+.calc-more[open] > summary { margin-bottom: 8px; }
 @media (max-height: 700px) { .calc-sum-top { position: static; } }
 .calc-sum-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .calc-seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 999px; background: var(--neutral-100); }
