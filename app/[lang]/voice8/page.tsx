@@ -1293,100 +1293,123 @@ export default async function Page({ params }: PageProps<"/[lang]/voice8">) {
             <h2>{c.plans.h2}</h2>
             <span className="mock-flag">{c.plans.flag}</span>
           </div>
-          <div className="pc-grid">
-            {c.plans.tiers.map((t) => {
-              const rec = t.name === "M";
-              return (
-                <article key={t.name} className={rec ? "pc rec" : "pc"}>
-                  {rec && <span className="pc-tag">{c.plans.recommended}</span>}
-                  <h3 className="pc-name">{t.name}</h3>
-                  <div className="pc-price num set">
-                    <b>{t.price}</b>
-                    <span>{c.plans.perMonth}</span>
-                  </div>
-                  <p className="pc-for">{t.for}</p>
-                  <a className={rec ? "btn btn-primary" : "btn btn-ghost"} href="#contact">
-                    {c.plans.contactSales}
-                  </a>
-                  <ul className="tickli">
-                    <li className="h">{t.head}</li>
-                    {t.items.map((x) => (
-                      <li key={x}>{x}</li>
-                    ))}
-                  </ul>
-                </article>
-              );
-            })}
-            <article className="pc">
-              <h3 className="pc-name">Customize</h3>
-              <div className="pc-price">
-                <b style={{ fontSize: 22, color: "var(--tint-ink)" }}>{c.plans.contactSales}</b>
-              </div>
-              <p className="pc-for">{c.plans.customize.for}</p>
-              <a className="btn btn-ghost" href="#contact">
-                {c.plans.contactSales}
-              </a>
-              <p className="pc-sub pc-after">{c.plans.customize.sub}</p>
-            </article>
+          {/* Pricing options, switched by plain radios so the page stays a server component. */}
+          {c.plans.variants.map((v, i) => (
+            <input key={v.label} className="sr opt-in" type="radio" name="v8-plan-opt" id={`v8-opt-${i + 1}`} defaultChecked={i === 0} />
+          ))}
+          <div className="pc-opts">
+            {c.plans.variants.map((o, i) => (
+              <label key={o.label} htmlFor={`v8-opt-${i + 1}`}>
+                <b>{o.label}</b>
+                <span>{o.sub}</span>
+              </label>
+            ))}
           </div>
-          <p className="pc-note">{c.plans.note}</p>
 
-          <h3 className="ct-h">{c.plans.compareH}</h3>
-          <div className="ct-wrap">
-            <table className="ct" id="ct">
-              <colgroup>
-                <col className="c-f" />
-                <col />
-                <col />
-                <col />
-                <col />
-              </colgroup>
-              <thead>
-                <tr>
-                  <th scope="col">
-                    <span className="sr">{c.plans.featureSr}</span>
-                  </th>
-                  {c.plans.tiers.map((t) => (
-                    <th key={t.name} scope="col" className={t.name === "M" ? "prem" : undefined}>
-                      <span className="ct-n">{t.name}</span>
-                      <span className="ct-p num">
-                        {t.price} {c.plans.perMonth}
-                      </span>
-                    </th>
-                  ))}
-                  <th scope="col">
-                    <span className="ct-n">Customize</span>
-                    <span className="ct-p">{c.plans.contactSales}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {c.plans.rows.map((r) => {
-                  if (r.length === 1)
+          {c.plans.variants.map((v, opt) => {
+            const price = (i: number) => v.prices[i];
+            const setup = "setup" in v ? v.setup : undefined;
+            const rows = [...v.pricing, ...c.plans.rows];
+            return (
+              <div key={v.label} className={`opt opt-${opt + 1}`}>
+                <div className="pc-grid">
+                  {c.plans.tiers.map((t, i) => {
+                    const rec = t.name === "M";
                     return (
-                      <tr key={r[0]} className="g">
-                        <th scope="rowgroup" colSpan={2}>
-                          {r[0]}
-                        </th>
-                        <td className="prem"></td>
-                        <td></td>
-                        <td></td>
-                      </tr>
+                      <article key={t.name} className={rec ? "pc rec" : "pc"}>
+                        {rec && <span className="pc-tag">{c.plans.recommended}</span>}
+                        <h3 className="pc-name">{t.name}</h3>
+                        <div className="pc-price num set">
+                          <b>{price(i)}</b>
+                          <span>{c.plans.perMonth}</span>
+                          {setup && <em className="pc-once">{setup}</em>}
+                        </div>
+                        <p className="pc-for">{t.for}</p>
+                        <a className={rec ? "btn btn-primary" : "btn btn-ghost"} href="#contact">
+                          {c.plans.contactSales}
+                        </a>
+                        <ul className="tickli">
+                          <li className="h">{t.head}</li>
+                          {[t.calls, v.minutes[i], ...t.items].map((x) => (
+                            <li key={x}>{x}</li>
+                          ))}
+                        </ul>
+                      </article>
                     );
-                  const txt = typeof r[1] === "string";
-                  return (
-                    <tr key={r[0]}>
-                      <th scope="row">{r[0]}</th>
-                      <td className={txt ? "txt" : undefined}>{cell(r[1])}</td>
-                      <td className={txt ? "prem txt" : "prem"}>{cell(r[2])}</td>
-                      <td className={txt ? "txt" : undefined}>{cell(r[3])}</td>
-                      <td className={txt ? "txt" : undefined}>{cell(r[4])}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                  })}
+                  <article className="pc">
+                    <h3 className="pc-name">Customize</h3>
+                    <div className="pc-price">
+                      <b style={{ fontSize: 22, color: "var(--tint-ink)" }}>{c.plans.contactSales}</b>
+                    </div>
+                    <p className="pc-for">{c.plans.customize.for}</p>
+                    <a className="btn btn-ghost" href="#contact">
+                      {c.plans.contactSales}
+                    </a>
+                    <p className="pc-sub pc-after">{c.plans.customize.sub}</p>
+                  </article>
+                </div>
+                <p className="pc-note">{v.note}</p>
+
+                <h3 className="ct-h">{c.plans.compareH}</h3>
+                <div className="ct-wrap">
+                  <table className="ct">
+                    <colgroup>
+                      <col className="c-f" />
+                      <col />
+                      <col />
+                      <col />
+                      <col />
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <th scope="col">
+                          <span className="sr">{c.plans.featureSr}</span>
+                        </th>
+                        {c.plans.tiers.map((t, i) => (
+                          <th key={t.name} scope="col" className={t.name === "M" ? "prem" : undefined}>
+                            <span className="ct-n">{t.name}</span>
+                            <span className="ct-p num">
+                              {price(i)} {c.plans.perMonth}
+                            </span>
+                          </th>
+                        ))}
+                        <th scope="col">
+                          <span className="ct-n">Customize</span>
+                          <span className="ct-p">{c.plans.contactSales}</span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((r) => {
+                        if (r.length === 1)
+                          return (
+                            <tr key={r[0]} className="g">
+                              <th scope="rowgroup" colSpan={2}>
+                                {r[0]}
+                              </th>
+                              <td className="prem"></td>
+                              <td></td>
+                              <td></td>
+                            </tr>
+                          );
+                        const txt = typeof r[1] === "string";
+                        return (
+                          <tr key={r[0]}>
+                            <th scope="row">{r[0]}</th>
+                            <td className={txt ? "txt" : undefined}>{cell(r[1])}</td>
+                            <td className={txt ? "prem txt" : "prem"}>{cell(r[2])}</td>
+                            <td className={txt ? "txt" : undefined}>{cell(r[3])}</td>
+                            <td className={txt ? "txt" : undefined}>{cell(r[4])}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })}
         </section>
         )}
 
