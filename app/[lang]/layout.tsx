@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import localFont from "next/font/local";
+import Script from "next/script";
 import { getDictionary, hasLocale, locales } from "@/lib/i18n";
 import { BackToSolutions } from "@/components/BackToSolutions";
 import "../globals.css";
@@ -49,6 +50,13 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
     >
       <body className="flex min-h-full flex-col">{children}
         <BackToSolutions />
+        {/* Comment8 feedback widget: must load from the Comment8 origin, do not bundle or proxy. */}
+        <Script
+          async
+          src="https://comment8-129368942455.asia-southeast1.run.app/widget.js"
+          data-comment8="cp_9e86bc53dd29945b03ddf94546d02d7e"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

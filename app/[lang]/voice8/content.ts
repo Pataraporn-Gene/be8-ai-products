@@ -346,7 +346,7 @@ const en = {
         sub: "All-in monthly price",
         prices: ["฿82,500", "฿162,500", "฿435,000"],
         minutes: ["15,000 conversation minutes a month", "45,000 conversation minutes a month", "150,000 conversation minutes a month"],
-        note: "Each plan includes its conversation minutes for the month; minutes beyond that are ฿2.5 each. Prices exclude VAT, implementation, and phone numbers and call charges from your phone line provider (SIP trunk).",
+        note: "Prices exclude VAT, implementation, and phone numbers and call charges from your phone line provider.",
         pricing: [
           ["Pricing"],
           ["Monthly price", "฿82,500", "฿162,500", "฿435,000", "Per contract"],
@@ -421,7 +421,7 @@ const en = {
       },
       {
         dt: "Concurrent calls",
-        dd: "About 90 calls per Asterisk server in load tests. Add servers to scale",
+        dd: "About 60 calls per Asterisk server in load tests. Add servers to scale",
       },
       {
         dt: "Knowledge",
@@ -881,7 +881,7 @@ const th: Voice8Content = {
       },
       {
         dt: "สายพร้อมกัน",
-        dd: "ราว 90 สายต่อ Asterisk หนึ่งเครื่องจาก load test เพิ่มเครื่องเพื่อขยายได้",
+        dd: "ราว 60 สายต่อ Asterisk หนึ่งเครื่องจาก load test เพิ่มเครื่องเพื่อขยายได้",
       },
       {
         dt: "Knowledge",

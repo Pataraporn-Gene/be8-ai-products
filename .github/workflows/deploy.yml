@@ -1,0 +1,66 @@
+name: Deploy to Cloud Run
+
+# Every push to main (including merged PRs) is tested, then deployed to
+# Cloud Run service be8-ai-products. Run it by hand from the Actions tab
+# with "Run workflow" when you need to redeploy without a new commit.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# A newer push cancels a deploy that is still waiting, so the latest main wins.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: be8-ai-research
+  REGION: asia-southeast1
+  SERVICE: be8-ai-products
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # lets GitHub prove its identity to Google; no key is stored
+    steps:
+      - uses: actions/checkout@v4
+
+      # Google only accepts this login from this repo's main branch.
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/129368942455/locations/global/workloadIdentityPools/be8-products-github/providers/github-oidc
+          service_account: be8-products-deployer@be8-ai-research.iam.gserviceaccount.com
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      # Same command as the manual deploy: build from source with buildpacks.
+      - name: Deploy
+        run: |
+          gcloud run deploy "$SERVICE" \
+            --source . \
+            --region "$REGION" \
+            --project "$PROJECT_ID" \
+            --quiet
+
+      - name: Smoke test
+        run: |
+          URL=$(gcloud run services describe "$SERVICE" --region "$REGION" --project "$PROJECT_ID" --format 'value(status.url)')
+          for p in /en /th /en/calculator; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$URL$p")
+            echo "$p $code"
+            [ "$code" = 200 ] || exit 1
+          done
