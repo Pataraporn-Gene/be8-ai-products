@@ -144,17 +144,20 @@ type Svc = [en: string, th: string, usd: number, cud?: keyof typeof CUD];
 function gcp(svcs: Svc[], sets: number, draft: boolean, markup?: number): Line[] {
   const hosted = markup !== undefined;
   const k = hosted ? 1 + markup : 1;
-  return svcs.map(([en, th, usd, family]) => ({
-    id: "gcp-" + en.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-    label: L(`Google Cloud · ${en}`, `Google Cloud · ${th}`),
-    payer: hosted ? ("beryl8" as const) : ("direct" as const),
-    kind: "cloud" as const,
-    sell: usd * k * sets,
-    cost: usd * sets,
-    draft: draft || hosted,
-    cud: family ? CUD[family] : undefined,
-    detail: L(sets > 1 ? `${sets} sets × US$${n(usd * k)} / month` : `US$${n(usd * k)} / month`, sets > 1 ? `${sets} ชุด × US$${n(usd * k)} ต่อเดือน` : `US$${n(usd * k)} ต่อเดือน`),
-  }));
+  return svcs.map(([en, th, usd, family]) => {
+    const m = n(roundPrice(usd * k)); // a monthly amount shows cents only: 73.78 × 1.2 = 88.536 → 88.54
+    return {
+      id: "gcp-" + en.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      label: L(`Google Cloud · ${en}`, `Google Cloud · ${th}`),
+      payer: hosted ? ("beryl8" as const) : ("direct" as const),
+      kind: "cloud" as const,
+      sell: usd * k * sets,
+      cost: usd * sets,
+      draft: draft || hosted,
+      cud: family ? CUD[family] : undefined,
+      detail: L(sets > 1 ? `${sets} sets × US$${m} / month` : `US$${m} / month`, sets > 1 ? `${sets} ชุด × US$${m} ต่อเดือน` : `US$${m} ต่อเดือน`),
+    };
+  });
 }
 
 /** A usage-driven Google Cloud row with its formula. */
@@ -166,23 +169,46 @@ const gcpUsage = (id: string, en: string, th: string, usd: number, detail: Local
 /* Meet8 Google Cloud, measured on production: sizes and fixed rows from the 2026-11-03 cost model
    (~/Desktop/meet8-concurrent-cost-2026-11-03.html, SIZES/COMMON_FIXED), checked against prod on
    2026-11-11 (Cloud SQL db-custom-2-7680, 2 × Redis BASIC 1 GB, e2-small runner). Hourly Cloud Run =
-   (US$216 − US$97 floor and warm) / 805 recorded hours, Cloud Monitoring 4–10 Nov 2026. L/XL unmeasured. */
+   (US$216 − US$97 floor and warm) / 805 recorded hours, Cloud Monitoring 4–10 Nov 2026. L/XL unmeasured.
+   S/M sql, redis and vm re-priced 2026-11-18 from the Cloud Billing Catalog (asia-southeast1, on-demand, × 730 h):
+   S and M specs = be8-brain lib/tenant/deploy-size.ts (S db-custom-1-3840 + 20 GB SSD, M db-custom-2-7680 + 50 GB SSD,
+   both ZONAL) = prod be8-brain-pg-prod for M. Cloud SQL Zonal vCPU 0.0578/h (SKU DE86-B401-E60F), RAM 0.0098/GiB-h
+   (EF83-F6A8-8EA7), SSD 0.238/GiB-mo (45B3-606F-EE91); backups (0.112/GiB-mo, 5C0F-D226-757F) are usage and not included.
+   Redis: 2 × 1 GiB Basic M1 at 0.065/GiB-h (D7B2-9EA7-8B11) = 94.9. vm: prod atrium-runner-1 = e2-small (0.5 core ×
+   0.02690931/h 7102-B9AA-2ACF + 2 GiB × 0.00360594/h E277-7DC2-2C7D) + 100 GB pd-balanced boot disk × 0.11 (16D2-FC49-A127).
+   Decision 2026-11-18 (คุณเมิน): vm is priced as actually used (e2-small + 100 GB boot = 26.09, not a right-sized disk).
+   Chat sessions run in the Cloud Run sandbox, and that cost stays in the Cloud Run rows (floor/warm/perHour), not in vm,
+   so it is not counted twice.
+   L/XL sql (decision 2026-11-18): L db-custom-4-15360, XL db-custom-8-30720, zonal SSD. Storage GB = maxRooms, the S→M
+   pattern (S 20 GB / 20 rooms, M 50 GB / 50 rooms), so L 100 GB, XL 200 GB. Same SKUs as S/M (checked 2026-11-18):
+   DE86-B401-E60F 0.0578/vCPU-h, EF83-F6A8-8EA7 0.0098/GiB-h, 45B3-606F-EE91 0.238/GiB-mo. L/XL redis and vm are still the
+   2026-11-03 model estimates (no tier is defined for them), so L/XL rows stay draft. */
 const MEET8_SIZES = [
-  { name: "S", maxRooms: 20, sql: 85, redis: 95, vm: 20 },
-  { name: "M", maxRooms: 50, sql: 155, redis: 95, vm: 25 },
-  { name: "L", maxRooms: 100, sql: 320, redis: 143, vm: 40 },
-  { name: "XL", maxRooms: 200, sql: 655, redis: 190, vm: 60 },
+  // sql 1 × 0.0578 × 730 + 3.75 × 0.0098 × 730 + 20 × 0.238 = 73.78 (was 85); vm 15.09 + 11.00 = 26.09 (was 20)
+  { name: "S", maxRooms: 20, sql: 73.78, redis: 95, vm: 26.09 },
+  // sql 2 × 0.0578 × 730 + 7.5 × 0.0098 × 730 + 50 × 0.238 = 149.94 (was 155); vm same e2-small runner = 26.09 (was 25)
+  { name: "M", maxRooms: 50, sql: 149.94, redis: 95, vm: 26.09 },
+  // sql 4 × 0.0578 × 730 + 15 × 0.0098 × 730 + 100 × 0.238 = 168.776 + 107.31 + 23.8 = 299.89 (was 320)
+  { name: "L", maxRooms: 100, sql: 299.89, redis: 143, vm: 40 },
+  // sql 8 × 0.0578 × 730 + 30 × 0.0098 × 730 + 200 × 0.238 = 337.552 + 214.62 + 47.6 = 599.77 (was 655)
+  { name: "XL", maxRooms: 200, sql: 599.77, redis: 190, vm: 60 },
 ] as const;
 /** Transcription + meeting AI per recorded hour, measured on prod 4–10 Nov 2026: STT 0.196 + AI 0.335 (list prices). */
 const MEET8_STT_PER_HOUR = 0.53;
 /** Meet8 chat answer, Gemini Flash at 2027 list price (US$0.048 a message, measured 2026-11-03; was US$0.012). */
 const MEET8_ASK_COST = 0.048;
+/* floor 61 is measured on prod with Cloud Run minScale 3, which is the correct prod value (decision 2026-11-18);
+   be8-brain DEPLOY.md saying min 0 is stale. */
 const MEET8_RUN = { floor: 61, warm: 18, roomsPerInstance: 4, perHour: 0.148, storagePerHour: 0.04 };
 /* Meet8 subscription on Beryl8's shared multi-tenant cloud, from prod 4–10 Nov 2026 (× 30/7, 111 users active in 30 days):
-   fixed US$4.10 per user = (servers US$351 + Cloud Run floor and warm US$97 + chat US$7.5) / 111; per recorded hour
+   fixed US$3.74 per user = (servers US$311.03 + Cloud Run floor and warm US$97 + chat US$7.5) / 111, servers = size M
+   rows (sql 149.94 + redis 95 + vm 26.09) + NAT/build/other 40; no Load Balancer or Cloud Armor, prod has none (gcloud
+   2026-11-18: be8-brain is served by a Cloud Run domain mapping, no forwarding rule or security policy). Was US$4.10 =
+   (351 = 155 + 95 + 25 + LB 20 + Armor 16 + 40 + 97 + 7.5) / 111. Decision 2026-11-18 (คุณเมิน): subscription keeps
+   LB and Armor out, because it runs on Beryl8's own prod, which has neither. Per recorded hour
    US$0.72 = Cloud Run 0.148 + storage 0.04 + STT 0.196 (stt_usage_log) + AI 0.335 (ai_usage_log, catalog list prices).
    Priced as if the whole pool is used. `hours` index order makes the radios read 5, 10, 20. */
-const MEET8_SUB = { fixedPerUser: 4.1, perHour: 0.72, margin: 0.5, hours: [20, 10, 5] };
+const MEET8_SUB = { fixedPerUser: 3.74, perHour: 0.72, margin: 0.5, hours: [20, 10, 5] };
 const MEET8_LICENSE = 360;
 /** `host` options: 0 your own Google Cloud, 1 Google Cloud through Beryl8, 2 subscription. */
 const MEET8_HOST = { options: 3, viaBeryl8: 1, subscription: 2 };
@@ -208,6 +234,10 @@ function meet8Gcp(users: number, conc: number, hours: number, markup?: number): 
       [`Cloud SQL (database, size ${size.name})`, `Cloud SQL (ฐานข้อมูล ขนาด ${size.name})`, size.sql, "sql"],
       ["Memorystore (2 × Redis)", "Memorystore (Redis 2 ตัว)", size.redis],
       ["Compute Engine (chat runner)", "Compute Engine (ตัวรันแชต)", size.vm],
+      // Decision 2026-11-18 (คุณเมิน): perpetual keeps LB and Armor, recommended for enterprise production (WAF, custom
+      // domain); Beryl8's own prod runs without them (Cloud Run domain mapping), so the subscription leaves them out.
+      // Global forwarding rule minimum 0.025/h (DEE3-C42E-3E4D) = 18.25 + data; Armor policy 5 (4B13-E64F-4A2B) + rules
+      // 1 each (A321-89BD-F5BC) + 0.75/M requests.
       ["Load Balancer", "Load Balancer", 20],
       ["Cloud Armor", "Cloud Armor", 16],
       ["NAT, build and other", "NAT, build และอื่นๆ", 40],
@@ -283,8 +313,10 @@ export const PRICING: Record<string, ProductPricing> = {
       ];
     },
     notes: [
-      L("Buy once: servers sized from our production measurements by meetings at the same time (sizes S and M measured, L and XL estimated).",
-        "ซื้อขาด: ขนาดเครื่องคิดจากการวัดบน production ตามจำนวนห้องประชุมพร้อมกัน (ขนาด S และ M วัดจริง L และ XL ประมาณ)"),
+      L("Buy once: servers sized from our production measurements by meetings at the same time (sizes S and M at Google list prices; L and XL are draft, with Cloud SQL at list prices).",
+        "ซื้อขาด: ขนาดเครื่องคิดจากการวัดบน production ตามจำนวนห้องประชุมพร้อมกัน (ขนาด S และ M ใช้ราคา list ของ Google, L และ XL ยังเป็นร่าง โดย Cloud SQL ใช้ราคา list)"),
+      L("Buy once: Load Balancer and Cloud Armor are recommended for enterprise production (WAF, custom domain). Meet8's own production runs without them.",
+        "ซื้อขาด: แนะนำ Load Balancer และ Cloud Armor สำหรับ production ระดับองค์กร (WAF, custom domain) ส่วน production ของ Meet8 เองไม่ได้ใช้"),
     ],
   },
   agent8: {
