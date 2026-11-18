@@ -382,7 +382,7 @@ test("M4 server size follows meetings at once: 30 → M, 300 → XL (capped), 0%
   assert.equal(sql(100, 30).id, "gcp-cloud-sql-database-size-m-");
   near(sql(100, 30).sell, 149.94, "M SQL");
   near(base(1000, 30), 1393, "XL: 61 + 74 × 18");
-  near(sql(1000, 30).sell, 655, "XL SQL");
+  near(sql(1000, 30).sell, 599.77, "XL SQL");
   near(base(20, 0), 61, "one meeting, no warm instance");
   near(sql(20, 0).sell, 73.78, "S SQL");
 });
@@ -512,4 +512,37 @@ test("C17f Voice8 warns only when call minutes per day exceed concurrent × hour
   const w = (inputs: Record<string, number>) => PRICING.voice8.warning!(values({ ...newItem("voice8", "v"), inputs: { ...newItem("voice8", "v").inputs, ...inputs } }));
   assert.equal(w({ concurrent: 25, calls: 1500, callMin: 5, hours: 5 }), null); // 7,500 = 7,500 exactly
   assert.match(w({ concurrent: 25, calls: 1501, callMin: 5, hours: 5 })!.th, /เกิน/);
+});
+
+test("M12 size L and XL Cloud SQL from the same SKUs; L/XL stay draft; LB/Armor kept for perpetual with a bilingual note", () => {
+  const lines = (users: number, host = 0) => costItem({ ...meet8(0, { host }), users }, s).lines;
+  const h = 730;
+  // L db-custom-4-15360 + 100 GB SSD, XL db-custom-8-30720 + 200 GB SSD (storage GB = maxRooms, as S 20 / M 50)
+  const l = lines(300).find((x) => x.id.startsWith("gcp-cloud-sql"))!; // 300 × 30% = 90 meetings → L
+  assert.equal(l.id, "gcp-cloud-sql-database-size-l-");
+  assert.equal(l.cost, 299.89); // 168.776 + 107.31 + 23.8 = 299.886
+  near(4 * 0.0578 * h + 15 * 0.0098 * h + 100 * 0.238, 299.886, "L SQL from SKUs");
+  const xl = lines(600).find((x) => x.id.startsWith("gcp-cloud-sql"))!; // 180 meetings → XL
+  assert.equal(xl.id, "gcp-cloud-sql-database-size-xl-");
+  assert.equal(xl.cost, 599.77); // 337.552 + 214.62 + 47.6 = 599.772
+  near(8 * 0.0578 * h + 30 * 0.0098 * h + 200 * 0.238, 599.772, "XL SQL from SKUs");
+  // L/XL fixed rows are draft even on the customer's own cloud; S is not
+  for (const users of [300, 600]) for (const x of lines(users).filter((x) => x.id.startsWith("gcp-") && x.id !== "gcp-run-hours" && x.id !== "gcp-storage-hours")) assert.equal(x.draft, true, `${users} ${x.id}`);
+  assert.equal(lines(20).find((x) => x.id.startsWith("gcp-cloud-sql"))!.draft, false);
+  // 300 users, 3,000 h: own cloud ฿121,338 → ฿120,664 (SQL 320 → 299.89, −20.11 × 33.5); through Beryl8 ฿145,604 → ฿144,796
+  const total = (host: number) => { const g = shown({ ...meet8(host, { hours: 3000 }), users: 300 }); return g.monthlyBeryl8 + g.monthlyDirect; };
+  assert.equal(total(0), 120664);
+  assert.equal(total(1), 144796);
+  // LB 20 + Armor 16 stay on both buy-once ways; the subscription has none
+  for (const host of [0, 1]) {
+    const by = (id: string) => lines(20, host).find((x) => x.id === id)!.cost;
+    assert.equal(by("gcp-load-balancer"), 20);
+    assert.equal(by("gcp-cloud-armor"), 16);
+  }
+  assert.ok(lines(20, 2).every((x) => !x.id.startsWith("gcp-")));
+  const note = PRICING.meet8.notes.find((x) => x.en.includes("Load Balancer"))!;
+  assert.match(note.en, /recommended for enterprise production \(WAF, custom domain\)/);
+  assert.match(note.en, /Meet8's own production runs without them/);
+  assert.match(note.th, /Load Balancer และ Cloud Armor/);
+  assert.match(note.th, /production ของ Meet8 เองไม่ได้ใช้/);
 });
