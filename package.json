@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test lib/*.test.ts"
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "node --test --test-concurrency=${TEST_WORKERS:-2} lib/*.test.ts",
+    "test:related": "node scripts/test-related.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.64.0",
