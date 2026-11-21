@@ -76,5 +76,7 @@ test("Agent8 and Pulse8: every monthly line is paid directly; AI model line is a
     assert.equal(c.monthlyBeryl8, 0);
   }
   const g = displayGrid(totals([a8, p8], s), { cur: "THB", rate: 33.5, vat: false }, s);
-  assert.deepEqual(g.hosting.total, { cloud: 23450, ai: 4020, other: 4858, total: 32328 });
+  // cloud at ฿33.5: Agent8 300 × 33.5 = 10,050 + Pulse8 4,020 + SQL 1,278 (38.15) + Redis 1,590 (47.45) + 1,005 + 3,350 = 21,293
+  // (was 23,450 with SQL 110 and Redis 40, re-priced 2026-11-21)
+  assert.deepEqual(g.hosting.total, { cloud: 21293, ai: 4020, other: 4858, total: 30171 });
 });
