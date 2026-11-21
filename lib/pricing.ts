@@ -61,8 +61,11 @@ export type Line = {
 };
 
 export type Size = "lean" | "standard";
-/** 1-year committed-use discounts: Cloud SQL 25%, Cloud Run about 17%. Only compute rows carry one. */
-export const CUD = { run: 0.17, sql: 0.25 } as const;
+/** 1-year committed-use discounts: Cloud SQL 25%, Cloud Run about 17%. Only compute rows carry one.
+ *  runInstance: Cloud Run services with instance-based billing (formerly "CPU always allocated") get 28% for a 1-year
+ *  commitment, request-based billing 17% (docs.cloud.google.com/run/cud, read 2026-11-21). Only rows that are all
+ *  instance-based Cloud Run in prod use it; mixed rows and every Meet8/Insight8 row keep `run`. */
+export const CUD = { run: 0.17, runInstance: 0.28, sql: 0.25 } as const;
 
 export type ProductPricing = {
   id: string;
@@ -117,7 +120,13 @@ const VOICE8 = {
   aiMin: 0.0218, // default AI cost per minute (LLM + STT + TTS + judge + extractor), billed by Beryl8 at this rate
   callsPerVoice: 4,
   voiceBuffer: 1, // one spare voice instance on top of concurrent ÷ 4
-  callsPerAsterisk: 80, // ~90 per VM at 85% CPU, 80 leaves headroom
+  // ~60 calls per Asterisk VM: load test on prod Asterisk B (e2-standard-2), conversational-ai
+  // docs/superpowers/specs/2026-11-10-asterisk-unbuffered-design.md: 60 calls rtt p95 414–433 ms, 90 calls 0.93–1.2 s;
+  // the Voice8 page also says about 60 calls per Asterisk server (was 80).
+  callsPerAsterisk: 60,
+  // Extra call-runtime + system pair per 80 concurrent calls: the threshold it shared with Asterisk before 2026-11-21.
+  // Kept until the runtime has a load test of its own.
+  callsPerRuntime: 80,
   voiceHour: 0.1728, // 2 vCPU / 2 GiB always-on
   runtimeHour: 0.0864, // 1 vCPU / 1 GiB always-on
   idleTail: 0.25, // instances stay ~15 min after the last call
@@ -248,6 +257,13 @@ function meet8Gcp(users: number, conc: number, hours: number, markup?: number): 
     perHour("gcp-storage-hours", "Storage, egress and logs (per meeting hour)", "Storage, egress และ log (ตามชั่วโมงประชุม)", MEET8_RUN.storagePerHour),
   ];
 }
+
+/** Space8 GKE Autopilot agent runtime, US$ a month: cluster fee and the always-on runner + egress pods (sources at the row). */
+const SPACE8_GKE = { clusterFee: 73, pods: 49.32 };
+/** Cloud SQL storage limits for a shared-core machine, GiB (sources at the Data8 input). */
+const SQL_SHARED_CORE_GIB = { min: 10, max: 3054 };
+/** Cloud SQL disks are whole GB, so a typed size is rounded up and held at the 10 GiB minimum. */
+const billedSqlGiB = (gib: number) => Math.max(SQL_SHARED_CORE_GIB.min, Math.ceil(gib));
 
 export const PRICING: Record<string, ProductPricing> = {
   meet8: {
@@ -394,16 +410,20 @@ export const PRICING: Record<string, ProductPricing> = {
       const voiceExtra = outbound ? voices : voices - 1;
       const voiceDay = outbound ? halfUp(v.hours + V.warmUp + V.idleTail) : dayHours;
       const voiceHours = voiceDay * v.days;
-      const tierExtra = Math.max(0, Math.ceil(v.concurrent / V.callsPerAsterisk) - 1);
+      const asteriskExtra = Math.max(0, Math.ceil(v.concurrent / V.callsPerAsterisk) - 1);
+      const runtimeExtra = Math.max(0, Math.ceil(v.concurrent / V.callsPerRuntime) - 1);
       const egressGiB = (minutes * V.mbPerMin * 1e6) / 2 ** 30; // MB → GiB, the unit Google bills egress in
       return [
         { id: "min", label: L("AI conversation minutes", "นาทีสนทนา AI"), payer: "beryl8", kind: "ai",
           sell: minutes * v.aiMin, cost: minutes * v.aiMin,
           detail: L(`${n(v.calls)} calls × ${n(v.callMin)} min × ${n(v.days)} days = ${n(minutes)} min × US$${n(v.aiMin)}`, `${n(v.calls)} สาย × ${n(v.callMin)} นาที × ${n(v.days)} วัน = ${n(minutes)} นาที × US$${n(v.aiMin)}`) },
         // Fixed stack: prod in docs/cost.md (~$640) with both Asterisk VMs on e2-standard-2; Cloud Run and LB cost the same in both regions.
+        // CUD (gcloud run services describe, 2026-11-21): the 207.9 row mixes instance-based services (call-runtime, business,
+        // system) with request-based ones (engine, studio), so it keeps 17%; voice, and the extra voice and runtime rows below,
+        // are instance-based only (run.googleapis.com/cpu-throttling: false), so 28%.
         ...gcp([
           ["Cloud Run (call runtime, business, system, engine, studio)", "Cloud Run (call runtime, business, system, engine, studio)", 207.9, "run"],
-          ...(outbound ? [] : [["Cloud Run (voice, 1 instance always on)", "Cloud Run (voice, 1 instance เปิดตลอด)", V.voiceHour * 730, "run"] as Svc]),
+          ...(outbound ? [] : [["Cloud Run (voice, 1 instance always on)", "Cloud Run (voice, 1 instance เปิดตลอด)", V.voiceHour * 730, "runInstance"] as Svc]),
           ["Compute Engine (Asterisk active/standby, e2-standard-2 × 2)", "Compute Engine (Asterisk active/standby, e2-standard-2 × 2)", R.asterisk],
           ["Compute Engine (Qdrant cluster, 3 VMs + internal LB)", "Compute Engine (Qdrant cluster, 3 VM + internal LB)", R.qdrant],
           ["Memorystore Valkey (HA)", "Memorystore Valkey (HA)", R.valkey],
@@ -413,12 +433,14 @@ export const PRICING: Record<string, ProductPricing> = {
         gcpUsage("gcp-voice", outbound ? "Cloud Run (voice instances in calling hours)" : "Cloud Run (extra voice instances)", outbound ? "Cloud Run (voice instance ช่วงโทร)" : "Cloud Run (voice instance ที่เพิ่ม)", voiceExtra * V.voiceHour * voiceHours,
           outbound
             ? L(`${voiceExtra} × US$${V.voiceHour}/h × ${n(voiceDay)} h (10 min warm-up + ${n(v.hours)} h + 15 min, rounded up) × ${n(v.days)} days · ${V.callsPerVoice} calls per instance + ${V.voiceBuffer} spare · min 0 outside calling hours`, `${voiceExtra} × US$${V.voiceHour}/ชม. × ${n(voiceDay)} ชม. (warm-up 10 นาที + ${n(v.hours)} ชม. + 15 นาที ปัดขึ้น) × ${n(v.days)} วัน · ${V.callsPerVoice} สายต่อ instance + เผื่อ ${V.voiceBuffer} · min 0 นอกเวลาโทร`)
-            : L(`${voiceExtra} × US$${V.voiceHour}/h × ${n(voiceDay)} h (${n(v.hours)} h + 15 min, rounded up) × ${n(v.days)} days · ${V.callsPerVoice} calls per instance + ${V.voiceBuffer} spare`, `${voiceExtra} × US$${V.voiceHour}/ชม. × ${n(voiceDay)} ชม. (${n(v.hours)} ชม. + 15 นาที ปัดขึ้น) × ${n(v.days)} วัน · ${V.callsPerVoice} สายต่อ instance + เผื่อ ${V.voiceBuffer}`), "run"),
-        ...(tierExtra > 0 ? [
-          gcpUsage("gcp-runtime", "Cloud Run (extra call runtime and system)", "Cloud Run (call runtime และ system ที่เพิ่ม)", tierExtra * 2 * V.runtimeHour * billedHours,
-            L(`${tierExtra} × 2 × US$${V.runtimeHour}/h × ${n(billedHours)} h`, `${tierExtra} × 2 × US$${V.runtimeHour}/ชม. × ${n(billedHours)} ชม.`), "run"),
-          gcpUsage("gcp-asterisk", "Compute Engine (extra Asterisk VMs)", "Compute Engine (Asterisk VM ที่เพิ่ม)", tierExtra * R.asteriskVm,
-            L(`${tierExtra} × US$${R.asteriskVm} · ${V.callsPerAsterisk} calls per VM`, `${tierExtra} × US$${R.asteriskVm} · ${V.callsPerAsterisk} สายต่อ VM`)),
+            : L(`${voiceExtra} × US$${V.voiceHour}/h × ${n(voiceDay)} h (${n(v.hours)} h + 15 min, rounded up) × ${n(v.days)} days · ${V.callsPerVoice} calls per instance + ${V.voiceBuffer} spare`, `${voiceExtra} × US$${V.voiceHour}/ชม. × ${n(voiceDay)} ชม. (${n(v.hours)} ชม. + 15 นาที ปัดขึ้น) × ${n(v.days)} วัน · ${V.callsPerVoice} สายต่อ instance + เผื่อ ${V.voiceBuffer}`), "runInstance"),
+        ...(runtimeExtra > 0 ? [
+          gcpUsage("gcp-runtime", "Cloud Run (extra call runtime and system)", "Cloud Run (call runtime และ system ที่เพิ่ม)", runtimeExtra * 2 * V.runtimeHour * billedHours,
+            L(`${runtimeExtra} × 2 × US$${V.runtimeHour}/h × ${n(billedHours)} h`, `${runtimeExtra} × 2 × US$${V.runtimeHour}/ชม. × ${n(billedHours)} ชม.`), "runInstance"),
+        ] : []),
+        ...(asteriskExtra > 0 ? [
+          gcpUsage("gcp-asterisk", "Compute Engine (extra Asterisk VMs)", "Compute Engine (Asterisk VM ที่เพิ่ม)", asteriskExtra * R.asteriskVm,
+            L(`${asteriskExtra} × US$${R.asteriskVm} · ${V.callsPerAsterisk} calls per VM`, `${asteriskExtra} × US$${R.asteriskVm} · ${V.callsPerAsterisk} สายต่อ VM`)),
         ] : []),
         gcpUsage("gcp-egress", "Network egress (call audio)", "Network egress (เสียงออก internet)", egressGiB * R.egressGiB,
           L(`${n(minutes)} min × ${V.mbPerMin} MB ≈ ${n(roundPrice(egressGiB))} GiB × US$${R.egressGiB}/GiB`, `${n(minutes)} นาที × ${V.mbPerMin} MB ≈ ${n(roundPrice(egressGiB))} GiB × US$${R.egressGiB}/GiB`)),
@@ -504,22 +526,41 @@ export const PRICING: Record<string, ProductPricing> = {
     licenseDraft: true,
     unitLabel: USERS,
     setupDays: 2,
-    inputs: [
-      { id: "online", label: L("People online at the same time", "สัดส่วนคนออนไลน์พร้อมกัน"), unit: L("%", "%"), def: 40, max: 100, step: 5 },
-    ],
-    lines: (v, users) => [
-      // Cloud SQL re-priced 2026-11-21 from the Cloud Billing Catalog (asia-southeast1, on-demand, × 730 h) for the Space8 prod
-      // database (gcloud 2026-11-21: db-custom-1-3840 zonal + 20 GB SSD): 1 × 0.0578 (DE86-B401-E60F) × 730 + 3.75 GiB × 0.0098
+    // No usage inputs: every Space8 row below is a fixed monthly cost. The "people online" input (US$1.50 per online user for
+    // voice and video) was removed 2026-11-21: LiveKit runs on the VM priced in full below, and the one cost outside it that
+    // grows with users, internet egress of call media (0.12/GiB for the first TiB Singapore → APAC, 400E-0B94-6FB4), has no measured GB per user.
+    inputs: [],
+    lines: () => [
+      // Space8 prod, gcloud/kubectl 2026-11-21 (Space8 docs/architecture.md): no Cloud Run. Cloud Billing Catalog asia-southeast1,
+      // on-demand, × 730 h, prices checked 2026-11-21.
+      // VM (web, realtime/Colyseus, LiveKit and its egress, redis on docker compose; was "Cloud Run (app and realtime)" 60):
+      // e2-standard-2 = 2 cores × 0.02690931 (7102-B9AA-2ACF) × 730 + 8 GiB × 0.00360594 (E277-7DC2-2C7D) × 730 = 39.2876 + 21.0587,
+      // + 20 GB pd-standard boot × 0.044/GiB-mo (0572-568A-4FC4) = 0.88, + in-use static external IP 0.005/h (C054-7F72-A02E) × 730
+      // = 3.65 → 64.88. Space8's doc lists 69.26 for the VM; the 4.38 more is not itemised there, so it is not used.
+      // Cloud SQL re-priced 2026-11-21 (db-custom-1-3840 zonal + 20 GB SSD): 1 × 0.0578 (DE86-B401-E60F) × 730 + 3.75 GiB × 0.0098
       // (EF83-F6A8-8EA7) × 730 + 20 GiB × 0.238/GiB-mo (45B3-606F-EE91) = 42.194 + 26.8275 + 4.76 = 73.78 (was 50); backups are usage, not included.
       ...gcp([
-        ["Cloud Run (app and realtime)", "Cloud Run (แอปและ realtime)", 60, "run"],
+        ["Compute Engine (VM: app, realtime and LiveKit)", "Compute Engine (VM: แอป, realtime และ LiveKit)", 64.88],
         ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 73.78, "sql"],
-        ["Storage, logging and other", "Storage, logging และอื่นๆ", 40],
       ], 1, true),
-      gcpUsage("gcp-media", "Compute Engine (voice and video)", "Compute Engine (เสียงและวิดีโอ)", users * (v.online / 100) * 1.5,
-        L(`${n(users)} users × ${n(v.online)}% online × US$1.50`, `${n(users)} คน × ออนไลน์ ${n(v.online)}% × US$1.50`)),
+      // GKE Autopilot space8-agents (agent runtime from Collab8), pod-based billing at the pods' requests, sidecars counted as in
+      // Space8's doc: runner 550 mCPU (500 + cloud-sql-proxy 50), 1.0625 GiB, 4.25 GiB ephemeral; egress 500 mCPU (caddy 450 +
+      // vertex-token 50), 0.5 GiB, 2 GiB ephemeral. Pods = (1,050 mCPU × 0.0000549 (589B-F840-EC19) + 1.5625 GiB × 0.0060729
+      // (6500-7637-6ACA) + 6.25 GiB × 0.0000676 (3577-D694-91BC)) per hour × 730 = 42.0809 + 6.9269 + 0.3084 = 49.32 (runner 26.96,
+      // egress 22.35, as in the doc). Cluster fee 0.10/h (F52D-A61F-C7D1) × 730 = 73. Agent session pods run only while a session
+      // does and are not here. GKE free tier: US$74.40 a month per billing account, about one free Autopilot or zonal cluster
+      // (cloud.google.com/kubernetes-engine/pricing, read 2026-11-21); Space8's doc says another cluster on its billing account
+      // already uses it. Not subtracted: a customer's own billing account may or may not have it free.
+      gcpUsage("gcp-gke-agents", "GKE Autopilot (agent runtime)", "GKE Autopilot (ระบบรัน agent)", roundPrice(SPACE8_GKE.clusterFee + SPACE8_GKE.pods),
+        L(`cluster fee US$${SPACE8_GKE.clusterFee} + runner and egress pods US$${SPACE8_GKE.pods} / month`, `ค่า cluster US$${SPACE8_GKE.clusterFee} + pod runner และ egress US$${SPACE8_GKE.pods} ต่อเดือน`)),
+      // Cloud NAT, Cloud Storage, Artifact Registry and Secret Manager: ~3 a month at small volumes (Space8 docs/architecture.md
+      // cost table, list prices 2026-11-09); was "Storage, logging and other" 40 with no source. The GKE row above holds the rest.
+      ...gcp([["Cloud NAT, storage and other", "Cloud NAT, storage และอื่นๆ", 3]], 1, true),
     ],
-    notes: [],
+    // Variable costs from Space8 docs/architecture.md: agent session ≈ US$0.011 per 10-minute session (1.1 vCPU, 1.125 GiB pod),
+    // models billed per token; egress price as above.
+    notes: [L("Voice and video run on the VM. Not included, as they grow with use: internet egress for calls (US$0.12/GiB from Singapore to Asia-Pacific for the first TiB), agent session pods (about US$0.011 per 10-minute session) and AI model tokens.",
+      "เสียงและวิดีโอรันบน VM ไม่รวมค่าที่เพิ่มตามการใช้งาน: egress ออก internet ของการโทร (US$0.12/GiB จาก Singapore ไปเอเชียแปซิฟิกใน 1 TiB แรก), pod ของ session agent (ราว US$0.011 ต่อ session 10 นาที) และค่า token ของโมเดล AI")],
   },
   pulse8: {
     id: "pulse8",
@@ -628,26 +669,34 @@ export const PRICING: Record<string, ProductPricing> = {
     licenseDraft: true,
     unitLabel: USERS,
     setupDays: 8,
+    // No BigQuery rows (removed 2026-11-21, was US$80 per 100,000 profiles + US$15 per 1M events): Data8 prod has no BigQuery,
+    // its data lake is Postgres (schemas lake/model/insight) and pipelines run as a job queue in the same Cloud Run service.
+    // The profile and event counts drove only those rows, so they are gone too. Storage is an assumption the user sets:
+    // the lake tables are created per data source, so their size per profile cannot be read from the schema and is not measured.
     inputs: [
-      { id: "profiles", label: L("Customer profiles", "จำนวนโปรไฟล์ลูกค้า"), unit: L("profiles", "โปรไฟล์"), def: 100000, max: 1000000000, step: 10000 },
-      { id: "events", label: L("Events per month", "event ต่อเดือน"), unit: L("events", "event"), def: 1000000, max: 10000000000, step: 100000 },
+      // Cloud SQL storage is 10 GB minimum, and shared-core machines (db-g1-small) take up to 3,054 GB
+      // (docs.cloud.google.com/sql/docs/postgres/instance-settings and …/issues-updating-storage-capacity, read 2026-11-21).
+      { id: "sqlGiB", label: L("Database storage (Cloud SQL SSD)", "พื้นที่ฐานข้อมูล (Cloud SQL SSD)"), unit: L("GiB", "GiB"), def: 10, max: SQL_SHARED_CORE_GIB.max, step: 10,
+        help: L("Starts at production's 10 GiB; Cloud SQL takes 10 to 3,054 on this machine. Growth per customer profile is not measured yet: set the size you expect.",
+          "เริ่มที่ 10 GiB เท่า production (Cloud SQL เครื่องรุ่นนี้รับ 10 ถึง 3,054) ยังไม่ได้วัดว่าโตเท่าไรต่อโปรไฟล์ลูกค้า ใส่ขนาดที่คาดไว้") },
     ],
     lines: (v) => [
       // Cloud Run and Cloud SQL re-priced 2026-11-21 from the Cloud Billing Catalog (asia-southeast1, on-demand, × 730 h) for the
       // Data8 prod stack (gcloud 2026-11-21, Data8 infra main.tf): Cloud Run 1 vCPU / 1 GiB, min = max 1, CPU always allocated
       // (instance-based) = 2,628,000 s × (2.16e-05 CPU 4D3C-D63E-1DF1 + 2.4e-06 GiB 7550-6D11-4653) = 56.7648 + 6.3072 = 63.072
-      // → 63.07 (was 60); Cloud SQL db-g1-small zonal + 10 GB SSD = 0.049/h (FB2B-BC59-824D) × 730 + 10 GiB × 0.238/GiB-mo (45B3-606F-EE91)
-      // = 38.15 (was 90), backups and PITR logs are usage and not included. No Cloud SQL committed-use discount: shared-core
-      // tiers (db-g1-small) are not eligible (docs.cloud.google.com/sql/docs/postgres/cud, read 2026-11-21).
+      // → 63.07 (was 60); Cloud SQL db-g1-small zonal = 0.049/h (FB2B-BC59-824D) × 730 = 35.77, its SSD storage a separate row:
+      // provisioned GiB × 0.238/GiB-mo (45B3-606F-EE91), prod 10 GiB (auto-resize on) = 2.38, so the two rows are the earlier
+      // 38.15 at defaults. Backups and PITR logs are usage and not included. No Cloud SQL committed-use discount: shared-core
+      // tiers (db-g1-small) and storage are not eligible (docs.cloud.google.com/sql/docs/postgres/cud, read 2026-11-21).
       ...gcp([
-        ["Cloud Run (app and pipelines)", "Cloud Run (แอปและ pipeline)", 63.07, "run"],
-        ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 38.15],
-        ["Logging and other", "Logging และอื่นๆ", 50],
+        ["Cloud Run (app and pipelines)", "Cloud Run (แอปและ pipeline)", 63.07, "runInstance"], // instance-based only: 28% CUD
+        ["Cloud SQL (database server)", "Cloud SQL (เครื่องฐานข้อมูล)", 35.77],
       ], 1, true),
-      gcpUsage("gcp-bq-store", "BigQuery storage (per 100,000 profiles)", "BigQuery พื้นที่เก็บ (ทุก 100,000 โปรไฟล์)", blocks(v.profiles, 100000) * 80,
-        L(`${blocks(v.profiles, 100000)} × US$80`, `${blocks(v.profiles, 100000)} × US$80`)),
-      gcpUsage("gcp-bq-query", "BigQuery processing (per 1M events)", "BigQuery ประมวลผล (ทุก 1 ล้าน event)", blocks(v.events, 1000000) * 15,
-        L(`${blocks(v.events, 1000000)} × US$15`, `${blocks(v.events, 1000000)} × US$15`)),
+      gcpUsage("gcp-sql-storage", "Cloud SQL storage (SSD)", "พื้นที่ Cloud SQL (SSD)", billedSqlGiB(v.sqlGiB) * 0.238,
+        L(`${n(billedSqlGiB(v.sqlGiB))} GiB × US$0.238 per GiB-month · growth per profile not measured`,
+          `${n(billedSqlGiB(v.sqlGiB))} GiB × US$0.238 ต่อ GiB ต่อเดือน · ยังไม่ได้วัดการโตต่อโปรไฟล์`)),
+      // Logging and other: the earlier estimate, unchanged; no usage was measured for it in the 2026-11-21 audit.
+      ...gcp([["Logging and other", "Logging และอื่นๆ", 50]], 1, true),
     ],
     notes: [],
   },

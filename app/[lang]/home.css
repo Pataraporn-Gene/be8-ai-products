@@ -50,7 +50,9 @@
 .b8-home .sol-go svg { transition: transform var(--duration-base) var(--ease-standard); }
 .b8-home .sol:hover .sol-go svg { transform: translateX(2px); }
 @media (max-width: 900px) { .b8-home .grid { grid-template-columns: 1fr; } .b8-home .hdr-nav { display: none; } }
-@media (max-width: 520px) { .b8-home .sol { grid-template-columns: 1fr; gap: 20px; padding: 24px; } .b8-home .sol-ico { width: 84px; height: 84px; } .b8-home .sol-ico--logo { --b8-logo-h: 84px; } .b8-home .hdr { padding: 12px 16px; gap: 16px; } .b8-home .hdr-right .pill { height: 40px; padding: 0 16px; } }
+@media (max-width: 520px) { .b8-home .sol { grid-template-columns: 1fr; gap: 20px; padding: 24px; } .b8-home .sol-ico { width: 84px; height: 84px; } .b8-home .sol-ico--logo { --b8-logo-h: 84px; } .b8-home .hdr { padding: 12px 16px; gap: 12px; flex-wrap: wrap; row-gap: 8px; } .b8-home .hdr-logo { width: 64px; } .b8-home .hdr-logo img { width: 100%; height: auto; } .b8-home .hdr-right { gap: 8px; } .b8-home .hdr-calc { width: 44px; padding: 0; justify-content: center; } .b8-home .hdr-calc-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } .b8-home .hdr-right .pill { height: 44px; padding: 0 16px; } }
+/* Phones up to 360px: tighter spacing keeps the Thai header on one row; at 320px the English one wraps to a second row instead of clipping. */
+@media (max-width: 360px) { .b8-home .hdr { padding: 12px; gap: 8px; } .b8-home .hdr-logo { width: 52px; } .b8-home .hdr-right { gap: 6px; } .b8-home .hdr-right .pill { padding: 0 12px; } }
 
 /* sales band */
 .b8-home .band { position: relative; background: var(--b8-navy-deep); color: var(--neutral-0); overflow: hidden; }
