@@ -889,6 +889,13 @@ test("L1 Pulse8 LINE OA Pro plan in baht at any rate: 20,000 and 35,000 messages
   near(pulse8At(35001, 33.5).row.cost * 33.5, 1780.06, "35,001 messages");
   near(pulse8At(35000.5, 33.5).row.cost * 33.5, 1780.06, "35,000.5 messages");
   near(pulse8At(0, 33.5).row.cost * 33.5, 1780, "no messages still pays the plan");
+  // the input's cap, 100,000,000 messages: 1,780 + 99,965,000 × 0.06 = 1,780 + 5,997,900 = ฿5,999,680
+  near(pulse8At(100000000, 33.5).row.cost * 33.5, 5999680, "100,000,000 messages");
+  // the rate field's limits, ฿1 and ฿1,000 per US$: the row on screen stays ฿1,780 / ฿1,840
+  for (const rate of [1, 1000]) {
+    assert.equal(pulse8At(20000, rate).thb.lines.find((l) => l.id === "line")!.sell, 1780, `20,000 messages at ฿${rate}`);
+    assert.equal(pulse8At(36000, rate).thb.lines.find((l) => l.id === "line")!.sell, 1840, `36,000 messages at ฿${rate}`);
+  }
   // rows stay before VAT and the page adds VAT 7% once, on the total (Calculator `withVat` = n + vatOf(n)). Pulse8 defaults with
   // setup, year 1: license 20 × 360 × 33.5 = 241,200 + setup 8 × 15,000 = 120,000 + 12 × 15,871 = 190,452 → ฿551,652;
   // VAT 551,652 × 0.07 = 38,615.64 → 38,616, ฿590,268 with VAT
