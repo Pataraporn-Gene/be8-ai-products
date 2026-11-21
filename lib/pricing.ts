@@ -89,7 +89,8 @@ export type ProductPricing = {
   /** Implementation man-days worked out from the inputs; overrides `setupDays`. */
   setupDaysFor?: (v: Record<string, number>) => number;
   inputs: Input[];
-  lines: (v: Record<string, number>, users: number, size: Size) => Line[];
+  /** `rate` = THB per US$ (Settings.rate), for rows priced in baht such as the LINE OA plan. */
+  lines: (v: Record<string, number>, users: number, size: Size, rate: number) => Line[];
   /** A red warning under the inputs when they cannot work together, e.g. more call minutes than the lines can carry. */
   warning?: (v: Record<string, number>) => Localized | null;
   /** Products with a measured cheaper server setup offer a size choice. */
@@ -264,6 +265,31 @@ const SPACE8_GKE = { clusterFee: 73, pods: 49.32 };
 const SQL_SHARED_CORE_GIB = { min: 10, max: 3054 };
 /** Cloud SQL disks are whole GB, so a typed size is rounded up and held at the 10 GiB minimum. */
 const billedSqlGiB = (gib: number) => Math.max(SQL_SHARED_CORE_GIB.min, Math.ceil(gib));
+
+/* LINE OA Thailand, Pulse8's LINE row: the Pro plan (no plan picker yet), in THB.
+   Pricing table https://lineforbusiness.com/th/service/line-oa-features/broadcast-message (read 2026-11-21): Pro ฿1,780 a month
+   with 35,000 messages, "ค่าบริการข้อความเพิ่มเติม" ฿0.06 per message; Basic ฿1,280 with 15,000, then ฿0.1; Free 300 messages;
+   "ราคาที่ระบุในตาราง ยังไม่รวมภาษีมูลค่าเพิ่ม (VAT) 7%". The Help Center https://lineforbusiness.com/th/helpcenter/line-oa (read
+   2026-11-21) gives the Pro overage as "0.6 บาท/ข้อความ" ("ประมาณ 600 บาท ต่อ 1,000 ข้อความ"); neither page is dated.
+   ฿0.06 is used (decision 2026-11-21 under คุณเมิน's rule "recommended = do"): the pricing table is LINE's price page, a higher
+   tier normally has a lower overage than Basic's ฿0.1, and the default 20,000 messages has no overage either way.
+   Messages count per recipient (Help Center: Target Reach, active followers who have not blocked the account; broadcasts, step
+   messages and Push/Multicast/Broadcast API count; chats, auto-replies, AI replies, greetings and Reply API do not).
+   Net of VAT like every other row: the page adds VAT once, on the totals. */
+const LINE_OA = { fee: 1780, included: 35000, extra: 0.06 };
+
+/** Pulse8's LINE OA row: plan fee + extra messages in THB, divided by the user's rate (as the setup fee is) so the row shows the
+ *  same baht at any rate while the US$ totals move with it. Messages are whole: a typed 35,000.5 bills one extra. */
+function lineOaRow(messages: number, rate: number): Line {
+  const extra = Math.max(0, Math.ceil(messages) - LINE_OA.included);
+  const usd = (LINE_OA.fee + extra * LINE_OA.extra) / rate;
+  const [fee, inc, x, per] = [`฿${n(LINE_OA.fee)}`, n(LINE_OA.included), n(extra), `฿${n(LINE_OA.extra)}`];
+  return {
+    id: "line", label: L("LINE OA messages", "ค่าส่ง LINE OA"), payer: "direct", kind: "telco", sell: usd, cost: usd, draft: true,
+    detail: L(`Pro plan ${fee} (${inc} messages included) + ${x} extra × ${per} · excl. 7% VAT`,
+      `แพ็กเกจ Pro ${fee} (รวม ${inc} ข้อความ) + ส่วนเกิน ${x} ข้อความ × ${per} · ไม่รวม VAT 7%`),
+  };
+}
 
 export const PRICING: Record<string, ProductPricing> = {
   meet8: {
@@ -572,15 +598,16 @@ export const PRICING: Record<string, ProductPricing> = {
       { id: "contacts", label: L("Contacts", "จำนวนรายชื่อลูกค้า"), unit: L("contacts", "รายชื่อ"), def: 50000, max: 100000000, step: 5000 },
       { id: "email", label: L("Emails per month", "อีเมลต่อเดือน"), unit: L("emails", "ฉบับ"), def: 100000, max: 1000000000, step: 10000 },
       { id: "sms", label: L("SMS per month", "SMS ต่อเดือน"), unit: L("messages", "ข้อความ"), def: 10000, max: 100000000, step: 1000 },
-      { id: "line", label: L("LINE OA messages per month", "ข้อความ LINE OA ต่อเดือน"), unit: L("messages", "ข้อความ"), def: 20000, max: 100000000, step: 1000 },
+      { id: "line", label: L("LINE OA messages per month (per recipient)", "ข้อความ LINE OA ต่อเดือน (นับต่อผู้รับ)"), unit: L("messages", "ข้อความ"), def: 20000, max: 100000000, step: 1000,
+        help: L("As LINE counts the plan's quota: one broadcast to 1,000 followers = 1,000 messages. Chats and auto-replies are not counted.",
+          "ตามที่ LINE นับโควตาแพ็กเกจ: broadcast 1 ครั้งถึงเพื่อน 1,000 คน = 1,000 ข้อความ ข้อความแชทและตอบกลับอัตโนมัติไม่นับ") },
     ],
-    lines: (v) => [
+    lines: (v, _users, _size, rate) => [
       { id: "email", label: L("Email sending (your provider)", "ค่าส่งอีเมล (ผู้ให้บริการของคุณ)"), payer: "direct", kind: "telco", sell: v.email * 0.0001, cost: v.email * 0.0001, draft: true,
         detail: L(`${n(v.email)} emails × US$0.0001`, `${n(v.email)} ฉบับ × US$0.0001`) },
       { id: "sms", label: L("SMS (your provider)", "ค่าส่ง SMS (ผู้ให้บริการของคุณ)"), payer: "direct", kind: "telco", sell: v.sms * 0.0075, cost: v.sms * 0.0075, draft: true,
         detail: L(`${n(v.sms)} messages × US$0.0075 (≈฿0.25)`, `${n(v.sms)} ข้อความ × US$0.0075 (≈฿0.25)`) },
-      { id: "line", label: L("LINE OA messages", "ค่าส่ง LINE OA"), payer: "direct", kind: "telco", sell: v.line * 0.003, cost: v.line * 0.003, draft: true,
-        detail: L(`${n(v.line)} messages × US$0.003 (≈฿0.10)`, `${n(v.line)} ข้อความ × US$0.003 (≈฿0.10)`) },
+      lineOaRow(v.line, rate),
       // Cloud SQL and Memorystore re-priced 2026-11-21 from the Cloud Billing Catalog (asia-southeast1, on-demand, × 730 h)
       // for the Pulse8 prod stack (gcloud 2026-11-21: Cloud SQL db-g1-small zonal + 10 GB SSD, Redis Basic 1 GB):
       // sql 0.049/h (FB2B-BC59-824D) × 730 + 10 GiB × 0.238/GiB-mo (45B3-606F-EE91) = 35.77 + 2.38 = 38.15 (was 110), backups
@@ -596,7 +623,8 @@ export const PRICING: Record<string, ProductPricing> = {
       gcpUsage("gcp-contacts", "Cloud SQL (per 100,000 contacts)", "Cloud SQL (ทุก 100,000 รายชื่อ)", blocks(v.contacts, 100000) * 100,
         L(`${blocks(v.contacts, 100000)} × US$100`, `${blocks(v.contacts, 100000)} × US$100`)),
     ],
-    notes: [L("Assumed fees: SMS ฿0.25, LINE OA ฿0.10, email US$0.10 per 1,000.", "สมมติค่าส่ง: SMS ฿0.25 LINE OA ฿0.10 อีเมล US$0.10 ต่อ 1,000 ฉบับ")],
+    notes: [L(`Assumed fees: SMS ฿0.25, email US$0.10 per 1,000. LINE OA Pro plan ฿${n(LINE_OA.fee)} a month with ${n(LINE_OA.included)} messages, then ฿${n(LINE_OA.extra)} per extra message, excl. 7% VAT.`,
+      `สมมติค่าส่ง: SMS ฿0.25 อีเมล US$0.10 ต่อ 1,000 ฉบับ · LINE OA แพ็กเกจ Pro ฿${n(LINE_OA.fee)} ต่อเดือน รวม ${n(LINE_OA.included)} ข้อความ ส่วนเกินข้อความละ ฿${n(LINE_OA.extra)} ไม่รวม VAT 7%`)],
   },
   collab8: {
     id: "collab8",
@@ -762,7 +790,7 @@ export function costItem(item: Item, s: Settings): ItemCost {
   const license = listLicense * (1 - clamp(s.discount, 0, 100, 0) / 100);
   const ma = license * MA_RATE;
   const setup = item.setup && !p.noSetup?.(values(item)) ? (setupDaysOf(item) * s.dayRate) / s.rate : 0;
-  const lines = p.lines(values(item), users, item.size === "standard" ? "standard" : "lean").map((l) => {
+  const lines = p.lines(values(item), users, item.size === "standard" ? "standard" : "lean", s.rate).map((l) => {
     const k = s.cud && l.cud ? 1 - l.cud : 1;
     const detail = k !== 1 && l.detail ? L(`${l.detail.en} − ${Math.round(l.cud! * 100)}% committed use`, `${l.detail.th} − ส่วนลดผูกสัญญา ${Math.round(l.cud! * 100)}%`) : l.detail;
     return { ...l, detail, sell: Math.max(0, l.sell * k), cost: Math.max(0, l.cost * k) };
