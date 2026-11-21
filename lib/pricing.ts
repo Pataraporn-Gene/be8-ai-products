@@ -262,6 +262,8 @@ function meet8Gcp(users: number, conc: number, hours: number, markup?: number): 
 const SPACE8_GKE = { clusterFee: 73, pods: 49.32 };
 /** Cloud SQL storage limits for a shared-core machine, GiB (sources at the Data8 input). */
 const SQL_SHARED_CORE_GIB = { min: 10, max: 3054 };
+/** Cloud SQL disks are whole GB, so a typed size is rounded up and held at the 10 GiB minimum. */
+const billedSqlGiB = (gib: number) => Math.max(SQL_SHARED_CORE_GIB.min, Math.ceil(gib));
 
 export const PRICING: Record<string, ProductPricing> = {
   meet8: {
@@ -557,8 +559,8 @@ export const PRICING: Record<string, ProductPricing> = {
     ],
     // Variable costs from Space8 docs/architecture.md: agent session ≈ US$0.011 per 10-minute session (1.1 vCPU, 1.125 GiB pod),
     // models billed per token; egress price as above.
-    notes: [L("Voice and video run on the VM. Not included, as they grow with use: internet egress for calls (US$0.12/GiB from Singapore), agent session pods (about US$0.011 per 10-minute session) and AI model tokens.",
-      "เสียงและวิดีโอรันบน VM ไม่รวมค่าที่เพิ่มตามการใช้งาน: egress ออก internet ของการโทร (US$0.12/GiB จาก Singapore), pod ของ session agent (ราว US$0.011 ต่อ session 10 นาที) และค่า token ของโมเดล AI")],
+    notes: [L("Voice and video run on the VM. Not included, as they grow with use: internet egress for calls (US$0.12/GiB from Singapore to Asia-Pacific for the first TiB), agent session pods (about US$0.011 per 10-minute session) and AI model tokens.",
+      "เสียงและวิดีโอรันบน VM ไม่รวมค่าที่เพิ่มตามการใช้งาน: egress ออก internet ของการโทร (US$0.12/GiB จาก Singapore ไปเอเชียแปซิฟิกใน 1 TiB แรก), pod ของ session agent (ราว US$0.011 ต่อ session 10 นาที) และค่า token ของโมเดล AI")],
   },
   pulse8: {
     id: "pulse8",
@@ -690,9 +692,9 @@ export const PRICING: Record<string, ProductPricing> = {
         ["Cloud Run (app and pipelines)", "Cloud Run (แอปและ pipeline)", 63.07, "runInstance"], // instance-based only: 28% CUD
         ["Cloud SQL (database server)", "Cloud SQL (เครื่องฐานข้อมูล)", 35.77],
       ], 1, true),
-      gcpUsage("gcp-sql-storage", "Cloud SQL storage (SSD)", "พื้นที่ Cloud SQL (SSD)", Math.max(SQL_SHARED_CORE_GIB.min, v.sqlGiB) * 0.238,
-        L(`${n(Math.max(SQL_SHARED_CORE_GIB.min, v.sqlGiB))} GiB × US$0.238 per GiB-month · growth per profile not measured`,
-          `${n(Math.max(SQL_SHARED_CORE_GIB.min, v.sqlGiB))} GiB × US$0.238 ต่อ GiB ต่อเดือน · ยังไม่ได้วัดการโตต่อโปรไฟล์`)),
+      gcpUsage("gcp-sql-storage", "Cloud SQL storage (SSD)", "พื้นที่ Cloud SQL (SSD)", billedSqlGiB(v.sqlGiB) * 0.238,
+        L(`${n(billedSqlGiB(v.sqlGiB))} GiB × US$0.238 per GiB-month · growth per profile not measured`,
+          `${n(billedSqlGiB(v.sqlGiB))} GiB × US$0.238 ต่อ GiB ต่อเดือน · ยังไม่ได้วัดการโตต่อโปรไฟล์`)),
       // Logging and other: the earlier estimate, unchanged; no usage was measured for it in the 2026-11-21 audit.
       ...gcp([["Logging and other", "Logging และอื่นๆ", 50]], 1, true),
     ],

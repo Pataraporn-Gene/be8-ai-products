@@ -817,13 +817,16 @@ test("Q4 Data8 storage stays inside Cloud SQL limits for db-g1-small: 10 GiB min
   near(st(5000).sell, 726.852, "5,000 GiB → 3,054 GiB");
   assert.equal(st(5000).detail!.th, "3,054 GiB × US$0.238 ต่อ GiB ต่อเดือน · ยังไม่ได้วัดการโตต่อโปรไฟล์");
   assert.equal(PRICING.data8.inputs[0].max, 3054);
+  // disks are whole GB: 10.5 GiB is billed as 11 = 11 × 0.238 = 2.618
+  near(st(10.5).sell, 2.618, "10.5 GiB → 11 GiB");
+  assert.equal(st(10.5).detail!.en.startsWith("11 GiB × "), true);
   // a share link asking for more is clamped the same way
   assert.equal(decode(btoa(JSON.stringify({ v: 1, i: [["data8", 20, { sqlGiB: 99999 }, 0]] })))!.items[0].inputs.sqlGiB, 3054);
 });
 
 test("Q5 Space8 note names the usage costs it leaves out, in EN and TH", () => {
   assert.deepEqual(PRICING.space8.notes, [{
-    en: "Voice and video run on the VM. Not included, as they grow with use: internet egress for calls (US$0.12/GiB from Singapore), agent session pods (about US$0.011 per 10-minute session) and AI model tokens.",
-    th: "เสียงและวิดีโอรันบน VM ไม่รวมค่าที่เพิ่มตามการใช้งาน: egress ออก internet ของการโทร (US$0.12/GiB จาก Singapore), pod ของ session agent (ราว US$0.011 ต่อ session 10 นาที) และค่า token ของโมเดล AI",
+    en: "Voice and video run on the VM. Not included, as they grow with use: internet egress for calls (US$0.12/GiB from Singapore to Asia-Pacific for the first TiB), agent session pods (about US$0.011 per 10-minute session) and AI model tokens.",
+    th: "เสียงและวิดีโอรันบน VM ไม่รวมค่าที่เพิ่มตามการใช้งาน: egress ออก internet ของการโทร (US$0.12/GiB จาก Singapore ไปเอเชียแปซิฟิกใน 1 TiB แรก), pod ของ session agent (ราว US$0.011 ต่อ session 10 นาที) และค่า token ของโมเดล AI",
   }]);
 });
