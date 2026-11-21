@@ -637,26 +637,30 @@ export const PRICING: Record<string, ProductPricing> = {
     licenseDraft: true,
     unitLabel: USERS,
     setupDays: 8,
+    // No BigQuery rows (removed 2026-11-21, was US$80 per 100,000 profiles + US$15 per 1M events): Data8 prod has no BigQuery,
+    // its data lake is Postgres (schemas lake/model/insight) and pipelines run as a job queue in the same Cloud Run service.
+    // The profile and event counts drove only those rows, so they are gone too. Storage is an assumption the user sets:
+    // the lake tables are created per data source, so their size per profile cannot be read from the schema and is not measured.
     inputs: [
-      { id: "profiles", label: L("Customer profiles", "จำนวนโปรไฟล์ลูกค้า"), unit: L("profiles", "โปรไฟล์"), def: 100000, max: 1000000000, step: 10000 },
-      { id: "events", label: L("Events per month", "event ต่อเดือน"), unit: L("events", "event"), def: 1000000, max: 10000000000, step: 100000 },
+      { id: "sqlGiB", label: L("Database storage (Cloud SQL SSD)", "พื้นที่ฐานข้อมูล (Cloud SQL SSD)"), unit: L("GiB", "GiB"), def: 10, max: 64000, step: 10,
+        help: L("Starts at production's 10 GiB. Growth per customer profile is not measured yet: set the size you expect.",
+          "เริ่มที่ 10 GiB เท่า production ยังไม่ได้วัดว่าโตเท่าไรต่อโปรไฟล์ลูกค้า ใส่ขนาดที่คาดไว้") },
     ],
     lines: (v) => [
       // Cloud Run and Cloud SQL re-priced 2026-11-21 from the Cloud Billing Catalog (asia-southeast1, on-demand, × 730 h) for the
       // Data8 prod stack (gcloud 2026-11-21, Data8 infra main.tf): Cloud Run 1 vCPU / 1 GiB, min = max 1, CPU always allocated
       // (instance-based) = 2,628,000 s × (2.16e-05 CPU 4D3C-D63E-1DF1 + 2.4e-06 GiB 7550-6D11-4653) = 56.7648 + 6.3072 = 63.072
-      // → 63.07 (was 60); Cloud SQL db-g1-small zonal + 10 GB SSD = 0.049/h (FB2B-BC59-824D) × 730 + 10 GiB × 0.238/GiB-mo (45B3-606F-EE91)
-      // = 38.15 (was 90), backups and PITR logs are usage and not included. No Cloud SQL committed-use discount: shared-core
-      // tiers (db-g1-small) are not eligible (docs.cloud.google.com/sql/docs/postgres/cud, read 2026-11-21).
+      // → 63.07 (was 60); Cloud SQL db-g1-small zonal = 0.049/h (FB2B-BC59-824D) × 730 = 35.77, its SSD storage a separate row:
+      // provisioned GiB × 0.238/GiB-mo (45B3-606F-EE91), prod 10 GiB (auto-resize on) = 2.38, so the two rows are the earlier
+      // 38.15 at defaults. Backups and PITR logs are usage and not included. No Cloud SQL committed-use discount: shared-core
+      // tiers (db-g1-small) and storage are not eligible (docs.cloud.google.com/sql/docs/postgres/cud, read 2026-11-21).
       ...gcp([
         ["Cloud Run (app and pipelines)", "Cloud Run (แอปและ pipeline)", 63.07, "run"],
-        ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 38.15],
-        ["Logging and other", "Logging และอื่นๆ", 50],
+        ["Cloud SQL (database server)", "Cloud SQL (เครื่องฐานข้อมูล)", 35.77],
       ], 1, true),
-      gcpUsage("gcp-bq-store", "BigQuery storage (per 100,000 profiles)", "BigQuery พื้นที่เก็บ (ทุก 100,000 โปรไฟล์)", blocks(v.profiles, 100000) * 80,
-        L(`${blocks(v.profiles, 100000)} × US$80`, `${blocks(v.profiles, 100000)} × US$80`)),
-      gcpUsage("gcp-bq-query", "BigQuery processing (per 1M events)", "BigQuery ประมวลผล (ทุก 1 ล้าน event)", blocks(v.events, 1000000) * 15,
-        L(`${blocks(v.events, 1000000)} × US$15`, `${blocks(v.events, 1000000)} × US$15`)),
+      gcpUsage("gcp-sql-storage", "Cloud SQL storage (SSD)", "พื้นที่ Cloud SQL (SSD)", v.sqlGiB * 0.238,
+        L(`${n(v.sqlGiB)} GiB × US$0.238 per GiB-month · growth per profile not measured`, `${n(v.sqlGiB)} GiB × US$0.238 ต่อ GiB ต่อเดือน · ยังไม่ได้วัดการโตต่อโปรไฟล์`)),
+      ...gcp([["Logging and other", "Logging และอื่นๆ", 50]], 1, true),
     ],
     notes: [],
   },
