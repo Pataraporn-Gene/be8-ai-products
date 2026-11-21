@@ -61,8 +61,11 @@ export type Line = {
 };
 
 export type Size = "lean" | "standard";
-/** 1-year committed-use discounts: Cloud SQL 25%, Cloud Run about 17%. Only compute rows carry one. */
-export const CUD = { run: 0.17, sql: 0.25 } as const;
+/** 1-year committed-use discounts: Cloud SQL 25%, Cloud Run about 17%. Only compute rows carry one.
+ *  runInstance: Cloud Run services with instance-based billing (formerly "CPU always allocated") get 28% for a 1-year
+ *  commitment, request-based billing 17% (docs.cloud.google.com/run/cud, read 2026-11-21). Only rows that are all
+ *  instance-based Cloud Run in prod use it; mixed rows and every Meet8/Insight8 row keep `run`. */
+export const CUD = { run: 0.17, runInstance: 0.28, sql: 0.25 } as const;
 
 export type ProductPricing = {
   id: string;
@@ -411,9 +414,12 @@ export const PRICING: Record<string, ProductPricing> = {
           sell: minutes * v.aiMin, cost: minutes * v.aiMin,
           detail: L(`${n(v.calls)} calls × ${n(v.callMin)} min × ${n(v.days)} days = ${n(minutes)} min × US$${n(v.aiMin)}`, `${n(v.calls)} สาย × ${n(v.callMin)} นาที × ${n(v.days)} วัน = ${n(minutes)} นาที × US$${n(v.aiMin)}`) },
         // Fixed stack: prod in docs/cost.md (~$640) with both Asterisk VMs on e2-standard-2; Cloud Run and LB cost the same in both regions.
+        // CUD (gcloud run services describe, 2026-11-21): the 207.9 row mixes instance-based services (call-runtime, business,
+        // system) with request-based ones (engine, studio), so it keeps 17%; voice, and the extra voice and runtime rows below,
+        // are instance-based only (run.googleapis.com/cpu-throttling: false), so 28%.
         ...gcp([
           ["Cloud Run (call runtime, business, system, engine, studio)", "Cloud Run (call runtime, business, system, engine, studio)", 207.9, "run"],
-          ...(outbound ? [] : [["Cloud Run (voice, 1 instance always on)", "Cloud Run (voice, 1 instance เปิดตลอด)", V.voiceHour * 730, "run"] as Svc]),
+          ...(outbound ? [] : [["Cloud Run (voice, 1 instance always on)", "Cloud Run (voice, 1 instance เปิดตลอด)", V.voiceHour * 730, "runInstance"] as Svc]),
           ["Compute Engine (Asterisk active/standby, e2-standard-2 × 2)", "Compute Engine (Asterisk active/standby, e2-standard-2 × 2)", R.asterisk],
           ["Compute Engine (Qdrant cluster, 3 VMs + internal LB)", "Compute Engine (Qdrant cluster, 3 VM + internal LB)", R.qdrant],
           ["Memorystore Valkey (HA)", "Memorystore Valkey (HA)", R.valkey],
@@ -423,10 +429,10 @@ export const PRICING: Record<string, ProductPricing> = {
         gcpUsage("gcp-voice", outbound ? "Cloud Run (voice instances in calling hours)" : "Cloud Run (extra voice instances)", outbound ? "Cloud Run (voice instance ช่วงโทร)" : "Cloud Run (voice instance ที่เพิ่ม)", voiceExtra * V.voiceHour * voiceHours,
           outbound
             ? L(`${voiceExtra} × US$${V.voiceHour}/h × ${n(voiceDay)} h (10 min warm-up + ${n(v.hours)} h + 15 min, rounded up) × ${n(v.days)} days · ${V.callsPerVoice} calls per instance + ${V.voiceBuffer} spare · min 0 outside calling hours`, `${voiceExtra} × US$${V.voiceHour}/ชม. × ${n(voiceDay)} ชม. (warm-up 10 นาที + ${n(v.hours)} ชม. + 15 นาที ปัดขึ้น) × ${n(v.days)} วัน · ${V.callsPerVoice} สายต่อ instance + เผื่อ ${V.voiceBuffer} · min 0 นอกเวลาโทร`)
-            : L(`${voiceExtra} × US$${V.voiceHour}/h × ${n(voiceDay)} h (${n(v.hours)} h + 15 min, rounded up) × ${n(v.days)} days · ${V.callsPerVoice} calls per instance + ${V.voiceBuffer} spare`, `${voiceExtra} × US$${V.voiceHour}/ชม. × ${n(voiceDay)} ชม. (${n(v.hours)} ชม. + 15 นาที ปัดขึ้น) × ${n(v.days)} วัน · ${V.callsPerVoice} สายต่อ instance + เผื่อ ${V.voiceBuffer}`), "run"),
+            : L(`${voiceExtra} × US$${V.voiceHour}/h × ${n(voiceDay)} h (${n(v.hours)} h + 15 min, rounded up) × ${n(v.days)} days · ${V.callsPerVoice} calls per instance + ${V.voiceBuffer} spare`, `${voiceExtra} × US$${V.voiceHour}/ชม. × ${n(voiceDay)} ชม. (${n(v.hours)} ชม. + 15 นาที ปัดขึ้น) × ${n(v.days)} วัน · ${V.callsPerVoice} สายต่อ instance + เผื่อ ${V.voiceBuffer}`), "runInstance"),
         ...(runtimeExtra > 0 ? [
           gcpUsage("gcp-runtime", "Cloud Run (extra call runtime and system)", "Cloud Run (call runtime และ system ที่เพิ่ม)", runtimeExtra * 2 * V.runtimeHour * billedHours,
-            L(`${runtimeExtra} × 2 × US$${V.runtimeHour}/h × ${n(billedHours)} h`, `${runtimeExtra} × 2 × US$${V.runtimeHour}/ชม. × ${n(billedHours)} ชม.`), "run"),
+            L(`${runtimeExtra} × 2 × US$${V.runtimeHour}/h × ${n(billedHours)} h`, `${runtimeExtra} × 2 × US$${V.runtimeHour}/ชม. × ${n(billedHours)} ชม.`), "runInstance"),
         ] : []),
         ...(asteriskExtra > 0 ? [
           gcpUsage("gcp-asterisk", "Compute Engine (extra Asterisk VMs)", "Compute Engine (Asterisk VM ที่เพิ่ม)", asteriskExtra * R.asteriskVm,
@@ -675,7 +681,7 @@ export const PRICING: Record<string, ProductPricing> = {
       // 38.15 at defaults. Backups and PITR logs are usage and not included. No Cloud SQL committed-use discount: shared-core
       // tiers (db-g1-small) and storage are not eligible (docs.cloud.google.com/sql/docs/postgres/cud, read 2026-11-21).
       ...gcp([
-        ["Cloud Run (app and pipelines)", "Cloud Run (แอปและ pipeline)", 63.07, "run"],
+        ["Cloud Run (app and pipelines)", "Cloud Run (แอปและ pipeline)", 63.07, "runInstance"], // instance-based only: 28% CUD
         ["Cloud SQL (database server)", "Cloud SQL (เครื่องฐานข้อมูล)", 35.77],
       ], 1, true),
       gcpUsage("gcp-sql-storage", "Cloud SQL storage (SSD)", "พื้นที่ Cloud SQL (SSD)", v.sqlGiB * 0.238,

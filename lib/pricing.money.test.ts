@@ -3,7 +3,7 @@
 // Run: node --test lib/pricing.money.test.ts
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_SETTINGS, PRICING, billedUsers, choiceIndex, costItem, decode, displayGrid, encode, isPriced, vatOf, newItem, roundMoney, roundPrice, toDisplay, totals, values, type Item } from "./pricing.ts";
+import { DEFAULT_SETTINGS, HOST_MARKUP, MA_RATE, PRICING, billedUsers, choiceIndex, costItem, decode, displayGrid, encode, isPriced, vatOf, newItem, roundMoney, roundPrice, toDisplay, totals, values, type Item } from "./pricing.ts";
 
 const s = DEFAULT_SETTINGS;
 const YEARS_N = 5; // rate 33.5, ฿15,000 per man-day, no discount
@@ -732,4 +732,77 @@ test("Q5 Space8 as prod runs it: VM 64.88 + Cloud SQL 73.78 + GKE Autopilot 122.
   const cud = displayGrid(totals([{ ...newItem("space8", "o"), setup: false }], { ...s, cud: true }), { cur: "THB", rate: 33.5, vat: false }, { ...s, cud: true });
   assert.deepEqual(cud.items[0].lines.map((l) => l.sell), [2173, 1854, 4098, 101]);
   assert.equal(cud.monthly, 8226);
+});
+
+test("Q9 Cloud Run CUD 28% only on rows that are all instance-based Cloud Run (Data8, Voice8 voice + extra runtime); mixed rows keep 17%", () => {
+  const on = { ...s, cud: true };
+  // Data8 Cloud Run (1 instance, CPU always allocated): 63.07 × (1 − 0.28) = 45.4104; SQL server and storage carry no CUD
+  const d8 = costItem({ ...newItem("data8", "d"), setup: false }, on).lines;
+  const run = d8.find((l) => l.id === "gcp-cloud-run-app-and-pipelines-")!;
+  assert.equal(run.cud, 0.28);
+  near(run.sell, 45.4104, "Data8 Cloud Run with CUD");
+  near(run.cost, 45.4104, "Data8 Cloud Run cost = sell (paid direct)");
+  assert.deepEqual(run.detail, { en: "US$63.07 / month − 28% committed use", th: "US$63.07 ต่อเดือน − ส่วนลดผูกสัญญา 28%" });
+  // ฿33.5: CUD off 2,113 + 1,198 + 80 + 1,675 = ฿5,066; on 1,521 (1,521.25) + 1,198 + 80 + 1,675 = ฿4,474 (17% gave 1,754 → ฿4,707)
+  assert.equal(onScreen("data8").monthly, 5066);
+  const d8on = displayGrid(totals([{ ...newItem("data8", "d"), setup: false }], on), thb, on);
+  assert.deepEqual(d8on.items[0].lines.map((l) => l.sell), [1521, 1198, 80, 1675]);
+  assert.equal(d8on.monthly, 4474);
+
+  // Voice8 defaults (10 concurrent): the 207.9 row mixes instance-based and request-based services → 17%;
+  // voice min 1 (126.144) and the extra voice row (132.192) are instance-based only → 28%
+  const v8 = { ...newItem("voice8", "v"), setup: false };
+  const cud = (id: string) => costItem(v8, on).lines.find((l) => l.id === id)!;
+  assert.equal(cud("gcp-cloud-run-call-runtime-business-system-engine-studio-").cud, 0.17);
+  assert.equal(cud("gcp-cloud-run-voice-1-instance-always-on-").cud, 0.28);
+  assert.equal(cud("gcp-voice").cud, 0.28);
+  near(cud("gcp-cloud-run-call-runtime-business-system-engine-studio-").sell, 207.9 * 0.83, "fixed 207.9 × 0.83 = 172.557");
+  near(cud("gcp-cloud-run-voice-1-instance-always-on-").sell, 126.144 * 0.72, "voice min 1 × 0.72 = 90.82368");
+  near(cud("gcp-voice").sell, 132.192 * 0.72, "extra voice × 0.72 = 95.17824");
+  assert.equal(cud("gcp-voice").detail!.th.endsWith(" − ส่วนลดผูกสัญญา 28%"), true);
+  // ฿33.5 cloud rows, CUD on: 5,781 (5,780.66) + 3,043 (3,042.59) + 4,405 + 3,936 + 1,853 + 1,685 + 402 + 3,188 (3,188.47) + 168 = ฿24,461
+  // (17% on the voice rows gave 3,507 and 3,676 → ฿25,413); CUD off stays ฿28,068 (C17)
+  const g = displayGrid(totals([v8], on), thb, on);
+  assert.deepEqual(g.items[0].lines.filter((l) => l.kind === "cloud").map((l) => l.sell), [5781, 3043, 4405, 3936, 1853, 1685, 402, 3188, 168]);
+  assert.equal(g.hosting.total.cloud, 24461);
+  // 81 concurrent: extra runtime pair 44.064 × 0.72 = 31.72608; the extra Asterisk VM is Compute Engine, no CUD
+  const big = costItem({ ...newItem("voice8", "v"), inputs: { concurrent: 81 }, setup: false }, on).lines;
+  assert.equal(big.find((l) => l.id === "gcp-runtime")!.cud, 0.28);
+  near(big.find((l) => l.id === "gcp-runtime")!.sell, 31.72608, "runtime with CUD");
+  near(big.find((l) => l.id === "gcp-asterisk")!.sell, 67.3, "Asterisk VM without CUD");
+
+  // mixed or untouched rows stay at 17%: Pulse8 (request-based web + worker pool), Agent8, Connect8, Collab8, Ask8
+  for (const [pid, id] of [["pulse8", "gcp-cloud-run-app-and-sending-"], ["agent8", "gcp-cloud-run-gateway-and-agents-"], ["connect8", "gcp-cloud-run-workflow-engine-"],
+    ["collab8", "gcp-cloud-run-chat-and-api-"], ["ask8", "gcp-cloud-run-widget-and-api-"]] as const) {
+    assert.equal(costItem({ ...newItem(pid, "x"), setup: false }, on).lines.find((l) => l.id === id)?.cud, 0.17, `${pid} ${id}`);
+  }
+});
+
+test("guard: Meet8/Insight8 totals, license, MA, markup, setup days, package prices and the Voice8 AI rate match origin/main (2026-11-21)", () => {
+  // [monthly, year 1, 5-year TCO] in THB at ฿33.5, CUD off then on, taken from origin/main before this change
+  const was: Record<string, [Item, number[], number[]]> = {
+    "meet8 own cloud": [{ ...newItem("meet8", "m"), inputs: { host: 0 } }, [17498, 496176, 1548336], [16430, 483360, 1484256]],
+    "meet8 via Beryl8": [{ ...newItem("meet8", "m"), inputs: { host: 1 } }, [20996, 538152, 1758216], [19714, 522768, 1681296]],
+    "meet8 subscription": [{ ...newItem("meet8", "m"), inputs: { host: 2 } }, [14660, 175920, 879600], [14660, 175920, 879600]],
+    "insight8 lean": [{ ...newItem("insight8", "i") }, [25851, 706812, 2230668], [24263, 687756, 2135388]],
+    "insight8 standard": [{ ...newItem("insight8", "i"), size: "standard" }, [33551, 799212, 2692668], [30462, 762144, 2507328]],
+  };
+  for (const [k, [it, off, on]] of Object.entries(was)) {
+    for (const [st, exp] of [[s, off], [{ ...s, cud: true }, on]] as const) {
+      const g = displayGrid(totals([{ ...it, inputs: { ...newItem(it.pid, "x").inputs, ...it.inputs } }], st), thb, st);
+      assert.deepEqual([g.monthly, g.year1, g.tco], exp, `${k} cud ${st.cud}`);
+    }
+  }
+  assert.deepEqual(Object.fromEntries(Object.entries(PRICING).map(([k, p]) => [k, p.license])),
+    { meet8: 360, agent8: 480, voice8: null, insight8: 480, connect8: 240, space8: 144, pulse8: 360, collab8: 216, ask8: 120, data8: 480 });
+  assert.deepEqual(Object.fromEntries(Object.entries(PRICING).map(([k, p]) => [k, p.setupDays])),
+    { meet8: 3, agent8: 10, voice8: 10, insight8: 5, connect8: 5, space8: 2, pulse8: 8, collab8: 5, ask8: 3, data8: 8 });
+  assert.equal(MA_RATE, 0.22);
+  assert.equal(HOST_MARKUP, 0.2);
+  assert.equal(PRICING.meet8.fromMonthly, 14.68);
+  assert.equal(PRICING.voice8.perMinute, 0.0218);
+  assert.equal(PRICING.voice8.inputs.find((i) => i.id === "aiMin")!.def, 0.0218);
+  // Meet8 subscription packages 20 / 10 / 5 h per user: US$725.60, 437.60, 293.60 a month at defaults
+  [725.6, 437.6, 293.6].forEach((usd, pkg) => near(costItem({ ...newItem("meet8", "m"), inputs: { ...newItem("meet8", "m").inputs, host: 2, pkg } }, s).lines[0].sell, usd, `Meet8 package ${pkg}`));
+  near(aiLine({ ...newItem("ask8", "a"), setup: false }).sell, 152.83582089552237, "Ask 8 credit pack at defaults");
 });
