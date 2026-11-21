@@ -941,7 +941,10 @@ test("guard: every product's defaults total matches origin/main 6f1eabb except t
     // Pulse8 without its SMS row (฿2,513 a month on 6f1eabb): 15,871 − 2,513, 551,652 − 12 × 2,513, 1,525,716 − 60 × 2,513;
     // CUD on 15,188 − 2,513, 543,456 − 30,156, 1,484,736 − 150,780
     pulse8: [[13358, 521496, 1374936], [12675, 513300, 1333956]],
-    collab8: [[14003, 387756, 1187252], [12342, 367824, 1087592]],
+    // Collab8 alone now carries the always-on GKE base (2026-11-21 final five, item 4): 122.32 × 33.5 = 4,097.72 → ฿4,098 a month,
+    // so 14,003 + 4,098 = 18,101, 387,756 + 12 × 4,098 = 436,932, 1,187,252 + 60 × 4,098 = 1,433,132; CUD on (GKE has none)
+    // 12,342 + 4,098 = 16,440, 367,824 + 49,176 = 417,000, 1,087,592 + 245,880 = 1,333,472. Was [[14003, 387756, 1187252], [12342, 367824, 1087592]].
+    collab8: [[18101, 436932, 1433132], [16440, 417000, 1333472]],
     ask8: [[10313, 249156, 814932], [9385, 238020, 759252]],
     data8: [[5066, 502392, 1028568], [4474, 495288, 993048]],
   };
@@ -1122,6 +1125,7 @@ const BADGES: [string, string, Record<string, number>, string, "estimate" | "dra
   ["collab8", "gcp-cloud-storage-files-", {}, "always", "estimate"],
   ["collab8", "gcp-logging-and-other", {}, "always", "estimate"],
   ["collab8", "gcp-sandbox", {}, "always", "estimate"],
+  ["collab8", "gcp-gke-agents", {}, "always (alone: the base; with Space8: ฿0)", "estimate"],
   ["ask8", "ai", { pack: 1 }, "AI Pack (default)", "estimate"],
   ["ask8", "ai", { pack: 0 }, "own provider", "estimate"],
   ["ask8", "gcp-cloud-run-widget-and-api-", {}, "always", "estimate"],
@@ -1259,7 +1263,9 @@ test("B2 guard: draft flags outside the estimate rows, and Meet8/Insight8 rows, 
 test("R1 Collab8 + Space8: agent runtime counted once; more sessions add only Collab8's per-session rows", () => {
   const est = (sessions: number) => {
     const items = [{ ...newItem("collab8", "c"), inputs: { ...newItem("collab8", "c").inputs, sessions }, setup: false }, { ...newItem("space8", "s"), setup: false }];
-    return { g: displayGrid(totals(items, s), thb, s), c: items.map((it) => costItem(it, s).lines) };
+    // through totals, as the page does: Collab8's rows depend on Space8 being in the same estimate
+    const t = totals(items, s);
+    return { g: displayGrid(t, thb, s), c: t.items.map((r) => r.cost.lines) };
   };
   const [a, b] = [est(20), est(40)];
   // Space8 rows are the same either way: ฿2,173 + 2,472 + 4,098 + 101 = ฿8,844 (Q5)
@@ -1286,10 +1292,217 @@ test("R1 Collab8 + Space8: agent runtime counted once; more sessions add only Co
     en: "20 users × 20 sessions × US$0.02 · per-session pods; the always-on runtime is in Space8",
     th: "20 คน × 20 session × US$0.02 · pod ต่อ session ส่วนระบบที่เปิดตลอดอยู่ใน Space8",
   });
+  // with Space8 in the estimate, Collab8's always-on base row is ฿0 (Space8's GKE row carries it), and the note names both states
+  for (const e of [at0, a, b]) assert.equal(e.c[0].find((l) => l.id === "gcp-gke-agents")!.cost, 0);
   assert.deepEqual(PRICING.collab8.notes[1], {
-    en: "Agent runtime is counted once: the always-on part (GKE cluster, runner and egress pods) is priced in Space8; the agent workspaces row here covers only the pods each session starts, which Space8 leaves out.",
-    th: "ค่าระบบรัน agent นับครั้งเดียว: ส่วนที่เปิดตลอด (GKE cluster, pod runner และ egress) คิดใน Space8 ส่วนแถวพื้นที่ทำงานของ Agent ที่นี่คิดเฉพาะ pod ที่แต่ละ session เปิด ซึ่ง Space8 ไม่ได้รวม",
+    en: "Agent runtime, always-on part (GKE cluster, runner and egress pods): each Collab8 carries its own when the estimate has no Space8; with Space8 in the estimate, Space8 carries it and Collab8's row is 0. The agent workspaces row covers only the pods each session starts.",
+    th: "ระบบรัน agent ส่วนที่เปิดตลอด (GKE cluster, pod runner และ egress): ถ้าใบประมาณการไม่มี Space8 Collab8 แต่ละชุดคิดของตัวเอง ถ้ามี Space8 จะคิดใน Space8 และแถวนี้ของ Collab8 เป็น 0 ส่วนแถวพื้นที่ทำงานของ Agent คิดเฉพาะ pod ที่แต่ละ session เปิด",
   });
-  // Collab8 alone keeps its defaults total (guard above) and the Slack note
+  // Collab8 alone: defaults total in the guard above (now with its own base, F4) and the Slack note
   assert.deepEqual(PRICING.collab8.notes[0], { en: "Compare: Slack about US$9 per user per month.", th: "เทียบ: Slack ราว US$9 ต่อผู้ใช้ต่อเดือน" });
+});
+
+/* ---- 2026-11-21 final five: decisions by GPT-6.2 Astra on คุณเมิน's behalf ("ให้ ChatGPT ตัดสินใจและทำทั้งหมดให้เลย"), relayed by
+   the Manager bot 2026-11-21. 1 SMS: credits × the full price per credit, half up to the satang, then whole baht half up on
+   screen. 2 Ask8 AI Pack: the row says it is estimated from the expected credits. 3 Collab8 + Space8: Cloud SQL stays on both,
+   with a note. 4 Collab8 without Space8 carries its own always-on GKE base (Space8's: cluster 73 + runner/egress pods 49.32 =
+   US$122.32); with any Space8 in the estimate, Space8 carries it and Collab8's row is ฿0. 5 LINE OA Pro overage ฿0.06 unchanged
+   (source comment only). Expected values worked out by hand. ---- */
+
+const smsAt = (sms: number, smsPrice: number, rate: number) => {
+  const p = pulse8With({ sms, smsPrice }, rate);
+  return { satang: Math.round(p.row("sms").cost * rate * 100), shown: p.thb.lines.find((l) => l.id === "sms")!.sell };
+};
+
+test("F1 SMS rounding: credits × full price, half up to the satang, then whole baht half up, at ฿33.5 and ฿36", () => {
+  // [credits, THB per credit, satang (the exact product, half up), whole baht on screen (half up)]
+  const cases: [number, number, number, number][] = [
+    [10001, 0.495, 495050, 4951], // 4,950.495 → ฿4,950.50 → ฿4,951
+    [99999999, 0.505001, 5050009949, 50500099], // 50,500,099.494999 → ฿50,500,099.49 → ฿50,500,099 (c4a6ab0 showed ฿50,500,100)
+    [10000, 0.32, 320000, 3200], // the default path: ฿3,200, unchanged
+    [31208637, 0.32135, 1002889550, 10028896], // 10,028,895.49995 → ฿10,028,895.50 → ฿10,028,896 (S1)
+    [3, 0.165, 50, 1], // 0.495 → ฿0.50 → ฿1: the satang rounds first, then the baht
+    [1, 0.004999, 0, 0], // 0.004999 → ฿0.00
+    [100000000, 10, 100000000000, 1000000000], // the fields' maximums: ฿1,000,000,000.00
+  ];
+  for (const rate of [33.5, 36]) {
+    for (const [sms, price, satang, shown] of cases) {
+      assert.deepEqual(smsAt(sms, price, rate), { satang, shown }, `${sms} × ฿${price} at ฿${rate}`);
+    }
+  }
+  // against an exact decimal oracle (BigInt on the price as typed): 1,000 random prices with 0–6 decimals up to ฿10 and credits up
+  // to 100,000,000, both rates
+  const B = BigInt;
+  const exact = (credits: number, price: string) => {
+    const [i, f = ""] = price.split(".");
+    const scaled = B(i + f) * B(credits); // price × 10^decimals × credits, exact
+    if (f.length <= 2) return Number(scaled * B(10) ** B(2 - f.length));
+    const q = B(10) ** B(f.length - 2);
+    return Number((scaled + q / B(2)) / q); // half up to the satang
+  };
+  let seed = 11;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2 ** 31) / 2 ** 31);
+  for (let k = 0; k < 1000; k++) {
+    const d = Math.floor(rnd() * 7);
+    const price = (Math.floor(rnd() * 10 * 10 ** d) / 10 ** d).toFixed(d);
+    const credits = Math.floor(rnd() * 1e8);
+    const satang = exact(credits, price);
+    for (const rate of [33.5, 36]) {
+      assert.deepEqual(smsAt(credits, Number(price), rate), { satang, shown: Math.floor((satang + 50) / 100) }, `${credits} × ฿${price} at ฿${rate}`);
+    }
+  }
+});
+
+test("F2 Ask8 AI Pack row says it is estimated from the expected credits (EN and TH); pay-your-provider and the shared notes do not", () => {
+  const pack = aiLine(ask8({ pack: 1 }));
+  assert.deepEqual(pack.label, { en: "AI Pack (≈฿4 per credit at ฿33.5/US$)", th: "AI Pack (≈฿4 ต่อ credit ที่ ฿33.5/US$)" });
+  // 60% × 1 + 30% × 2 + 10% × 4 = 1.6 credits a question
+  assert.deepEqual(pack.detail, {
+    en: "20 users × 40 questions × 1.6 credits · answers/data/actions 60/30/10% · Estimated from the expected number of credits",
+    th: "20 คน × 40 คำถาม × 1.6 credit · ถามตอบ/ดึงข้อมูล/สั่งงาน 60/30/10% · ประมาณจากจำนวนเครดิตที่คาดว่าจะใช้",
+  });
+  assert.deepEqual(badgesOf([pack]), ["estimate"]);
+  near(pack.sell * 33.5, 5120, "AI Pack amount unchanged: 1,280 credits × ฿4");
+  const own = aiLine(ask8({ pack: 0 }));
+  assert.deepEqual(own.detail, { en: "20 users × 40 questions · answers/data/actions 60/30/10%", th: "20 คน × 40 คำถาม · ถามตอบ/ดึงข้อมูล/สั่งงาน 60/30/10%" });
+  for (const text of [own.label.en, own.label.th, own.detail!.en, own.detail!.th]) assert.doesNotMatch(text, /credit|เครดิต/i, text);
+  for (const text of PRICING.ask8.notes.flatMap((x) => [x.en, x.th])) assert.doesNotMatch(text, /Estimated from|expected number|ประมาณจาก|คาดว่าจะใช้/, text);
+});
+
+const c8 = (uid: string, sessions = 20): Item => ({ ...newItem("collab8", uid), inputs: { sessions }, setup: false });
+const s8 = (uid: string): Item => ({ ...newItem("space8", uid), setup: false });
+const est = (items: Item[], st = s) => {
+  const t = totals(items, st);
+  const row = (k: number, id: string) => t.items[k].cost.lines.find((l) => l.id === id)!;
+  /** Every always-on GKE base billed in the estimate: [product, US$]. */
+  const bases = t.items.flatMap((r) => r.cost.lines.filter((l) => l.id === "gcp-gke-agents" && l.cost > 0).map((l) => [r.item.pid, l.cost]));
+  return { t, g: displayGrid(t, thb, st), row, bases };
+};
+
+test("F3 Collab8 + Space8: Cloud SQL stays on both for now, with a note in EN and TH; the pair's total is unchanged", () => {
+  assert.deepEqual(PRICING.collab8.notes[2], {
+    en: "With Space8 in the same estimate, Cloud SQL is counted in both products for now. Once the team confirms a shared database, it will be counted once, in Space8, sized for both.",
+    th: "ถ้าใบประมาณการมี Space8 ด้วย ตอนนี้ยังคิด Cloud SQL ทั้งสอง product เมื่อทีมยืนยันว่าใช้ฐานข้อมูลร่วมกัน จะคิดครั้งเดียวใน Space8 โดยกำหนดขนาดให้รองรับทั้งสอง product",
+  });
+  const e = est([c8("c"), s8("s")]);
+  // Collab8 Cloud SQL 110 × 33.5 = ฿3,685, Space8 73.78 × 33.5 = 2,471.63 → ฿2,472, both kept, still "Estimate" on Collab8's side
+  assert.equal(e.g.items[0].lines.find((l) => l.id === "gcp-cloud-sql-database-")!.sell, 3685);
+  assert.equal(e.g.items[1].lines.find((l) => l.id === "gcp-cloud-sql-database-")!.sell, 2472);
+  assert.deepEqual(badgesOf([e.row(0, "gcp-cloud-sql-database-")]), ["estimate"]);
+  assert.equal(e.g.monthly, 22847);
+});
+
+test("F4 Collab8 GKE base: its own when no Space8 is in the estimate, counted once at Space8 when one is; sessions move only per-session rows", () => {
+  const BASE = { en: "cluster fee US$73 + always-on runner and egress pods US$49.32 / month", th: "ค่า cluster US$73 + pod runner และ egress ที่เปิดตลอด US$49.32 ต่อเดือน" };
+  const IN_SPACE8 = { en: "included in Space8: one always-on runtime for both products", th: "รวมอยู่ใน Space8: ระบบที่เปิดตลอดชุดเดียวใช้ร่วมกันทั้งสอง product" };
+  const sandboxText = (alone: boolean) => alone
+    ? { en: "20 users × 20 sessions × US$0.02 · per-session pods; the always-on runtime is in the agent runtime row", th: "20 คน × 20 session × US$0.02 · pod ต่อ session ส่วนระบบที่เปิดตลอดอยู่ในแถวระบบรัน agent" }
+    : { en: "20 users × 20 sessions × US$0.02 · per-session pods; the always-on runtime is in Space8", th: "20 คน × 20 session × US$0.02 · pod ต่อ session ส่วนระบบที่เปิดตลอดอยู่ใน Space8" };
+
+  // Collab8 alone: a GKE base row of US$122.32 (73 + 49.32, Space8's), "Estimate", draft, paid direct, no committed-use discount
+  const alone = est([c8("c")]);
+  const base = alone.row(0, "gcp-gke-agents");
+  assert.deepEqual(alone.t.items[0].cost.lines.map((l) => l.id), ["ai", "gcp-cloud-run-chat-and-api-", "gcp-cloud-sql-database-", "gcp-memorystore-realtime-",
+    "gcp-cloud-storage-files-", "gcp-logging-and-other", "gcp-gke-agents", "gcp-sandbox"]);
+  assert.equal(base.cost, 122.32);
+  assert.equal(base.sell, 122.32);
+  assert.equal(base.payer, "direct");
+  assert.equal(base.kind, "cloud");
+  assert.equal(base.draft, true);
+  assert.equal(base.estimate, true);
+  assert.equal(base.cud, undefined);
+  assert.deepEqual(badgesOf([base]), ["estimate"]);
+  assert.deepEqual(base.label, { en: "Google Cloud · GKE Autopilot (agent runtime)", th: "Google Cloud · GKE Autopilot (ระบบรัน agent)" });
+  assert.deepEqual(base.detail, BASE);
+  assert.deepEqual(alone.row(0, "gcp-sandbox").detail, sandboxText(true));
+  assert.deepEqual(alone.bases, [["collab8", 122.32]]);
+  // ฿33.5: 122.32 × 33.5 = 4,097.72 → ฿4,098; month 14,003 + 4,098 = ฿18,101 (rows 2,010 + 4,355 + 3,685 + 1,340 + 1,005 + 1,340 + 4,098 + 268)
+  assert.deepEqual(alone.g.items[0].lines.map((l) => l.sell), [2010, 4355, 3685, 1340, 1005, 1340, 4098, 268]);
+  assert.equal(alone.g.monthly, 18101);
+  // CUD on: Cloud Run 130 × 0.83 = 107.9 → ฿3,615 (3,614.65), Cloud SQL 110 × 0.75 = 82.5 → ฿2,764 (2,763.75), GKE unchanged:
+  // 18,101 − (4,355 − 3,615) − (3,685 − 2,764) = ฿16,440
+  const on = { ...s, cud: true };
+  const aloneOn = est([c8("c")], on);
+  assert.equal(aloneOn.row(0, "gcp-gke-agents").sell, 122.32);
+  assert.deepEqual(aloneOn.row(0, "gcp-gke-agents").detail, BASE);
+  assert.deepEqual(aloneOn.g.items[0].lines.map((l) => l.sell), [2010, 3615, 2764, 1340, 1005, 1340, 4098, 268]);
+  assert.equal(aloneOn.g.monthly, 16440);
+  // costItem on its own (no estimate around it) prices Collab8 as sold alone
+  assert.equal(costItem(c8("c"), s).lines.find((l) => l.id === "gcp-gke-agents")!.cost, 122.32);
+
+  // Collab8 + Space8: one base, Space8's; Collab8's row is ฿0 and says so; the month stays ฿22,847 (14,003 + 8,844), either order
+  for (const [items, ci, si] of [[[c8("c"), s8("s")], 0, 1], [[s8("s"), c8("c")], 1, 0]] as const) {
+    const both = est([...items]);
+    assert.deepEqual(both.bases, [["space8", 122.32]]);
+    assert.equal(both.row(ci, "gcp-gke-agents").cost, 0);
+    assert.equal(both.row(ci, "gcp-gke-agents").sell, 0);
+    assert.deepEqual(both.row(ci, "gcp-gke-agents").detail, IN_SPACE8);
+    assert.deepEqual(both.row(ci, "gcp-sandbox").detail, sandboxText(false));
+    assert.deepEqual(both.row(si, "gcp-gke-agents").detail, BASE);
+    assert.equal(both.g.monthly, 22847);
+  }
+  // CUD on, the pair as on c4a6ab0: ฿20,568
+  assert.equal(est([c8("c"), s8("s")], on).g.monthly, 20568);
+
+  // one set of servers per product: 2 × Collab8 alone = 2 bases (2 × 18,101 = ฿36,202); Collab8 + 2 × Space8 = 2 bases, both
+  // Space8's (14,003 + 2 × 8,844 = ฿31,691); 2 × Collab8 + Space8 = 1 base (2 × 14,003 + 8,844 = ฿36,850)
+  const twoC = est([c8("c1"), c8("c2")]);
+  assert.deepEqual(twoC.bases, [["collab8", 122.32], ["collab8", 122.32]]);
+  assert.equal(twoC.g.monthly, 36202);
+  const twoS = est([c8("c"), s8("s1"), s8("s2")]);
+  assert.deepEqual(twoS.bases, [["space8", 122.32], ["space8", 122.32]]);
+  assert.equal(twoS.g.monthly, 31691);
+  const twoConeS = est([c8("c1"), c8("c2"), s8("s")]);
+  assert.deepEqual(twoConeS.bases, [["space8", 122.32]]);
+  assert.equal(twoConeS.g.monthly, 36850);
+
+  // add Space8, then remove it: Collab8's base row and its texts follow
+  const steps = [[c8("c")], [c8("c"), s8("s")], [c8("c")]].map((items) => est(items));
+  assert.deepEqual(steps.map((e) => e.g.items[0].lines.find((l) => l.id === "gcp-gke-agents")!.sell), [4098, 0, 4098]);
+  assert.deepEqual(steps.map((e) => e.row(0, "gcp-gke-agents").detail), [BASE, IN_SPACE8, BASE]);
+  assert.deepEqual(steps.map((e) => e.row(0, "gcp-sandbox").detail), [sandboxText(true), sandboxText(false), sandboxText(true)]);
+
+  // sessions scale only the per-session rows: alone 20 → 40 changes AI and workspaces, the base stays 122.32 (and at 0 sessions)
+  const [a20, a40, a0] = [20, 40, 0].map((n) => est([c8("c", n)]));
+  assert.deepEqual(a20.t.items[0].cost.lines.filter((l, k) => l.sell !== a40.t.items[0].cost.lines[k].sell).map((l) => l.id), ["ai", "gcp-sandbox"]);
+  for (const e of [a20, a40, a0]) assert.equal(e.row(0, "gcp-gke-agents").cost, 122.32);
+  assert.equal(a0.row(0, "gcp-sandbox").cost, 0);
+  near(a40.row(0, "gcp-sandbox").cost, 16, "20 users × 40 sessions × US$0.02");
+  // both selected, 20 → 40 sessions: only Collab8's AI and workspaces rows move; every Space8 row and Collab8's ฿0 base stay
+  const [b20, b40] = [20, 40].map((n) => est([c8("c", n), s8("s")]));
+  assert.deepEqual(b20.t.items[0].cost.lines.filter((l, k) => l.sell !== b40.t.items[0].cost.lines[k].sell).map((l) => l.id), ["ai", "gcp-sandbox"]);
+  assert.deepEqual(b20.g.items[1].lines, b40.g.items[1].lines);
+  assert.equal(b40.row(0, "gcp-gke-agents").cost, 0);
+  assert.equal(b40.g.monthly - b20.g.monthly, 2278); // + AI ฿2,010 + workspaces ฿268
+});
+
+test("guard: every product's defaults total except Collab8 alone, and Collab8 + Space8, match origin/main c4a6ab0 (2026-11-21 final five)", () => {
+  // [monthly, year 1, 5-year TCO] in THB at ฿33.5 with setup, CUD off then on, from origin/main c4a6ab0 before this change
+  const was: Record<string, [number[], number[]]> = {
+    meet8: [[17498, 496176, 1548336], [16430, 483360, 1484256]],
+    agent8: [[14070, 640440, 1598808], [12466, 621192, 1502568]],
+    voice8: [[93795, 1275540, 5777700], [90188, 1232256, 5561280]],
+    insight8: [[25851, 706812, 2230668], [24263, 687756, 2135388]],
+    connect8: [[7638, 327456, 835584], [6539, 314268, 769644]],
+    space8: [[8844, 232608, 742024], [8226, 225192, 704944]],
+    pulse8: [[16558, 559896, 1566936], [15875, 551700, 1525956]],
+    ask8: [[10313, 249156, 814932], [9385, 238020, 759252]],
+    data8: [[5066, 502392, 1028568], [4474, 495288, 993048]],
+  };
+  assert.deepEqual(Object.keys(was).sort(), Object.keys(PRICING).filter((k) => k !== "collab8").sort());
+  for (const [pid, [off, onCud]] of Object.entries(was)) {
+    for (const [st, exp] of [[s, off], [{ ...s, cud: true }, onCud]] as const) {
+      const g = displayGrid(totals([newItem(pid, "x")], st), thb, st);
+      assert.deepEqual([g.monthly, g.year1, g.tco], exp, `${pid} cud ${st.cud}`);
+    }
+  }
+  // Collab8 + Space8 on c4a6ab0, with and without setup, CUD off and on; the rows are the same plus Collab8's ฿0 base
+  const pair = (setup: boolean, st: typeof s) => displayGrid(totals([{ ...newItem("collab8", "c"), setup }, { ...newItem("space8", "s"), setup }], st), thb, st);
+  const on = { ...s, cud: true };
+  assert.deepEqual([pair(false, s).monthly, pair(false, s).year1, pair(false, s).tco], [22847, 515364, 1824276]);
+  assert.deepEqual([pair(true, s).monthly, pair(true, s).year1, pair(true, s).tco], [22847, 620364, 1929276]);
+  assert.deepEqual([pair(false, on).monthly, pair(false, on).year1, pair(false, on).tco], [20568, 488016, 1687536]);
+  assert.deepEqual([pair(true, on).monthly, pair(true, on).year1, pair(true, on).tco], [20568, 593016, 1792536]);
+  assert.deepEqual(pair(false, s).items.map((i) => i.lines.map((l) => l.sell)), [[2010, 4355, 3685, 1340, 1005, 1340, 0, 268], [2173, 2472, 4098, 101]]);
+  assert.deepEqual(pair(false, on).items.map((i) => i.lines.map((l) => l.sell)), [[2010, 3615, 2764, 1340, 1005, 1340, 0, 268], [2173, 1854, 4098, 101]]);
 });
