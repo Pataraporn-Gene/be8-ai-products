@@ -577,12 +577,14 @@ test("O1 Pulse8 Cloud SQL 38.15 and Memorystore 47.45 at list prices (prod db-g1
   assert.equal(dbRow("pulse8", "gcp-cloud-sql-database-").cud, undefined);
   near(costItem({ ...newItem("pulse8", "p"), setup: false }, { ...s, cud: true }).lines.find((l) => l.id === "gcp-cloud-sql-database-")!.sell, 38.15, "SQL with CUD on");
   // defaults 50,000 contacts, 100,000 emails, 10,000 SMS, 20,000 LINE, direct per month:
-  // email 10 + SMS 75 + LINE 60 + Cloud Run 120 + SQL 38.15 + Redis 47.45 + storage 30 + contacts 100 = 480.60 (was 545)
-  near(costItem({ ...newItem("pulse8", "p"), setup: false }, s).monthlyDirect, 480.6, "direct per month");
-  // ฿33.5 each row half up: 335 + 2,513 (2,512.5) + 2,010 + 4,020 + 1,278 (1,278.025) + 1,590 (1,589.575) + 1,005 + 3,350 = ฿16,101
+  // email 10 + SMS 75 + LINE ฿1,780 ÷ 33.5 (53.1343…, the Pro plan, see L1) + Cloud Run 120 + SQL 38.15 + Redis 47.45 + storage 30
+  // + contacts 100 = 420.60 + 53.1343… = 473.7343… (was 480.60 with LINE 20,000 × US$0.003 = 60)
+  near(costItem({ ...newItem("pulse8", "p"), setup: false }, s).monthlyDirect, 420.6 + 1780 / 33.5, "direct per month");
+  // ฿33.5 each row half up: 335 + 2,513 (2,512.5) + 1,780 + 4,020 + 1,278 (1,278.025) + 1,590 (1,589.575) + 1,005 + 3,350 = ฿15,871
+  // (was ฿16,101 with LINE ฿2,010)
   const g = onScreen("pulse8");
-  assert.deepEqual(g.items[0].lines.map((l) => l.sell), [335, 2513, 2010, 4020, 1278, 1590, 1005, 3350]);
-  assert.equal(g.monthly, 16101);
+  assert.deepEqual(g.items[0].lines.map((l) => l.sell), [335, 2513, 1780, 4020, 1278, 1590, 1005, 3350]);
+  assert.equal(g.monthly, 15871);
 });
 
 test("O2 Data8 Cloud Run 63.07 and Cloud SQL 38.15 at list prices (prod 1 vCPU / 1 GiB always on, db-g1-small + 10 GB SSD)", () => {
@@ -838,4 +840,103 @@ test("Q5 Space8 note names the usage costs it leaves out, in EN and TH", () => {
     en: "Voice and video run on the VM. Not included, as they grow with use: internet egress for calls (US$0.12/GiB from Singapore to Asia-Pacific for the first TiB), agent session pods (about US$0.011 per 10-minute session) and AI model tokens.",
     th: "เสียงและวิดีโอรันบน VM ไม่รวมค่าที่เพิ่มตามการใช้งาน: egress ออก internet ของการโทร (US$0.12/GiB จาก Singapore ไปเอเชียแปซิฟิกใน 1 TiB แรก), pod ของ session agent (ราว US$0.011 ต่อ session 10 นาที) และค่า token ของโมเดล AI",
   }]);
+});
+
+/* ---- 2026-11-21 Pulse8 LINE OA: Pro plan ฿1,780 with 35,000 messages, then ฿0.06 per message (sources in lib/pricing.ts at
+   LINE_OA: lineforbusiness.com broadcast-message pricing table, read 2026-11-21). Expected values worked out by hand. ---- */
+
+const pulse8At = (line: number, rate: number) => {
+  const st = { ...s, rate };
+  const item = { ...newItem("pulse8", "p"), inputs: { ...newItem("pulse8", "p").inputs, line }, setup: false };
+  const row = costItem(item, st).lines.find((l) => l.id === "line");
+  assert.ok(row, `${line} messages: expected a LINE row`);
+  const screen = (cur: "THB" | "USD") => displayGrid(totals([item], st), { cur, rate, vat: false }, st).items[0];
+  return { row, thb: screen("THB"), usd: screen("USD") };
+};
+
+test("L1 Pulse8 LINE OA Pro plan in baht at any rate: 20,000 and 35,000 messages ฿1,780, 36,000 ฿1,840, at ฿33.5 and ฿40", () => {
+  // [messages, rate, THB = 1,780 + max(0, messages − 35,000) × 0.06, internal US$ = THB ÷ rate, US$ row on screen (half up),
+  //  Pulse8 THB a month at defaults otherwise, extra messages in the text]
+  const cases: [number, number, number, number, number, number, string][] = [
+    [20000, 33.5, 1780, 53.13432836, 53, 15871, "0"], // 1,780 ÷ 33.5 = 53.1343…; month 16,101 − 2,010 + 1,780 (O1)
+    [35000, 33.5, 1780, 53.13432836, 53, 15871, "0"], // exactly the quota: no extra
+    [36000, 33.5, 1840, 54.92537313, 55, 15931, "1,000"], // 1,780 + 1,000 × 0.06 = 1,840; ÷ 33.5 = 54.925…; month 16,101 − 2,010 + 1,840
+    // ฿40: email 10 × 40 = 400, SMS 75 × 40 = 3,000, Cloud Run 120 × 40 = 4,800, SQL 38.15 × 40 = 1,526, Redis 47.45 × 40 = 1,898,
+    // storage 30 × 40 = 1,200, contacts 100 × 40 = 4,000 → 16,824 + LINE
+    [20000, 40, 1780, 44.5, 45, 18604, "0"], // 1,780 ÷ 40 = 44.5 → US$45 half up; 16,824 + 1,780
+    [35000, 40, 1780, 44.5, 45, 18604, "0"],
+    [36000, 40, 1840, 46, 46, 18664, "1,000"], // 1,840 ÷ 40 = 46; 16,824 + 1,840
+  ];
+  for (const [line, rate, baht, usd, usdShown, month, extra] of cases) {
+    const at = `${line} messages at ฿${rate}`;
+    const { row, thb, usd: inUsd } = pulse8At(line, rate);
+    near(row.cost * rate, baht, `${at}: THB`);
+    near(row.cost, usd, `${at}: cost US$`);
+    assert.equal(row.sell, row.cost, `${at}: sell = cost (paid direct)`);
+    assert.equal(row.payer, "direct");
+    assert.equal(row.kind, "telco");
+    assert.equal(row.draft, true, `${at}: draft badge`);
+    assert.equal(row.cud, undefined);
+    assert.equal(thb.lines.find((l) => l.id === "line")!.sell, baht, `${at}: row on screen in THB`);
+    assert.equal(inUsd.lines.find((l) => l.id === "line")!.sell, usdShown, `${at}: row on screen in US$`);
+    assert.equal(thb.monthlyDirect, month, `${at}: Pulse8 a month`);
+    assert.deepEqual(row.detail, {
+      en: `Pro plan ฿1,780 (35,000 messages included) + ${extra} extra × ฿0.06 · excl. 7% VAT`,
+      th: `แพ็กเกจ Pro ฿1,780 (รวม 35,000 ข้อความ) + ส่วนเกิน ${extra} ข้อความ × ฿0.06 · ไม่รวม VAT 7%`,
+    }, `${at}: text`);
+  }
+  // overage starts at message 35,001 (1,780 + 1 × 0.06 = 1,780.06); a typed 35,000.5 counts as a whole message too
+  near(pulse8At(35001, 33.5).row.cost * 33.5, 1780.06, "35,001 messages");
+  near(pulse8At(35000.5, 33.5).row.cost * 33.5, 1780.06, "35,000.5 messages");
+  near(pulse8At(0, 33.5).row.cost * 33.5, 1780, "no messages still pays the plan");
+  // rows stay before VAT; VAT 7% is added once, on the total: ฿15,871 × 0.07 = 1,110.97 → ฿1,111, ฿16,982 with VAT
+  assert.equal(vatOf(15871), 1111);
+});
+
+test("L1 Pulse8 LINE OA text in EN and TH: plan and overage in the note, per-recipient input, no ฿0.10 left", () => {
+  assert.deepEqual(PRICING.pulse8.notes, [{
+    en: "Assumed fees: SMS ฿0.25, email US$0.10 per 1,000. LINE OA Pro plan ฿1,780 a month with 35,000 messages, then ฿0.06 per extra message, excl. 7% VAT.",
+    th: "สมมติค่าส่ง: SMS ฿0.25 อีเมล US$0.10 ต่อ 1,000 ฉบับ · LINE OA แพ็กเกจ Pro ฿1,780 ต่อเดือน รวม 35,000 ข้อความ ส่วนเกินข้อความละ ฿0.06 ไม่รวม VAT 7%",
+  }]);
+  const input = PRICING.pulse8.inputs.find((i) => i.id === "line")!;
+  assert.deepEqual(input.label, { en: "LINE OA messages per month (per recipient)", th: "ข้อความ LINE OA ต่อเดือน (นับต่อผู้รับ)" });
+  assert.deepEqual(input.help, {
+    en: "As LINE counts the plan's quota: one broadcast to 1,000 followers = 1,000 messages. Chats and auto-replies are not counted.",
+    th: "ตามที่ LINE นับโควตาแพ็กเกจ: broadcast 1 ครั้งถึงเพื่อน 1,000 คน = 1,000 ข้อความ ข้อความแชทและตอบกลับอัตโนมัติไม่นับ",
+  });
+  assert.equal(input.def, 20000);
+  const row = pulse8At(20000, 33.5).row;
+  for (const text of [row.detail!.en, row.detail!.th, ...PRICING.pulse8.notes.flatMap((x) => [x.en, x.th])]) {
+    assert.doesNotMatch(text, /฿0\.10?\b|0\.003/, text);
+  }
+});
+
+test("guard: every product's defaults total matches origin/main ef41c89 except the Pulse8 LINE row (2026-11-21)", () => {
+  // [monthly, year 1, 5-year TCO] in THB at ฿33.5 with setup, CUD off then on, taken from origin/main ef41c89 before this change
+  const was: Record<string, [number[], number[]]> = {
+    meet8: [[17498, 496176, 1548336], [16430, 483360, 1484256]],
+    agent8: [[14070, 640440, 1598808], [12466, 621192, 1502568]],
+    voice8: [[93795, 1275540, 5777700], [90188, 1232256, 5561280]],
+    insight8: [[25851, 706812, 2230668], [24263, 687756, 2135388]],
+    connect8: [[7638, 327456, 835584], [6539, 314268, 769644]],
+    space8: [[8844, 232608, 742024], [8226, 225192, 704944]],
+    // Pulse8 without its LINE row (was ฿2,010 a month): 16,101 − 2,010, 554,412 − 12 × 2,010, 1,539,516 − 60 × 2,010; CUD on
+    // 15,418 − 2,010, 546,216 − 24,120, 1,498,536 − 120,600
+    pulse8: [[14091, 530292, 1418916], [13408, 522096, 1377936]],
+    collab8: [[14003, 387756, 1187252], [12342, 367824, 1087592]],
+    ask8: [[10313, 249156, 814932], [9385, 238020, 759252]],
+    data8: [[5066, 502392, 1028568], [4474, 495288, 993048]],
+  };
+  assert.deepEqual(Object.keys(was).sort(), Object.keys(PRICING).sort());
+  for (const [pid, [off, on]] of Object.entries(was)) {
+    for (const [st, exp] of [[s, off], [{ ...s, cud: true }, on]] as const) {
+      const g = displayGrid(totals([newItem(pid, "x")], st), thb, st);
+      const line = pid === "pulse8" ? g.items[0].lines.find((l) => l.id === "line")!.sell : 0;
+      assert.deepEqual([g.monthly - line, g.year1 - 12 * line, g.tco - 60 * line], exp, `${pid} cud ${st.cud}`);
+    }
+  }
+  // Pulse8's other rows one by one, as on origin/main: email, SMS, Cloud Run (−17% with CUD), SQL, Redis, storage, contacts
+  const rows = (st: typeof s) => displayGrid(totals([newItem("pulse8", "x")], st), thb, st).items[0].lines.filter((l) => l.id !== "line").map((l) => l.sell);
+  assert.deepEqual(rows(s), [335, 2513, 4020, 1278, 1590, 1005, 3350]);
+  assert.deepEqual(rows({ ...s, cud: true }), [335, 2513, 3337, 1278, 1590, 1005, 3350]);
 });
