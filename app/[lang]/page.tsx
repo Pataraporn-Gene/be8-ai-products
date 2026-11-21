@@ -38,7 +38,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           <div className="hdr-right">
             <Link href={`/${lang}/calculator`} className="hdr-calc">
               <Calculator size={16} strokeWidth={STROKE} aria-hidden />
-              {dict.calculator}
+              <span className="hdr-calc-label">{dict.calculator}</span>
             </Link>
             <LangSwitch lang={lang} dark />
             <a className="pill" href={siteUrl(lang, "/contact-us")}>
