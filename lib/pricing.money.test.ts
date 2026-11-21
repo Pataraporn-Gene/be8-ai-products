@@ -728,7 +728,8 @@ test("Q5 Space8 as prod runs it: VM 64.88 + Cloud SQL 73.78 + GKE Autopilot 122.
   const many = displayGrid(totals([{ ...newItem("space8", "o"), users: 100, inputs: { online: 100 }, setup: false }], s), { cur: "THB", rate: 33.5, vat: false }, s);
   assert.deepEqual(many.items[0].lines.map((l) => l.sell), [2173, 2472, 4098, 101]);
   assert.equal(decode(btoa(JSON.stringify({ v: 1, i: [["space8", 50, { online: 80 }, 0]] })))!.items[0].inputs.online, undefined);
-  // CUD on: only Cloud SQL −25% = 55.335 → ฿1,854 (1,853.72); VM, GKE and NAT rows carry none
+  // CUD on: only Cloud SQL −25% on the whole row, as every Cloud SQL row does today (storage is not CUD-eligible; not changed here)
+  // = 55.335 → ฿1,854 (1,853.72); VM, GKE and NAT rows carry none
   const cud = displayGrid(totals([{ ...newItem("space8", "o"), setup: false }], { ...s, cud: true }), { cur: "THB", rate: 33.5, vat: false }, { ...s, cud: true });
   assert.deepEqual(cud.items[0].lines.map((l) => l.sell), [2173, 1854, 4098, 101]);
   assert.equal(cud.monthly, 8226);
@@ -805,4 +806,24 @@ test("guard: Meet8/Insight8 totals, license, MA, markup, setup days, package pri
   // Meet8 subscription packages 20 / 10 / 5 h per user: US$725.60, 437.60, 293.60 a month at defaults
   [725.6, 437.6, 293.6].forEach((usd, pkg) => near(costItem({ ...newItem("meet8", "m"), inputs: { ...newItem("meet8", "m").inputs, host: 2, pkg } }, s).lines[0].sell, usd, `Meet8 package ${pkg}`));
   near(aiLine({ ...newItem("ask8", "a"), setup: false }).sell, 152.83582089552237, "Ask 8 credit pack at defaults");
+});
+
+test("Q4 Data8 storage stays inside Cloud SQL limits for db-g1-small: 10 GiB minimum, 3,054 GiB maximum", () => {
+  const st = (sqlGiB: number) => costItem({ ...newItem("data8", "d"), inputs: { sqlGiB }, setup: false }, s).lines.find((l) => l.id === "gcp-sql-storage")!;
+  // 0 GiB is billed as the 10 GiB minimum: 10 × 0.238 = 2.38
+  near(st(0).sell, 2.38, "0 GiB → 10 GiB");
+  assert.equal(st(0).detail!.en, "10 GiB × US$0.238 per GiB-month · growth per profile not measured");
+  // 5,000 GiB is held at the shared-core cap 3,054: 3,054 × 0.238 = 726.852
+  near(st(5000).sell, 726.852, "5,000 GiB → 3,054 GiB");
+  assert.equal(st(5000).detail!.th, "3,054 GiB × US$0.238 ต่อ GiB ต่อเดือน · ยังไม่ได้วัดการโตต่อโปรไฟล์");
+  assert.equal(PRICING.data8.inputs[0].max, 3054);
+  // a share link asking for more is clamped the same way
+  assert.equal(decode(btoa(JSON.stringify({ v: 1, i: [["data8", 20, { sqlGiB: 99999 }, 0]] })))!.items[0].inputs.sqlGiB, 3054);
+});
+
+test("Q5 Space8 note names the usage costs it leaves out, in EN and TH", () => {
+  assert.deepEqual(PRICING.space8.notes, [{
+    en: "Voice and video run on the VM. Not included, as they grow with use: internet egress for calls (US$0.12/GiB from Singapore), agent session pods (about US$0.011 per 10-minute session) and AI model tokens.",
+    th: "เสียงและวิดีโอรันบน VM ไม่รวมค่าที่เพิ่มตามการใช้งาน: egress ออก internet ของการโทร (US$0.12/GiB จาก Singapore), pod ของ session agent (ราว US$0.011 ต่อ session 10 นาที) และค่า token ของโมเดล AI",
+  }]);
 });
