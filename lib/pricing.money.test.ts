@@ -1309,9 +1309,13 @@ test("R1 Collab8 + Space8: agent runtime counted once; more sessions add only Co
    US$122.32); with any Space8 in the estimate, Space8 carries it and Collab8's row is ฿0. 5 LINE OA Pro overage ฿0.06 unchanged
    (source comment only). Expected values worked out by hand. ---- */
 
+// The row's cost back in satang, unrounded: it must be the whole satang (only the float division by the rate may leave a hair),
+// so a cost still carrying a fraction of a satang (1 × ฿0.004999 kept as ฿0.004999) fails instead of being rounded away here.
 const smsAt = (sms: number, smsPrice: number, rate: number) => {
   const p = pulse8With({ sms, smsPrice }, rate);
-  return { satang: Math.round(p.row("sms").cost * rate * 100), shown: p.thb.lines.find((l) => l.id === "sms")!.sell };
+  const raw = p.row("sms").cost * rate * 100;
+  const satang = Math.round(raw);
+  return { satang: Math.abs(raw - satang) <= 1e-9 * Math.max(1, satang) ? satang : raw, shown: p.thb.lines.find((l) => l.id === "sms")!.sell };
 };
 
 test("F1 SMS rounding: credits × full price, half up to the satang, then whole baht half up, at ฿33.5 and ฿36", () => {
@@ -1324,13 +1328,16 @@ test("F1 SMS rounding: credits × full price, half up to the satang, then whole 
     [3, 0.165, 50, 1], // 0.495 → ฿0.50 → ฿1: the satang rounds first, then the baht
     [1, 0.004999, 0, 0], // 0.004999 → ฿0.00
     [100000000, 10, 100000000000, 1000000000], // the fields' maximums: ฿1,000,000,000.00
+    [1000, 0.0124949999996, 1249, 12], // 12.4949999996 → ฿12.49 → ฿12: all 13 decimals count (Astra round 1)
+    [100000000, 1e-7, 1000, 10], // String(1e-7) is "1e-7": 10.00 → ฿10
+    [5, 0.0000001, 0, 0], // 0.0000005 → ฿0.00
   ];
   for (const rate of [33.5, 36]) {
     for (const [sms, price, satang, shown] of cases) {
       assert.deepEqual(smsAt(sms, price, rate), { satang, shown }, `${sms} × ฿${price} at ฿${rate}`);
     }
   }
-  // against an exact decimal oracle (BigInt on the price as typed): 1,000 random prices with 0–6 decimals up to ฿10 and credits up
+  // against an exact decimal oracle (BigInt on the price as typed): 1,000 random prices with 0–13 decimals up to ฿10 and credits up
   // to 100,000,000, both rates
   const B = BigInt;
   const exact = (credits: number, price: string) => {
@@ -1343,7 +1350,7 @@ test("F1 SMS rounding: credits × full price, half up to the satang, then whole 
   let seed = 11;
   const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2 ** 31) / 2 ** 31);
   for (let k = 0; k < 1000; k++) {
-    const d = Math.floor(rnd() * 7);
+    const d = Math.floor(rnd() * 14);
     const price = (Math.floor(rnd() * 10 * 10 ** d) / 10 ** d).toFixed(d);
     const credits = Math.floor(rnd() * 1e8);
     const satang = exact(credits, price);

@@ -335,11 +335,18 @@ function lineOaRow(messages: number, rate: number, plan: number): Line {
 const SMS_THB_PER_CREDIT = 0.32;
 
 /** credits × baht per credit in satang, half up, exact (decision 2026-11-21, final five item 1: credits × the full-precision price,
- *  half up to the satang; the page then shows whole baht half up). The price is read to 12 decimals (price × 1e12 < 2^53 up to the
- *  ฿10 maximum, so Math.round recovers the typed decimal) and multiplied in BigInt: `roundPrice` keeps only 12 significant digits,
- *  so 99,999,999 × ฿0.505001 = 50,500,099.494999 became ฿50,500,099.50 there instead of .49. */
-const smsSatang = (credits: number, thbPerCredit: number) =>
-  Number((BigInt(credits) * BigInt(Math.round(thbPerCredit * 1e12)) + BigInt(5e9)) / BigInt(1e10));
+ *  half up to the satang; the page then shows whole baht half up). The price is taken in its shortest decimal form, the one the
+ *  formula on screen prints (`String`), and multiplied in BigInt, so no digit is dropped before the rounding: `roundPrice` keeps
+ *  only 12 significant digits (99,999,999 × ฿0.505001 = 50,500,099.494999 became ฿50,500,099.50 there instead of .49), and a
+ *  12-decimal read would make 1,000 × ฿0.0124949999996 = ฿12.4949999996 ฿12.50. Inputs are clamped to 0 or more. */
+function smsSatang(credits: number, thbPerCredit: number): number {
+  const [mantissa, exp = "0"] = String(thbPerCredit).split("e");
+  const [int, frac = ""] = mantissa.split(".");
+  const scale = frac.length - Number(exp); // price = digits × 10^-scale
+  const digits = BigInt(int + frac + "0".repeat(Math.max(0, -scale)));
+  const den = BigInt("1" + "0".repeat(Math.max(0, scale)));
+  return Number((BigInt(credits) * digits * BigInt(200) + den) / (den * BigInt(2))); // floor(credits × price × 100 + 1/2)
+}
 
 /** Pulse8's SMS row: credits × the baht price per credit, divided by the user's rate like the LINE row, before VAT.
  *  Credits are whole, as providers sell them: a typed 10,000.5 bills 10,001. The baht amount is rounded to the satang (0.01)
