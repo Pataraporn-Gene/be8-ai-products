@@ -255,6 +255,9 @@ function meet8Gcp(users: number, conc: number, hours: number, markup?: number): 
   ];
 }
 
+/** Space8 GKE Autopilot agent runtime, US$ a month: cluster fee and the always-on runner + egress pods (sources at the row). */
+const SPACE8_GKE = { clusterFee: 73, pods: 49.32 };
+
 export const PRICING: Record<string, ProductPricing> = {
   meet8: {
     id: "meet8",
@@ -513,22 +516,39 @@ export const PRICING: Record<string, ProductPricing> = {
     licenseDraft: true,
     unitLabel: USERS,
     setupDays: 2,
-    inputs: [
-      { id: "online", label: L("People online at the same time", "สัดส่วนคนออนไลน์พร้อมกัน"), unit: L("%", "%"), def: 40, max: 100, step: 5 },
-    ],
-    lines: (v, users) => [
-      // Cloud SQL re-priced 2026-11-21 from the Cloud Billing Catalog (asia-southeast1, on-demand, × 730 h) for the Space8 prod
-      // database (gcloud 2026-11-21: db-custom-1-3840 zonal + 20 GB SSD): 1 × 0.0578 (DE86-B401-E60F) × 730 + 3.75 GiB × 0.0098
+    // No usage inputs: every Space8 row below is a fixed monthly cost. The "people online" input (US$1.50 per online user for
+    // voice and video) was removed 2026-11-21: LiveKit runs on the VM priced in full below, and the one cost outside it that
+    // grows with users, internet egress of call media (0.12/GiB for the first TiB Singapore → APAC, 400E-0B94-6FB4), has no measured GB per user.
+    inputs: [],
+    lines: () => [
+      // Space8 prod, gcloud/kubectl 2026-11-21 (Space8 docs/architecture.md): no Cloud Run. Cloud Billing Catalog asia-southeast1,
+      // on-demand, × 730 h, prices checked 2026-11-21.
+      // VM (web, realtime/Colyseus, LiveKit and its egress, redis on docker compose; was "Cloud Run (app and realtime)" 60):
+      // e2-standard-2 = 2 cores × 0.02690931 (7102-B9AA-2ACF) × 730 + 8 GiB × 0.00360594 (E277-7DC2-2C7D) × 730 = 39.2876 + 21.0587,
+      // + 20 GB pd-standard boot × 0.044/GiB-mo (0572-568A-4FC4) = 0.88, + in-use static external IP 0.005/h (C054-7F72-A02E) × 730
+      // = 3.65 → 64.88. Space8's doc lists 69.26 for the VM; the 4.38 more is not itemised there, so it is not used.
+      // Cloud SQL re-priced 2026-11-21 (db-custom-1-3840 zonal + 20 GB SSD): 1 × 0.0578 (DE86-B401-E60F) × 730 + 3.75 GiB × 0.0098
       // (EF83-F6A8-8EA7) × 730 + 20 GiB × 0.238/GiB-mo (45B3-606F-EE91) = 42.194 + 26.8275 + 4.76 = 73.78 (was 50); backups are usage, not included.
       ...gcp([
-        ["Cloud Run (app and realtime)", "Cloud Run (แอปและ realtime)", 60, "run"],
+        ["Compute Engine (VM: app, realtime and LiveKit)", "Compute Engine (VM: แอป, realtime และ LiveKit)", 64.88],
         ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 73.78, "sql"],
-        ["Storage, logging and other", "Storage, logging และอื่นๆ", 40],
       ], 1, true),
-      gcpUsage("gcp-media", "Compute Engine (voice and video)", "Compute Engine (เสียงและวิดีโอ)", users * (v.online / 100) * 1.5,
-        L(`${n(users)} users × ${n(v.online)}% online × US$1.50`, `${n(users)} คน × ออนไลน์ ${n(v.online)}% × US$1.50`)),
+      // GKE Autopilot space8-agents (agent runtime from Collab8), pod-based billing at the pods' requests, sidecars counted as in
+      // Space8's doc: runner 550 mCPU (500 + cloud-sql-proxy 50), 1.0625 GiB, 4.25 GiB ephemeral; egress 500 mCPU (caddy 450 +
+      // vertex-token 50), 0.5 GiB, 2 GiB ephemeral. Pods = (1,050 mCPU × 0.0000549 (589B-F840-EC19) + 1.5625 GiB × 0.0060729
+      // (6500-7637-6ACA) + 6.25 GiB × 0.0000676 (3577-D694-91BC)) per hour × 730 = 42.0809 + 6.9269 + 0.3084 = 49.32 (runner 26.96,
+      // egress 22.35, as in the doc). Cluster fee 0.10/h (F52D-A61F-C7D1) × 730 = 73. Agent session pods run only while a session
+      // does and are not here. GKE free tier: US$74.40 a month per billing account, about one free Autopilot or zonal cluster
+      // (cloud.google.com/kubernetes-engine/pricing, read 2026-11-21); Space8's doc says another cluster on its billing account
+      // already uses it. Not subtracted: a customer's own billing account may or may not have it free.
+      gcpUsage("gcp-gke-agents", "GKE Autopilot (agent runtime)", "GKE Autopilot (ระบบรัน agent)", roundPrice(SPACE8_GKE.clusterFee + SPACE8_GKE.pods),
+        L(`cluster fee US$${SPACE8_GKE.clusterFee} + runner and egress pods US$${SPACE8_GKE.pods} / month`, `ค่า cluster US$${SPACE8_GKE.clusterFee} + pod runner และ egress US$${SPACE8_GKE.pods} ต่อเดือน`)),
+      // Cloud NAT, Cloud Storage, Artifact Registry and Secret Manager: ~3 a month at small volumes (Space8 docs/architecture.md
+      // cost table, list prices 2026-11-09); was "Storage, logging and other" 40 with no source. The GKE row above holds the rest.
+      ...gcp([["Cloud NAT, storage and other", "Cloud NAT, storage และอื่นๆ", 3]], 1, true),
     ],
-    notes: [],
+    notes: [L("Voice and video run on the VM. Internet egress for calls (US$0.12/GiB from Singapore) grows with use and is not included.",
+      "เสียงและวิดีโอรันบน VM ค่า egress ออก internet ของการโทร (US$0.12/GiB จาก Singapore) เพิ่มตามการใช้งานและไม่ได้รวมไว้")],
   },
   pulse8: {
     id: "pulse8",

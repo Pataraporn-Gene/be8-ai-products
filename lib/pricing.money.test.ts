@@ -623,12 +623,7 @@ test("O4 Voice8 per-minute price at defaults is unchanged: US$0.0218 a minute, 9
 test("O5 Space8 Cloud SQL 73.78 at list prices (prod db-custom-1-3840 + 20 GB SSD)", () => {
   near(1 * 0.0578 * 730 + 3.75 * 0.0098 * 730 + 20 * 0.238, 73.7815, "42.194 + 26.8275 + 4.76 (was 50)");
   monthRow("space8", "gcp-cloud-sql-database-", 73.78);
-  // defaults 20 users, 40% online: Cloud Run 60 + SQL 73.78 + other 40 + media 20 × 40% × 1.50 = 12 → 185.78 (was 162)
-  near(costItem({ ...newItem("space8", "o"), setup: false }, s).monthlyDirect, 185.78, "direct per month");
-  // ฿33.5 half up: 2,010 + 2,472 (2,471.63) + 1,340 + 402 = ฿6,224
-  const g = onScreen("space8");
-  assert.deepEqual(g.items[0].lines.map((l) => l.sell), [2010, 2472, 1340, 402]);
-  assert.equal(g.monthly, 6224);
+  // the Space8 monthly total follows the VM and GKE rows of Q5
 });
 
 /* ---- 2026-11-21 cost follow-up (audit questions 1, 4, 5, 9). Expected values worked out by hand from the sources in lib/pricing.ts. ---- */
@@ -702,4 +697,39 @@ test("Q4 Data8: no BigQuery rows; Cloud SQL server 35.77 + SSD storage GiB × 0.
   const old = decode(btoa(JSON.stringify({ v: 1, i: [["data8", 20, { profiles: 5000000, events: 90000000 }, 0]] })))!;
   assert.deepEqual(old.items[0].inputs, { sqlGiB: 10 });
   near(costItem(old.items[0], s).monthlyDirect, 151.22, "old link total");
+});
+
+test("Q5 Space8 as prod runs it: VM 64.88 + Cloud SQL 73.78 + GKE Autopilot 122.32 + NAT/storage 3, no per-user media charge", () => {
+  // VM: 2 × 0.02690931 × 730 + 8 × 0.00360594 × 730 + 20 × 0.044 + 0.005 × 730 = 39.2876 + 21.0587 + 0.88 + 3.65 = 64.8763 → 64.88
+  near(2 * 0.02690931 * 730 + 8 * 0.00360594 * 730 + 20 * 0.044 + 0.005 * 730, 64.8762822, "VM formula");
+  // GKE pods: (1,050 mCPU × 0.0000549 + 1.5625 GiB × 0.0060729 + 6.25 GiB × 0.0000676) × 730 = 49.3162 → 49.32; + cluster fee 0.10 × 730 = 73
+  near((1050 * 0.0000549 + 1.5625 * 0.0060729 + 6.25 * 0.0000676) * 730, 49.3161765625, "GKE pod formula");
+  const lines = costItem({ ...newItem("space8", "o"), setup: false }, s).lines;
+  assert.deepEqual(lines.map((l) => l.id), ["gcp-compute-engine-vm-app-realtime-and-livekit-", "gcp-cloud-sql-database-", "gcp-gke-agents", "gcp-cloud-nat-storage-and-other"]);
+  monthRow("space8", "gcp-compute-engine-vm-app-realtime-and-livekit-", 64.88);
+  monthRow("space8", "gcp-cloud-nat-storage-and-other", 3);
+  const gke = lines.find((l) => l.id === "gcp-gke-agents")!;
+  assert.equal(gke.cost, 122.32);
+  assert.equal(gke.sell, 122.32);
+  assert.equal(gke.payer, "direct");
+  assert.equal(gke.draft, true);
+  assert.deepEqual(gke.label, { en: "Google Cloud · GKE Autopilot (agent runtime)", th: "Google Cloud · GKE Autopilot (ระบบรัน agent)" });
+  assert.deepEqual(gke.detail, { en: "cluster fee US$73 + runner and egress pods US$49.32 / month", th: "ค่า cluster US$73 + pod runner และ egress US$49.32 ต่อเดือน" });
+  assert.equal(lines.find((l) => l.id === "gcp-compute-engine-vm-app-realtime-and-livekit-")!.label.th, "Google Cloud · Compute Engine (VM: แอป, realtime และ LiveKit)");
+  assert.equal(lines.some((l) => l.id === "gcp-media" || l.label.en.includes("Cloud Run")), false);
+  assert.deepEqual(PRICING.space8.inputs, []);
+  // 64.88 + 73.78 + 122.32 + 3 = 263.98 a month (was 185.78: Cloud Run 60 + SQL 73.78 + other 40 + media 20 × 40% × 1.50 = 12)
+  near(costItem({ ...newItem("space8", "o"), setup: false }, s).monthlyDirect, 263.98, "direct per month");
+  // ฿33.5 half up: 2,173 (2,173.48) + 2,472 (2,471.63) + 4,098 (4,097.72) + 101 (100.5) = ฿8,844 (was ฿6,224)
+  const g = onScreen("space8");
+  assert.deepEqual(g.items[0].lines.map((l) => l.sell), [2173, 2472, 4098, 101]);
+  assert.equal(g.monthly, 8844);
+  // more users or an old link's "online" share changes no cloud row: 100 users with online 100% → same ฿8,844
+  const many = displayGrid(totals([{ ...newItem("space8", "o"), users: 100, inputs: { online: 100 }, setup: false }], s), { cur: "THB", rate: 33.5, vat: false }, s);
+  assert.deepEqual(many.items[0].lines.map((l) => l.sell), [2173, 2472, 4098, 101]);
+  assert.equal(decode(btoa(JSON.stringify({ v: 1, i: [["space8", 50, { online: 80 }, 0]] })))!.items[0].inputs.online, undefined);
+  // CUD on: only Cloud SQL −25% = 55.335 → ฿1,854 (1,853.72); VM, GKE and NAT rows carry none
+  const cud = displayGrid(totals([{ ...newItem("space8", "o"), setup: false }], { ...s, cud: true }), { cur: "THB", rate: 33.5, vat: false }, { ...s, cud: true });
+  assert.deepEqual(cud.items[0].lines.map((l) => l.sell), [2173, 1854, 4098, 101]);
+  assert.equal(cud.monthly, 8226);
 });
