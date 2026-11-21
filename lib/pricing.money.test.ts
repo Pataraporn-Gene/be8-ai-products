@@ -635,3 +635,39 @@ test("O5 Space8 Cloud SQL 73.78 at list prices (prod db-custom-1-3840 + 20 GB SS
   assert.deepEqual(g.items[0].lines.map((l) => l.sell), [2010, 2472, 1340, 402]);
   assert.equal(g.monthly, 6224);
 });
+
+/* ---- 2026-11-21 cost follow-up (audit questions 1, 4, 5, 9). Expected values worked out by hand from the sources in lib/pricing.ts. ---- */
+
+test("Q1 Voice8 extra Asterisk VM every 60 concurrent calls (load test 2026-11-10); the call-runtime/system pair stays at 80", () => {
+  // defaults: 8 h + 15 min rounded up = 8.5 h × 30 days = 255 billed hours; Singapore Asterisk VM US$67.3 (e2-standard-2 + 30 GB + IP)
+  const rows = (concurrent: number) => costItem({ ...newItem("voice8", "v"), inputs: { concurrent }, setup: false }, s).lines;
+  const row = (concurrent: number, id: string) => rows(concurrent).find((l) => l.id === id);
+  const asterisk = (concurrent: number, vms: number) => {
+    const l = row(concurrent, "gcp-asterisk")!;
+    near(l.cost, vms * 67.3, `${concurrent} calls: ${vms} extra Asterisk VM cost`);
+    near(l.sell, vms * 67.3, `${concurrent} calls: sell = cost (paid direct)`);
+    assert.equal(l.payer, "direct");
+    assert.equal(l.draft, true);
+    assert.deepEqual(l.detail, { en: `${vms} × US$67.3 · 60 calls per VM`, th: `${vms} × US$67.3 · 60 สายต่อ VM` });
+  };
+  // 60 calls: ceil(60/60) − 1 = 0 extra VMs, ceil(60/80) − 1 = 0 extra runtime pairs
+  assert.equal(row(60, "gcp-asterisk"), undefined);
+  assert.equal(row(60, "gcp-runtime"), undefined);
+  // 61 calls: ceil(61/60) − 1 = 1 extra VM (was 0 at 80 per VM); runtime ceil(61/80) − 1 = 0
+  asterisk(61, 1);
+  assert.equal(row(61, "gcp-runtime"), undefined);
+  // 80 calls: VM ceil(80/60) − 1 = 1; runtime ceil(80/80) − 1 = 0
+  asterisk(80, 1);
+  assert.equal(row(80, "gcp-runtime"), undefined);
+  // 81 calls: VM ceil(81/60) − 1 = 1; runtime ceil(81/80) − 1 = 1 pair = 1 × 2 × US$0.0864 × 255 h = US$44.064
+  asterisk(81, 1);
+  const rt = row(81, "gcp-runtime")!;
+  near(rt.cost, 44.064, "81 calls: runtime cost");
+  near(rt.sell, 44.064, "81 calls: runtime sell");
+  assert.deepEqual(rt.detail, { en: "1 × 2 × US$0.0864/h × 255 h", th: "1 × 2 × US$0.0864/ชม. × 255 ชม." });
+  // 121 calls: VM ceil(121/60) − 1 = 2 = US$134.6 (80 per VM gave 1); runtime ceil(121/80) − 1 = 1, still US$44.064
+  asterisk(121, 2);
+  near(row(121, "gcp-runtime")!.cost, 44.064, "121 calls: runtime");
+  // the published per-minute price does not move with the VM count
+  near(rows(121).find((l) => l.id === "min")!.sell, 1962, "AI minutes 90,000 × 0.0218");
+});

@@ -117,7 +117,13 @@ const VOICE8 = {
   aiMin: 0.0218, // default AI cost per minute (LLM + STT + TTS + judge + extractor), billed by Beryl8 at this rate
   callsPerVoice: 4,
   voiceBuffer: 1, // one spare voice instance on top of concurrent ÷ 4
-  callsPerAsterisk: 80, // ~90 per VM at 85% CPU, 80 leaves headroom
+  // ~60 calls per Asterisk VM: load test on prod Asterisk B (e2-standard-2), conversational-ai
+  // docs/superpowers/specs/2026-11-10-asterisk-unbuffered-design.md: 60 calls rtt p95 414–433 ms, 90 calls 0.93–1.2 s;
+  // the Voice8 page also says about 60 calls per Asterisk server (was 80).
+  callsPerAsterisk: 60,
+  // Extra call-runtime + system pair per 80 concurrent calls: the threshold it shared with Asterisk before 2026-11-21.
+  // Kept until the runtime has a load test of its own.
+  callsPerRuntime: 80,
   voiceHour: 0.1728, // 2 vCPU / 2 GiB always-on
   runtimeHour: 0.0864, // 1 vCPU / 1 GiB always-on
   idleTail: 0.25, // instances stay ~15 min after the last call
@@ -394,7 +400,8 @@ export const PRICING: Record<string, ProductPricing> = {
       const voiceExtra = outbound ? voices : voices - 1;
       const voiceDay = outbound ? halfUp(v.hours + V.warmUp + V.idleTail) : dayHours;
       const voiceHours = voiceDay * v.days;
-      const tierExtra = Math.max(0, Math.ceil(v.concurrent / V.callsPerAsterisk) - 1);
+      const asteriskExtra = Math.max(0, Math.ceil(v.concurrent / V.callsPerAsterisk) - 1);
+      const runtimeExtra = Math.max(0, Math.ceil(v.concurrent / V.callsPerRuntime) - 1);
       const egressGiB = (minutes * V.mbPerMin * 1e6) / 2 ** 30; // MB → GiB, the unit Google bills egress in
       return [
         { id: "min", label: L("AI conversation minutes", "นาทีสนทนา AI"), payer: "beryl8", kind: "ai",
@@ -414,11 +421,13 @@ export const PRICING: Record<string, ProductPricing> = {
           outbound
             ? L(`${voiceExtra} × US$${V.voiceHour}/h × ${n(voiceDay)} h (10 min warm-up + ${n(v.hours)} h + 15 min, rounded up) × ${n(v.days)} days · ${V.callsPerVoice} calls per instance + ${V.voiceBuffer} spare · min 0 outside calling hours`, `${voiceExtra} × US$${V.voiceHour}/ชม. × ${n(voiceDay)} ชม. (warm-up 10 นาที + ${n(v.hours)} ชม. + 15 นาที ปัดขึ้น) × ${n(v.days)} วัน · ${V.callsPerVoice} สายต่อ instance + เผื่อ ${V.voiceBuffer} · min 0 นอกเวลาโทร`)
             : L(`${voiceExtra} × US$${V.voiceHour}/h × ${n(voiceDay)} h (${n(v.hours)} h + 15 min, rounded up) × ${n(v.days)} days · ${V.callsPerVoice} calls per instance + ${V.voiceBuffer} spare`, `${voiceExtra} × US$${V.voiceHour}/ชม. × ${n(voiceDay)} ชม. (${n(v.hours)} ชม. + 15 นาที ปัดขึ้น) × ${n(v.days)} วัน · ${V.callsPerVoice} สายต่อ instance + เผื่อ ${V.voiceBuffer}`), "run"),
-        ...(tierExtra > 0 ? [
-          gcpUsage("gcp-runtime", "Cloud Run (extra call runtime and system)", "Cloud Run (call runtime และ system ที่เพิ่ม)", tierExtra * 2 * V.runtimeHour * billedHours,
-            L(`${tierExtra} × 2 × US$${V.runtimeHour}/h × ${n(billedHours)} h`, `${tierExtra} × 2 × US$${V.runtimeHour}/ชม. × ${n(billedHours)} ชม.`), "run"),
-          gcpUsage("gcp-asterisk", "Compute Engine (extra Asterisk VMs)", "Compute Engine (Asterisk VM ที่เพิ่ม)", tierExtra * R.asteriskVm,
-            L(`${tierExtra} × US$${R.asteriskVm} · ${V.callsPerAsterisk} calls per VM`, `${tierExtra} × US$${R.asteriskVm} · ${V.callsPerAsterisk} สายต่อ VM`)),
+        ...(runtimeExtra > 0 ? [
+          gcpUsage("gcp-runtime", "Cloud Run (extra call runtime and system)", "Cloud Run (call runtime และ system ที่เพิ่ม)", runtimeExtra * 2 * V.runtimeHour * billedHours,
+            L(`${runtimeExtra} × 2 × US$${V.runtimeHour}/h × ${n(billedHours)} h`, `${runtimeExtra} × 2 × US$${V.runtimeHour}/ชม. × ${n(billedHours)} ชม.`), "run"),
+        ] : []),
+        ...(asteriskExtra > 0 ? [
+          gcpUsage("gcp-asterisk", "Compute Engine (extra Asterisk VMs)", "Compute Engine (Asterisk VM ที่เพิ่ม)", asteriskExtra * R.asteriskVm,
+            L(`${asteriskExtra} × US$${R.asteriskVm} · ${V.callsPerAsterisk} calls per VM`, `${asteriskExtra} × US$${R.asteriskVm} · ${V.callsPerAsterisk} สายต่อ VM`)),
         ] : []),
         gcpUsage("gcp-egress", "Network egress (call audio)", "Network egress (เสียงออก internet)", egressGiB * R.egressGiB,
           L(`${n(minutes)} min × ${V.mbPerMin} MB ≈ ${n(roundPrice(egressGiB))} GiB × US$${R.egressGiB}/GiB`, `${n(minutes)} นาที × ${V.mbPerMin} MB ≈ ${n(roundPrice(egressGiB))} GiB × US$${R.egressGiB}/GiB`)),
