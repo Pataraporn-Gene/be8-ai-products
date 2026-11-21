@@ -1064,6 +1064,11 @@ test("S1 Pulse8 SMS per credit in baht at any rate: 10,000 credits × ฿0.32 = 
     assert.equal(p.usd.lines.find((l) => l.id === "sms")!.sell, usdShown, `${at}: row on screen in US$`);
     assert.deepEqual(row.detail, { en: `${credits} credits × ฿${price} · excl. 7% VAT`, th: `${credits} เครดิต × ฿${price} · ไม่รวม VAT 7%` }, `${at}: text`);
   }
+  // a typed price with more decimals than the money format shows as typed, so the formula multiplies out to the row:
+  // 1,000,000 × 1.02175 = ฿1,021,750 (rounding the price to 1.0218 would read as ฿1,021,800)
+  const fine = pulse8With({ sms: 1000000, smsPrice: 1.02175 }, 33.5).row("sms");
+  near(fine.cost * 33.5, 1021750, "1,000,000 credits × ฿1.02175");
+  assert.deepEqual(fine.detail, { en: "1,000,000 credits × ฿1.02175 · excl. 7% VAT", th: "1,000,000 เครดิต × ฿1.02175 · ไม่รวม VAT 7%" });
   // the rate field's limits: still ฿3,200 on screen
   for (const rate of [1, 1000]) assert.equal(pulse8With({}, rate).thb.lines.find((l) => l.id === "sms")!.sell, 3200, `defaults at ฿${rate}`);
   // credits are whole: 10,000.5 bills 10,001 × 0.32 = 3,200.32
@@ -1140,6 +1145,10 @@ const BADGES: [string, string, Record<string, number>, string, "estimate" | "dra
   ["voice8", "gcp-egress", { region: 1 }, "Jakarta", "draft"],
   ["voice8", "gcp-asterisk", { region: 1, concurrent: 81 }, "Jakarta, 81 concurrent", "draft"],
   ["voice8", "gcp-runtime", { region: 1, concurrent: 81 }, "Jakarta, 81 concurrent", "draft"],
+  ["voice8", "gcp-asterisk", { region: 0, concurrent: 81 }, "Singapore, 81 concurrent", "draft"],
+  ["voice8", "gcp-runtime", { region: 0, concurrent: 81 }, "Singapore, 81 concurrent", "draft"],
+  ["voice8", "gcp-nat-build-storage-and-other", { region: 0, concurrent: 81 }, "Singapore, 81 concurrent", "draft"],
+  ["voice8", "gcp-nat-build-storage-and-other", { region: 1, concurrent: 81 }, "Jakarta, 81 concurrent", "estimate"],
   ["pulse8", "gcp-cloud-run-app-and-sending-", {}, "always", "estimate"],
   ["pulse8", "gcp-storage-logging-and-other", {}, "always", "estimate"],
   ["pulse8", "gcp-contacts", {}, "always", "estimate"],
@@ -1169,7 +1178,7 @@ test("B1 badge table: estimate rows, draft rows and no badge, per row and for th
     if (row.estimate) assert.equal(row.draft, true, `${pid} ${id}: an estimate row stays a draft`);
   }
   // the table lists every row of the products it covers (Meet8 and Insight8 are not touched: B2 guards them)
-  for (const [pid, inputs] of [["collab8", {}], ["ask8", { pack: 0 }], ["ask8", { pack: 1 }], ["agent8", {}], ["connect8", {}], ["voice8", { region: 1, concurrent: 81 }],
+  for (const [pid, inputs] of [["collab8", {}], ["ask8", { pack: 0 }], ["ask8", { pack: 1 }], ["agent8", {}], ["connect8", {}], ["voice8", { region: 1, concurrent: 81 }], ["voice8", { region: 0, concurrent: 81 }],
     ["pulse8", {}], ["data8", {}], ["space8", {}]] as const) {
     const listed = new Set(BADGES.filter((b) => b[0] === pid).map((b) => b[1]));
     for (const l of linesOf(pid, inputs)) assert.ok(listed.has(l.id), `${pid} ${l.id} is missing from the badge table`);
@@ -1229,10 +1238,13 @@ test("B2 guard: draft flags outside the estimate rows, and Meet8/Insight8 rows, 
   assert.deepEqual(rows("voice8", { region: 1, concurrent: 81 }, "lean"), [65727, 6965, 4226, 4807, 4311, 2020, 1685, 419, 30999, 1476, 2456, 267]);
   // committed-use discounts and the Voice8 plan prices on its product page (EN and TH), unchanged
   assert.deepEqual(CUD, { run: 0.17, runInstance: 0.28, sql: 0.25 });
+  // every baht amount on the Voice8 page in order, EN then TH (the same 30 each), as on origin/main 6f1eabb: plan cards, the
+  // comparison table (monthly, extra minute, implementation) and the FAQ
   const page = readFileSync(new URL("../app/[lang]/voice8/content.ts", import.meta.url), "utf8");
-  for (const prices of ['["฿50,000", "฿125,000", "฿350,000"]', '["฿82,500", "฿162,500", "฿435,000"]', '["฿37,500", "฿112,500", "฿375,000"]']) {
-    assert.equal(page.split(prices).length - 1, 2, `Voice8 plan prices ${prices} in EN and TH`);
-  }
+  const perLang = ["฿5,000", "฿2.5", "฿50,000", "฿125,000", "฿350,000", "฿5,000", "฿2.5", "฿2.5", "฿50,000", "฿125,000", "฿350,000", "฿5,000", "฿2.5",
+    "฿82,500", "฿162,500", "฿435,000", "฿82,500", "฿162,500", "฿435,000", "฿37,500", "฿112,500", "฿375,000", "฿50,000", "฿2.5", "฿37,500", "฿112,500",
+    "฿375,000", "฿50,000", "฿50,000", "฿50,000"];
+  assert.deepEqual(page.match(/฿[0-9][0-9,]*(\.[0-9]+)?/g), [...perLang, ...perLang]);
 });
 
 test("R1 Collab8 + Space8: agent runtime counted once; more sessions add only Collab8's per-session rows", () => {
@@ -1253,9 +1265,15 @@ test("R1 Collab8 + Space8: agent runtime counted once; more sessions add only Co
   // Google Cloud rises only by the agent workspaces row: +฿268; the whole month by +268 + 2,010 = +฿2,278
   assert.equal(b.g.hosting.total.cloud - a.g.hosting.total.cloud, 268);
   assert.equal(b.g.monthly - a.g.monthly, 2278);
-  // no Collab8 row prices the always-on runtime that Space8's GKE row prices, and the texts say which side holds what
-  assert.equal(a.c[0].some((l) => /GKE|cluster/i.test(l.label.en)), false);
-  assert.deepEqual(a.c[0].find((l) => l.id === "gcp-sandbox")!.detail, {
+  // the agent runtime splits cleanly: Collab8's workspaces row has no fixed part (0 sessions → US$0), Space8's GKE row is the
+  // fixed part only (cluster 73 + always-on pods 49.32 = 122.32 at any session count)
+  const at0 = est(0);
+  assert.equal(at0.c[0].find((l) => l.id === "gcp-sandbox")!.cost, 0);
+  for (const e of [at0, a, b]) assert.equal(e.c[1].find((l) => l.id === "gcp-gke-agents")!.cost, 122.32);
+  // the texts say which side holds what; the workspaces row is GKE Autopilot pods, not Cloud Run
+  const sandbox = a.c[0].find((l) => l.id === "gcp-sandbox")!;
+  assert.deepEqual(sandbox.label, { en: "Google Cloud · GKE Autopilot (agent workspaces)", th: "Google Cloud · GKE Autopilot (พื้นที่ทำงานของ Agent)" });
+  assert.deepEqual(sandbox.detail, {
     en: "20 users × 20 sessions × US$0.02 · per-session pods; the always-on runtime is in Space8",
     th: "20 คน × 20 session × US$0.02 · pod ต่อ session ส่วนระบบที่เปิดตลอดอยู่ใน Space8",
   });

@@ -326,7 +326,8 @@ function smsRow(credits: number, thbPerCredit: number, rate: number): Line {
   const usd = (c * thbPerCredit) / rate;
   return {
     id: "sms", label: L("SMS (your provider)", "ค่าส่ง SMS (ผู้ให้บริการของคุณ)"), payer: "direct", kind: "telco", sell: usd, cost: usd, draft: true,
-    detail: L(`${n(c)} credits × ฿${n(thbPerCredit)} · excl. 7% VAT`, `${n(c)} เครดิต × ฿${n(thbPerCredit)} · ไม่รวม VAT 7%`),
+    // The price as typed (String, not `n`, which rounds to 4 decimals): the formula on screen must multiply out to the row.
+    detail: L(`${n(c)} credits × ฿${String(thbPerCredit)} · excl. 7% VAT`, `${n(c)} เครดิต × ฿${String(thbPerCredit)} · ไม่รวม VAT 7%`),
   };
 }
 
@@ -709,7 +710,9 @@ export const PRICING: Record<string, ProductPricing> = {
         ["Cloud Storage (files)", "Cloud Storage (ไฟล์)", 30],
         ["Logging and other", "Logging และอื่นๆ", 40],
       ], 1, true).map(unverified),
-      unverified(gcpUsage("gcp-sandbox", "Cloud Run (agent workspaces)", "Cloud Run (พื้นที่ทำงานของ Agent)", users * v.sessions * 0.02,
+      // GKE Autopilot, not Cloud Run: each session's workspace is a gVisor pod on the agent cluster (Space8 docs/architecture.md;
+      // Collab8 docs/DEPLOY.md). Label fixed 2026-11-21; the amount is unchanged.
+      unverified(gcpUsage("gcp-sandbox", "GKE Autopilot (agent workspaces)", "GKE Autopilot (พื้นที่ทำงานของ Agent)", users * v.sessions * 0.02,
         L(`${n(users)} users × ${n(v.sessions)} sessions × US$0.02 · per-session pods; the always-on runtime is in Space8`,
           `${n(users)} คน × ${n(v.sessions)} session × US$0.02 · pod ต่อ session ส่วนระบบที่เปิดตลอดอยู่ใน Space8`))),
     ],
