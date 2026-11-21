@@ -331,7 +331,7 @@ export const PRICING: Record<string, ProductPricing> = {
       { id: "price", label: L("Model price per 1M tokens (blended)", "ราคาโมเดลต่อ 1 ล้าน token (เฉลี่ย)"), unit: L("US$", "US$"), def: 3, max: 100, step: 0.5 },
     ],
     lines: (v, users) => [
-      { id: "ai", label: L("AI model usage (your provider key)", "ค่าโมเดล AI (key ของคุณเอง)"), payer: "direct", kind: "ai", sell: (v.runs * v.tokens * v.price) / 1e6, cost: (v.runs * v.tokens * v.price) / 1e6,
+      { id: "ai", label: L("AI model usage (your provider key)", "ค่าโมเดล AI (key ของคุณเอง)"), payer: "direct", kind: "ai", sell: (v.runs * v.tokens * v.price) / 1e6, cost: (v.runs * v.tokens * v.price) / 1e6, draft: true,
         detail: L(`${n(v.runs)} runs × ${n(v.tokens)} tokens × US$${n(v.price)} per 1M`, `${n(v.runs)} ครั้ง × ${n(v.tokens)} token × US$${n(v.price)} ต่อ 1 ล้าน`) },
       ...gcp([
         ["Cloud Run (gateway and agents)", "Cloud Run (เกตเวย์และ Agent)", 120, "run"],
