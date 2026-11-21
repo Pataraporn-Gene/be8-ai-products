@@ -565,7 +565,7 @@ const monthRow = (pid: string, id: string, usd: number) => {
 };
 
 test("O1 Pulse8 Cloud SQL 38.15 and Memorystore 47.45 at list prices (prod db-g1-small + 10 GB SSD, Redis Basic 1 GB)", () => {
-  near(0.049 * 730 + 10 * 0.238, 38.15, "SQL: g1-small 0.049/h × 730 = 35.77 + 10 GB × 0.238 = 2.38 (was 110)");
+  near(0.049 * 730 + 10 * 0.238, 38.15, "SQL: g1-small 0.049/h × 730 = 35.77 + 10 GiB × 0.238/GiB-mo = 2.38 (was 110)");
   near(1 * 0.065 * 730, 47.45, "Redis Basic M1 1 GiB × 0.065/h × 730 (was 40)");
   monthRow("pulse8", "gcp-cloud-sql-database-", 38.15);
   monthRow("pulse8", "gcp-memorystore-queues-", 47.45);
@@ -607,8 +607,8 @@ test("O3 Voice8 egress per GiB follows the region: Singapore US$0.12, Jakarta US
   near(sg.cost, 5.029141902923584, "Singapore cost");
   near(jkt.sell, gib * 0.19, "Jakarta 7.9628 (was 5.4)");
   near(jkt.cost, 7.962808012962341, "Jakarta cost");
-  assert.deepEqual(sg.detail, { en: "90,000 min × 0.5 MB = 41.91 GiB × US$0.12/GiB", th: "90,000 นาที × 0.5 MB = 41.91 GiB × US$0.12/GiB" });
-  assert.deepEqual(jkt.detail, { en: "90,000 min × 0.5 MB = 41.91 GiB × US$0.19/GiB", th: "90,000 นาที × 0.5 MB = 41.91 GiB × US$0.19/GiB" });
+  assert.deepEqual(sg.detail, { en: "90,000 min × 0.5 MB ≈ 41.91 GiB × US$0.12/GiB", th: "90,000 นาที × 0.5 MB ≈ 41.91 GiB × US$0.12/GiB" });
+  assert.deepEqual(jkt.detail, { en: "90,000 min × 0.5 MB ≈ 41.91 GiB × US$0.19/GiB", th: "90,000 นาที × 0.5 MB ≈ 41.91 GiB × US$0.19/GiB" });
   // on screen at ฿33.5: Jakarta 7.9628 × 33.5 = 266.754 → ฿267; Singapore 5.0291 × 33.5 = 168.476 → ฿168
   assert.equal(onScreen("voice8", { region: 1 }).items[0].lines.find((l) => l.id === "gcp-egress")!.sell, 267);
   assert.equal(onScreen("voice8", { region: 0 }).items[0].lines.find((l) => l.id === "gcp-egress")!.sell, 168);

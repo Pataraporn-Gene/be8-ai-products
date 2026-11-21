@@ -421,7 +421,7 @@ export const PRICING: Record<string, ProductPricing> = {
             L(`${tierExtra} × US$${R.asteriskVm} · ${V.callsPerAsterisk} calls per VM`, `${tierExtra} × US$${R.asteriskVm} · ${V.callsPerAsterisk} สายต่อ VM`)),
         ] : []),
         gcpUsage("gcp-egress", "Network egress (call audio)", "Network egress (เสียงออก internet)", egressGiB * R.egressGiB,
-          L(`${n(minutes)} min × ${V.mbPerMin} MB = ${n(roundPrice(egressGiB))} GiB × US$${R.egressGiB}/GiB`, `${n(minutes)} นาที × ${V.mbPerMin} MB = ${n(roundPrice(egressGiB))} GiB × US$${R.egressGiB}/GiB`)),
+          L(`${n(minutes)} min × ${V.mbPerMin} MB ≈ ${n(roundPrice(egressGiB))} GiB × US$${R.egressGiB}/GiB`, `${n(minutes)} นาที × ${V.mbPerMin} MB ≈ ${n(roundPrice(egressGiB))} GiB × US$${R.egressGiB}/GiB`)),
       ];
     },
     notes: [],
