@@ -12,6 +12,7 @@ import {
   DEFAULT_SETTINGS,
   MIN_USERS,
   PRICING,
+  badgesOf,
   billedUsers,
   choiceIndex,
   optionIndex,
@@ -981,7 +982,7 @@ function Lines({ lines, shownLine, f, c, lang, internal }: { lines: Line[]; show
             <summary>
               <span className="calc-group-label">
                 {c.cloudGroup(cloud.length)}
-                {cloud.some((l) => l.draft) && <span className="calc-tag" title={c.draftHint}>{c.draft}</span>}
+                <Badges lines={cloud} c={c} />
                 <small>{c.cloudShow}</small>
                 {internal && <small className="calc-cost">{c.cost} {f.whole(sum("cost"))} · {c.margin} {sum("sell") > 0 ? Math.round(((sum("sell") - sum("cost")) / sum("sell")) * 100) : 0}%</small>}
               </span>
@@ -1008,7 +1009,7 @@ function LineRow({ l, shown, f, c, lang, internal }: { l: Line; shown?: { sell: 
       label={
         <>
           {l.label[lang]}
-          {l.draft && <span className="calc-tag" title={c.draftHint}>{c.draft}</span>}
+          <Badges lines={[l]} c={c} />
         </>
       }
       detail={l.detail?.[lang]}
@@ -1016,6 +1017,15 @@ function LineRow({ l, shown, f, c, lang, internal }: { l: Line; shown?: { sell: 
       extra={internal && <small className="calc-cost">{c.cost} {f.whole(cost)} · {c.margin} {margin}%</small>}
     />
   );
+}
+
+/** "Estimate (unverified)" and/or "Draft price" tags for a row, or for a folded group of rows (see `badgesOf`). */
+function Badges({ lines, c }: { lines: Line[]; c: CalcCopy }) {
+  return badgesOf(lines).map((b) => (
+    <span key={b} className="calc-tag" data-badge={b} title={b === "estimate" ? c.estimateHint : c.draftHint}>
+      {b === "estimate" ? c.estimate : c.draft}
+    </span>
+  ));
 }
 
 /** Number input that lets people clear and retype; only valid numbers reach the estimate. */

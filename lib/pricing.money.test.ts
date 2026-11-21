@@ -3,7 +3,8 @@
 // Run: node --test lib/pricing.money.test.ts
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_SETTINGS, HOST_MARKUP, MA_RATE, PRICING, billedUsers, choiceIndex, costItem, decode, displayGrid, encode, isPriced, vatOf, newItem, roundMoney, roundPrice, toDisplay, totals, values, type Item } from "./pricing.ts";
+import { readFileSync } from "node:fs";
+import { CUD, DEFAULT_SETTINGS, HOST_MARKUP, MA_RATE, PRICING, badgesOf, billedUsers, choiceIndex, costItem, decode, displayGrid, encode, isPriced, vatOf, newItem, roundMoney, roundPrice, toDisplay, totals, values, type Item } from "./pricing.ts";
 
 const s = DEFAULT_SETTINGS;
 const YEARS_N = 5; // rate 33.5, ฿15,000 per man-day, no discount
@@ -576,15 +577,16 @@ test("O1 Pulse8 Cloud SQL 38.15 and Memorystore 47.45 at list prices (prod db-g1
   // db-g1-small is shared-core: no Cloud SQL committed-use discount, so the row stays 38.15 with CUD on
   assert.equal(dbRow("pulse8", "gcp-cloud-sql-database-").cud, undefined);
   near(costItem({ ...newItem("pulse8", "p"), setup: false }, { ...s, cud: true }).lines.find((l) => l.id === "gcp-cloud-sql-database-")!.sell, 38.15, "SQL with CUD on");
-  // defaults 50,000 contacts, 100,000 emails, 10,000 SMS, 20,000 LINE, direct per month:
-  // email 10 + SMS 75 + LINE ฿1,780 ÷ 33.5 (53.1343…, the Pro plan, see L1) + Cloud Run 120 + SQL 38.15 + Redis 47.45 + storage 30
-  // + contacts 100 = 420.60 + 53.1343… = 473.7343… (was 480.60 with LINE 20,000 × US$0.003 = 60)
-  near(costItem({ ...newItem("pulse8", "p"), setup: false }, s).monthlyDirect, 420.6 + 1780 / 33.5, "direct per month");
-  // ฿33.5 each row half up: 335 + 2,513 (2,512.5) + 1,780 + 4,020 + 1,278 (1,278.025) + 1,590 (1,589.575) + 1,005 + 3,350 = ฿15,871
-  // (was ฿16,101 with LINE ฿2,010)
+  // defaults 50,000 contacts, 100,000 emails, 10,000 SMS credits, 20,000 LINE, direct per month:
+  // email 10 + SMS 10,000 × ฿0.32 = ฿3,200 ÷ 33.5 (95.5223…, see S1) + LINE ฿1,780 ÷ 33.5 (53.1343…, the Pro plan, see L1)
+  // + Cloud Run 120 + SQL 38.15 + Redis 47.45 + storage 30 + contacts 100 = 345.60 + 4,980 ÷ 33.5 = 494.2567…
+  // (was 420.60 + 1,780 ÷ 33.5 with SMS 10,000 × US$0.0075 = 75)
+  near(costItem({ ...newItem("pulse8", "p"), setup: false }, s).monthlyDirect, 345.6 + (3200 + 1780) / 33.5, "direct per month");
+  // ฿33.5 each row half up: 335 + 3,200 + 1,780 + 4,020 + 1,278 (1,278.025) + 1,590 (1,589.575) + 1,005 + 3,350 = ฿16,558
+  // (was ฿15,871 with SMS ฿2,513)
   const g = onScreen("pulse8");
-  assert.deepEqual(g.items[0].lines.map((l) => l.sell), [335, 2513, 1780, 4020, 1278, 1590, 1005, 3350]);
-  assert.equal(g.monthly, 15871);
+  assert.deepEqual(g.items[0].lines.map((l) => l.sell), [335, 3200, 1780, 4020, 1278, 1590, 1005, 3350]);
+  assert.equal(g.monthly, 16558);
 });
 
 test("O2 Data8 Cloud Run 63.07 and Cloud SQL 38.15 at list prices (prod 1 vCPU / 1 GiB always on, db-g1-small + 10 GB SSD)", () => {
@@ -721,7 +723,7 @@ test("Q5 Space8 as prod runs it: VM 64.88 + Cloud SQL 73.78 + GKE Autopilot 122.
   assert.equal(gke.payer, "direct");
   assert.equal(gke.draft, true);
   assert.deepEqual(gke.label, { en: "Google Cloud · GKE Autopilot (agent runtime)", th: "Google Cloud · GKE Autopilot (ระบบรัน agent)" });
-  assert.deepEqual(gke.detail, { en: "cluster fee US$73 + runner and egress pods US$49.32 / month", th: "ค่า cluster US$73 + pod runner และ egress US$49.32 ต่อเดือน" });
+  assert.deepEqual(gke.detail, { en: "cluster fee US$73 + always-on runner and egress pods US$49.32 / month", th: "ค่า cluster US$73 + pod runner และ egress ที่เปิดตลอด US$49.32 ต่อเดือน" });
   assert.equal(lines.find((l) => l.id === "gcp-compute-engine-vm-app-realtime-and-livekit-")!.label.th, "Google Cloud · Compute Engine (VM: แอป, realtime และ LiveKit)");
   assert.equal(lines.some((l) => l.id === "gcp-media" || l.label.en.includes("Cloud Run")), false);
   assert.deepEqual(PRICING.space8.inputs, []);
@@ -837,8 +839,8 @@ test("Q4 Data8 storage stays inside Cloud SQL limits for db-g1-small: 10 GiB min
 
 test("Q5 Space8 note names the usage costs it leaves out, in EN and TH", () => {
   assert.deepEqual(PRICING.space8.notes, [{
-    en: "Voice and video run on the VM. Not included, as they grow with use: internet egress for calls (US$0.12/GiB from Singapore to Asia-Pacific for the first TiB), agent session pods (about US$0.011 per 10-minute session) and AI model tokens.",
-    th: "เสียงและวิดีโอรันบน VM ไม่รวมค่าที่เพิ่มตามการใช้งาน: egress ออก internet ของการโทร (US$0.12/GiB จาก Singapore ไปเอเชียแปซิฟิกใน 1 TiB แรก), pod ของ session agent (ราว US$0.011 ต่อ session 10 นาที) และค่า token ของโมเดล AI",
+    en: "Voice and video run on the VM. Not included, as they grow with use: internet egress for calls (US$0.12/GiB from Singapore to Asia-Pacific for the first TiB), agent session pods (about US$0.011 per 10-minute session; Collab8's agent workspaces row prices them per session, so with both products they are counted once) and AI model tokens.",
+    th: "เสียงและวิดีโอรันบน VM ไม่รวมค่าที่เพิ่มตามการใช้งาน: egress ออก internet ของการโทร (US$0.12/GiB จาก Singapore ไปเอเชียแปซิฟิกใน 1 TiB แรก), pod ของ session agent (ราว US$0.011 ต่อ session 10 นาที แถวพื้นที่ทำงานของ Agent ใน Collab8 คิดส่วนนี้ต่อ session จึงนับครั้งเดียวเมื่อเลือกทั้งสอง product) และค่า token ของโมเดล AI",
   }]);
 });
 
@@ -858,14 +860,14 @@ test("L1 Pulse8 LINE OA Pro plan in baht at any rate: 20,000 and 35,000 messages
   // [messages, rate, THB = 1,780 + max(0, messages − 35,000) × 0.06, internal US$ = THB ÷ rate, US$ row on screen (half up),
   //  Pulse8 THB a month at defaults otherwise, extra messages in the text]
   const cases: [number, number, number, number, number, number, string][] = [
-    [20000, 33.5, 1780, 53.13432836, 53, 15871, "0"], // 1,780 ÷ 33.5 = 53.1343…; month 16,101 − 2,010 + 1,780 (O1)
-    [35000, 33.5, 1780, 53.13432836, 53, 15871, "0"], // exactly the quota: no extra
-    [36000, 33.5, 1840, 54.92537313, 55, 15931, "1,000"], // 1,780 + 1,000 × 0.06 = 1,840; ÷ 33.5 = 54.925…; month 16,101 − 2,010 + 1,840
-    // ฿40: email 10 × 40 = 400, SMS 75 × 40 = 3,000, Cloud Run 120 × 40 = 4,800, SQL 38.15 × 40 = 1,526, Redis 47.45 × 40 = 1,898,
-    // storage 30 × 40 = 1,200, contacts 100 × 40 = 4,000 → 16,824 + LINE
-    [20000, 40, 1780, 44.5, 45, 18604, "0"], // 1,780 ÷ 40 = 44.5 → US$45 half up; 16,824 + 1,780
-    [35000, 40, 1780, 44.5, 45, 18604, "0"],
-    [36000, 40, 1840, 46, 46, 18664, "1,000"], // 1,840 ÷ 40 = 46; 16,824 + 1,840
+    [20000, 33.5, 1780, 53.13432836, 53, 16558, "0"], // 1,780 ÷ 33.5 = 53.1343…; month ฿16,558 (O1)
+    [35000, 33.5, 1780, 53.13432836, 53, 16558, "0"], // exactly the quota: no extra
+    [36000, 33.5, 1840, 54.92537313, 55, 16618, "1,000"], // 1,780 + 1,000 × 0.06 = 1,840; ÷ 33.5 = 54.925…; month 16,558 − 1,780 + 1,840
+    // ฿40: email 10 × 40 = 400, SMS 10,000 × ฿0.32 = 3,200 (fixed in baht), Cloud Run 120 × 40 = 4,800, SQL 38.15 × 40 = 1,526,
+    // Redis 47.45 × 40 = 1,898, storage 30 × 40 = 1,200, contacts 100 × 40 = 4,000 → 17,024 + LINE (was 16,824 with SMS 75 × 40 = 3,000)
+    [20000, 40, 1780, 44.5, 45, 18804, "0"], // 1,780 ÷ 40 = 44.5 → US$45 half up; 17,024 + 1,780
+    [35000, 40, 1780, 44.5, 45, 18804, "0"],
+    [36000, 40, 1840, 46, 46, 18864, "1,000"], // 1,840 ÷ 40 = 46; 17,024 + 1,840
   ];
   for (const [line, rate, baht, usd, usdShown, month, extra] of cases) {
     const at = `${line} messages at ฿${rate}`;
@@ -897,17 +899,19 @@ test("L1 Pulse8 LINE OA Pro plan in baht at any rate: 20,000 and 35,000 messages
     assert.equal(pulse8At(36000, rate).thb.lines.find((l) => l.id === "line")!.sell, 1840, `36,000 messages at ฿${rate}`);
   }
   // rows stay before VAT and the page adds VAT 7% once, on the total (Calculator `withVat` = n + vatOf(n)). Pulse8 defaults with
-  // setup, year 1: license 20 × 360 × 33.5 = 241,200 + setup 8 × 15,000 = 120,000 + 12 × 15,871 = 190,452 → ฿551,652;
-  // VAT 551,652 × 0.07 = 38,615.64 → 38,616, ฿590,268 with VAT
+  // setup, year 1: license 20 × 360 × 33.5 = 241,200 + setup 8 × 15,000 = 120,000 + 12 × 16,558 = 198,696 → ฿559,896;
+  // VAT 559,896 × 0.07 = 39,192.72 → 39,193, ฿599,089 with VAT (was ฿551,652 / ฿590,268 with SMS ฿2,513)
   const y1 = displayGrid(totals([newItem("pulse8", "p")], s), thb, s).year1;
-  assert.equal(y1, 551652);
-  assert.equal(y1 + vatOf(y1), 590268);
+  assert.equal(y1, 559896);
+  assert.equal(y1 + vatOf(y1), 599089);
 });
 
-test("L1 Pulse8 LINE OA text in EN and TH: plan and overage in the note, per-recipient input, no ฿0.10 left", () => {
+test("L1 Pulse8 LINE OA text in EN and TH: both plans and overages in the note, per-recipient input, no ฿0.10 on the Pro row", () => {
+  // note figures: SMS ฿0.32 a credit (ThaiBulkSMS Standard ฿30,000 package), LINE Basic ฿1,280 / 15,000 / ฿0.1 and Pro ฿1,780 /
+  // 35,000 / ฿0.06 (lineforbusiness.com broadcast-message pricing table, read 2026-11-21), all before VAT
   assert.deepEqual(PRICING.pulse8.notes, [{
-    en: "Assumed fees: SMS ฿0.25, email US$0.10 per 1,000. LINE OA Pro plan ฿1,780 a month with 35,000 messages, then ฿0.06 per extra message, excl. 7% VAT.",
-    th: "สมมติค่าส่ง: SMS ฿0.25 อีเมล US$0.10 ต่อ 1,000 ฉบับ · LINE OA แพ็กเกจ Pro ฿1,780 ต่อเดือน รวม 35,000 ข้อความ ส่วนเกินข้อความละ ฿0.06 ไม่รวม VAT 7%",
+    en: "Assumed fees: SMS ฿0.32 a credit unless you change it (ThaiBulkSMS Standard), email US$0.10 per 1,000. LINE OA Basic ฿1,280 a month with 15,000 messages, then ฿0.1 per extra message; Pro ฿1,780 with 35,000, then ฿0.06. SMS and LINE prices exclude 7% VAT.",
+    th: "สมมติค่าส่ง: SMS เครดิตละ ฿0.32 ถ้าไม่ได้แก้ (ThaiBulkSMS Standard) อีเมล US$0.10 ต่อ 1,000 ฉบับ · LINE OA แพ็กเกจ Basic ฿1,280 ต่อเดือน รวม 15,000 ข้อความ ส่วนเกินข้อความละ ฿0.1 · Pro ฿1,780 รวม 35,000 ข้อความ ส่วนเกินข้อความละ ฿0.06 · ราคา SMS และ LINE ไม่รวม VAT 7%",
   }]);
   const input = PRICING.pulse8.inputs.find((i) => i.id === "line")!;
   assert.deepEqual(input.label, { en: "LINE OA messages per month (per recipient)", th: "ข้อความ LINE OA ต่อเดือน (นับต่อผู้รับ)" });
@@ -916,14 +920,17 @@ test("L1 Pulse8 LINE OA text in EN and TH: plan and overage in the note, per-rec
     th: "ตามที่ LINE นับโควตาแพ็กเกจ: broadcast 1 ครั้งถึงเพื่อน 1,000 คน = 1,000 ข้อความ ข้อความแชทและตอบกลับอัตโนมัติไม่นับ",
   });
   assert.equal(input.def, 20000);
+  // Basic's ฿0.1 overage must never reach the Pro row (the default); the old US$0.003 LINE price and SMS ฿0.25 are gone everywhere
   const row = pulse8At(20000, 33.5).row;
-  for (const text of [row.detail!.en, row.detail!.th, ...PRICING.pulse8.notes.flatMap((x) => [x.en, x.th])]) {
-    assert.doesNotMatch(text, /฿0\.10?\b|0\.003/, text);
+  for (const text of [row.detail!.en, row.detail!.th]) assert.doesNotMatch(text, /฿0\.10?\b|0\.003/, text);
+  const sms = costItem({ ...newItem("pulse8", "p"), setup: false }, s).lines.find((l) => l.id === "sms")!;
+  for (const text of [sms.detail!.en, sms.detail!.th, ...PRICING.pulse8.notes.flatMap((x) => [x.en, x.th]), ...PRICING.pulse8.inputs.flatMap((i) => [i.label.en, i.label.th, i.help?.en ?? "", i.help?.th ?? ""])]) {
+    assert.doesNotMatch(text, /0\.003|฿0\.25|0\.0075/, text);
   }
 });
 
-test("guard: every product's defaults total matches origin/main ef41c89 except the Pulse8 LINE row (2026-11-21)", () => {
-  // [monthly, year 1, 5-year TCO] in THB at ฿33.5 with setup, CUD off then on, taken from origin/main ef41c89 before this change
+test("guard: every product's defaults total matches origin/main 6f1eabb except the Pulse8 SMS row (2026-11-21)", () => {
+  // [monthly, year 1, 5-year TCO] in THB at ฿33.5 with setup, CUD off then on, taken from origin/main 6f1eabb before this change
   const was: Record<string, [number[], number[]]> = {
     meet8: [[17498, 496176, 1548336], [16430, 483360, 1484256]],
     agent8: [[14070, 640440, 1598808], [12466, 621192, 1502568]],
@@ -931,9 +938,9 @@ test("guard: every product's defaults total matches origin/main ef41c89 except t
     insight8: [[25851, 706812, 2230668], [24263, 687756, 2135388]],
     connect8: [[7638, 327456, 835584], [6539, 314268, 769644]],
     space8: [[8844, 232608, 742024], [8226, 225192, 704944]],
-    // Pulse8 without its LINE row (was ฿2,010 a month): 16,101 − 2,010, 554,412 − 12 × 2,010, 1,539,516 − 60 × 2,010; CUD on
-    // 15,418 − 2,010, 546,216 − 24,120, 1,498,536 − 120,600
-    pulse8: [[14091, 530292, 1418916], [13408, 522096, 1377936]],
+    // Pulse8 without its SMS row (฿2,513 a month on 6f1eabb): 15,871 − 2,513, 551,652 − 12 × 2,513, 1,525,716 − 60 × 2,513;
+    // CUD on 15,188 − 2,513, 543,456 − 30,156, 1,484,736 − 150,780
+    pulse8: [[13358, 521496, 1374936], [12675, 513300, 1333956]],
     collab8: [[14003, 387756, 1187252], [12342, 367824, 1087592]],
     ask8: [[10313, 249156, 814932], [9385, 238020, 759252]],
     data8: [[5066, 502392, 1028568], [4474, 495288, 993048]],
@@ -942,12 +949,320 @@ test("guard: every product's defaults total matches origin/main ef41c89 except t
   for (const [pid, [off, on]] of Object.entries(was)) {
     for (const [st, exp] of [[s, off], [{ ...s, cud: true }, on]] as const) {
       const g = displayGrid(totals([newItem(pid, "x")], st), thb, st);
-      const line = pid === "pulse8" ? g.items[0].lines.find((l) => l.id === "line")!.sell : 0;
-      assert.deepEqual([g.monthly - line, g.year1 - 12 * line, g.tco - 60 * line], exp, `${pid} cud ${st.cud}`);
+      const sms = pid === "pulse8" ? g.items[0].lines.find((l) => l.id === "sms")!.sell : 0;
+      assert.deepEqual([g.monthly - sms, g.year1 - 12 * sms, g.tco - 60 * sms], exp, `${pid} cud ${st.cud}`);
     }
   }
-  // Pulse8's other rows one by one, as on origin/main: email, SMS, Cloud Run (−17% with CUD), SQL, Redis, storage, contacts
-  const rows = (st: typeof s) => displayGrid(totals([newItem("pulse8", "x")], st), thb, st).items[0].lines.filter((l) => l.id !== "line").map((l) => l.sell);
-  assert.deepEqual(rows(s), [335, 2513, 4020, 1278, 1590, 1005, 3350]);
-  assert.deepEqual(rows({ ...s, cud: true }), [335, 2513, 3337, 1278, 1590, 1005, 3350]);
+  // Pulse8's other rows one by one, as on origin/main: email, LINE Pro, Cloud Run (−17% with CUD), SQL, Redis, storage, contacts
+  const rows = (st: typeof s) => displayGrid(totals([newItem("pulse8", "x")], st), thb, st).items[0].lines.filter((l) => l.id !== "sms").map((l) => l.sell);
+  assert.deepEqual(rows(s), [335, 1780, 4020, 1278, 1590, 1005, 3350]);
+  assert.deepEqual(rows({ ...s, cud: true }), [335, 1780, 3337, 1278, 1590, 1005, 3350]);
+});
+
+/* ---- 2026-11-21 cost decisions, the rest: LINE OA Basic/Pro, SMS per credit, "Estimate" badge, Collab8/Space8 runtime once.
+   Sources (also in lib/pricing.ts): LINE https://lineforbusiness.com/th/service/line-oa-features/broadcast-message (read 2026-11-21):
+   Basic ฿1,280 a month with 15,000 messages, then ฿0.1; Pro ฿1,780 with 35,000, then ฿0.06; before 7% VAT. ThaiBulkSMS
+   https://www.thaibulksms.com/pricing/sms/?lang=th (read 2026-11-21): Standard ฿30,000 package = ฿0.32 a credit, before VAT;
+   https://www.thaibulksms.com/credit-calculation/ (read 2026-11-21): Thai 70 characters = 1 credit, 134 = 2.
+   Expected values worked out by hand. ---- */
+
+const pulse8With = (inputs: Record<string, number>, rate: number) => {
+  const st = { ...s, rate };
+  const item = { ...newItem("pulse8", "p"), inputs: { ...newItem("pulse8", "p").inputs, ...inputs }, setup: false };
+  const lines = costItem(item, st).lines;
+  const screen = (cur: "THB" | "USD") => displayGrid(totals([item], st), { cur, rate, vat: false }, st).items[0];
+  return { lines, row: (id: string) => lines.find((l) => l.id === id)!, thb: screen("THB"), usd: screen("USD") };
+};
+
+test("L2 Pulse8 LINE OA Basic: ฿1,280 with 15,000 messages, ฿0.1 each after; Pro stays the default, at ฿33.5 and ฿40", () => {
+  const BASIC = 0, PRO = 1;
+  // [plan, messages, rate, THB = fee + max(0, messages − included) × extra, US$ row on screen (half up), Pulse8 THB a month, text]
+  // month at ฿33.5 = 16,558 (O1) − 1,780 + LINE; at ฿40 = 17,024 (L1) + LINE
+  const cases: [number, number, number, number, number, number, string, string][] = [
+    [BASIC, 15000, 33.5, 1280, 38, 16058, "Basic plan ฿1,280 (15,000 messages included) + 0 extra × ฿0.1 · excl. 7% VAT",
+      "แพ็กเกจ Basic ฿1,280 (รวม 15,000 ข้อความ) + ส่วนเกิน 0 ข้อความ × ฿0.1 · ไม่รวม VAT 7%"], // 1,280 ÷ 33.5 = 38.208… → 38; 16,558 − 1,780 + 1,280
+    [BASIC, 16000, 33.5, 1380, 41, 16158, "Basic plan ฿1,280 (15,000 messages included) + 1,000 extra × ฿0.1 · excl. 7% VAT",
+      "แพ็กเกจ Basic ฿1,280 (รวม 15,000 ข้อความ) + ส่วนเกิน 1,000 ข้อความ × ฿0.1 · ไม่รวม VAT 7%"], // 1,280 + 1,000 × 0.1 = 1,380; ÷ 33.5 = 41.19… → 41
+    [BASIC, 15000, 40, 1280, 32, 18304, "Basic plan ฿1,280 (15,000 messages included) + 0 extra × ฿0.1 · excl. 7% VAT",
+      "แพ็กเกจ Basic ฿1,280 (รวม 15,000 ข้อความ) + ส่วนเกิน 0 ข้อความ × ฿0.1 · ไม่รวม VAT 7%"], // 1,280 ÷ 40 = 32; 17,024 + 1,280
+    [BASIC, 16000, 40, 1380, 35, 18404, "Basic plan ฿1,280 (15,000 messages included) + 1,000 extra × ฿0.1 · excl. 7% VAT",
+      "แพ็กเกจ Basic ฿1,280 (รวม 15,000 ข้อความ) + ส่วนเกิน 1,000 ข้อความ × ฿0.1 · ไม่รวม VAT 7%"], // 1,380 ÷ 40 = 34.5 → 35 half up; 17,024 + 1,380
+    [PRO, 20000, 33.5, 1780, 53, 16558, "Pro plan ฿1,780 (35,000 messages included) + 0 extra × ฿0.06 · excl. 7% VAT",
+      "แพ็กเกจ Pro ฿1,780 (รวม 35,000 ข้อความ) + ส่วนเกิน 0 ข้อความ × ฿0.06 · ไม่รวม VAT 7%"],
+    [PRO, 20000, 40, 1780, 45, 18804, "Pro plan ฿1,780 (35,000 messages included) + 0 extra × ฿0.06 · excl. 7% VAT",
+      "แพ็กเกจ Pro ฿1,780 (รวม 35,000 ข้อความ) + ส่วนเกิน 0 ข้อความ × ฿0.06 · ไม่รวม VAT 7%"],
+  ];
+  for (const [linePlan, line, rate, baht, usdShown, month, en, th] of cases) {
+    const at = `plan ${linePlan}, ${line} messages at ฿${rate}`;
+    const p = pulse8With({ linePlan, line }, rate);
+    const row = p.row("line");
+    near(row.cost * rate, baht, `${at}: THB`);
+    assert.equal(row.sell, row.cost, `${at}: sell = cost (paid direct)`);
+    assert.equal(row.payer, "direct");
+    assert.equal(row.draft, true);
+    assert.equal(row.estimate, undefined, `${at}: sourced, so not an estimate`);
+    assert.equal(p.thb.lines.find((l) => l.id === "line")!.sell, baht, `${at}: row on screen in THB`);
+    assert.equal(p.usd.lines.find((l) => l.id === "line")!.sell, usdShown, `${at}: row on screen in US$`);
+    assert.equal(p.thb.monthlyDirect, month, `${at}: Pulse8 a month`);
+    assert.deepEqual(row.detail, { en, th }, `${at}: text`);
+  }
+  // Basic overage starts at message 15,001: 1,280 + 1 × 0.1 = 1,280.1; a typed 15,000.5 is a whole message too
+  near(pulse8With({ linePlan: BASIC, line: 15001 }, 33.5).row("line").cost * 33.5, 1280.1, "Basic 15,001");
+  near(pulse8With({ linePlan: BASIC, line: 15000.5 }, 33.5).row("line").cost * 33.5, 1280.1, "Basic 15,000.5");
+  // the input: default Pro, two choices in plan order, radio (not a dropdown)
+  const input = PRICING.pulse8.inputs.find((i) => i.id === "linePlan")!;
+  assert.equal(input.def, PRO);
+  assert.equal(input.max, 1);
+  assert.equal(input.dropdown, undefined);
+  assert.deepEqual(input.label, { en: "LINE OA plan", th: "แพ็กเกจ LINE OA" });
+  assert.deepEqual(input.choices, [
+    { en: "Basic: ฿1,280 a month, 15,000 messages included", th: "Basic: ฿1,280 ต่อเดือน รวม 15,000 ข้อความ" },
+    { en: "Pro: ฿1,780 a month, 35,000 messages included", th: "Pro: ฿1,780 ต่อเดือน รวม 35,000 ข้อความ" },
+  ]);
+  assert.equal(newItem("pulse8", "p").inputs.linePlan, PRO);
+  // a link saved before the plan choice (no linePlan) opens as Pro at ฿1,780; out-of-range values clamp to Pro; Basic survives a link
+  const old = decode(btoa(JSON.stringify({ v: 1, i: [["pulse8", 20, { contacts: 50000, email: 100000, sms: 10000, line: 20000 }, 0]] })))!;
+  assert.equal(old.items[0].inputs.linePlan, PRO);
+  near(costItem(old.items[0], s).lines.find((l) => l.id === "line")!.cost * 33.5, 1780, "old link LINE row");
+  assert.equal(decode(btoa(JSON.stringify({ v: 1, i: [["pulse8", 20, { linePlan: 7 }, 0]] })))!.items[0].inputs.linePlan, PRO);
+  const basic = { ...newItem("pulse8", "p"), inputs: { ...newItem("pulse8", "p").inputs, linePlan: BASIC } };
+  const back = decode(encode({ v: 1, items: [basic], s, cur: "THB", vat: false }))!;
+  assert.equal(back.items[0].inputs.linePlan, BASIC);
+  // at the default 20,000 messages Basic costs the same as Pro: 1,280 + 5,000 × 0.1 = ฿1,780
+  near(costItem(basic, s).lines.find((l) => l.id === "line")!.cost * 33.5, 1780, "Basic at 20,000 messages");
+  // VAT once on the total, as in L1: Basic at 16,000 messages with setup, year 1 = license 241,200 + setup 120,000 + 12 × 16,158
+  // (193,896) = ฿555,096; VAT 555,096 × 0.07 = 38,856.72 → 38,857, ฿593,953 with VAT
+  const y1 = displayGrid(totals([{ ...basic, inputs: { ...basic.inputs, line: 16000 } }], s), thb, s).year1;
+  assert.equal(y1, 555096);
+  assert.equal(y1 + vatOf(y1), 593953);
+});
+
+test("S1 Pulse8 SMS per credit in baht at any rate: 10,000 credits × ฿0.32 = ฿3,200, 0 = ฿0, 2 credits = ฿0.64, edited ฿0.41", () => {
+  // [credits, THB per credit, rate, THB before VAT, US$ row on screen (half up), credits in the text, price in the text]
+  const cases: [number, number, number, number, number, string, string][] = [
+    [10000, 0.32, 33.5, 3200, 96, "10,000", "0.32"], // 3,200 ÷ 33.5 = 95.52… → US$96
+    [10000, 0.32, 40, 3200, 80, "10,000", "0.32"], // 3,200 ÷ 40 = 80
+    [0, 0.32, 33.5, 0, 0, "0", "0.32"],
+    [0, 0.32, 40, 0, 0, "0", "0.32"],
+    [2, 0.32, 33.5, 0.64, 0, "2", "0.32"], // 2 × 0.32 = 0.64 (shows ฿1 rounded half up; US$0.019 → 0)
+    [2, 0.32, 40, 0.64, 0, "2", "0.32"],
+    [10000, 0.41, 33.5, 4100, 122, "10,000", "0.41"], // ThaiBulkSMS ฿3,500 package ฿0.41: 4,100 ÷ 33.5 = 122.39 → 122
+    [10000, 0.41, 40, 4100, 103, "10,000", "0.41"], // 4,100 ÷ 40 = 102.5 → 103 half up
+  ];
+  for (const [sms, smsPrice, rate, baht, usdShown, credits, price] of cases) {
+    const at = `${sms} credits × ฿${smsPrice} at ฿${rate}`;
+    const p = pulse8With({ sms, smsPrice }, rate);
+    const row = p.row("sms");
+    near(row.cost * rate, baht, `${at}: THB`);
+    assert.equal(row.sell, row.cost, `${at}: sell = cost (paid direct)`);
+    assert.equal(row.payer, "direct");
+    assert.equal(row.kind, "telco");
+    assert.equal(row.draft, true, `${at}: draft badge kept`);
+    assert.equal(row.estimate, undefined);
+    assert.equal(row.cud, undefined);
+    assert.equal(p.thb.lines.find((l) => l.id === "sms")!.sell, Math.round(baht), `${at}: row on screen in THB`);
+    assert.equal(p.usd.lines.find((l) => l.id === "sms")!.sell, usdShown, `${at}: row on screen in US$`);
+    assert.deepEqual(row.detail, { en: `${credits} credits × ฿${price} · excl. 7% VAT`, th: `${credits} เครดิต × ฿${price} · ไม่รวม VAT 7%` }, `${at}: text`);
+  }
+  // the rate field's limits: still ฿3,200 on screen
+  for (const rate of [1, 1000]) assert.equal(pulse8With({}, rate).thb.lines.find((l) => l.id === "sms")!.sell, 3200, `defaults at ฿${rate}`);
+  // credits are whole: 10,000.5 bills 10,001 × 0.32 = 3,200.32
+  near(pulse8With({ sms: 10000.5 }, 33.5).row("sms").cost * 33.5, 3200.32, "10,000.5 credits");
+  // 20,000 credits at ฿33.5: 6,400; Pulse8 month 16,558 − 3,200 + 6,400 = 19,758
+  assert.equal(pulse8With({ sms: 20000 }, 33.5).thb.monthlyDirect, 19758);
+  // inputs: credits (id kept as "sms" so old links read messages as 1 credit each) and an editable baht price per credit
+  const credits = PRICING.pulse8.inputs.find((i) => i.id === "sms")!;
+  assert.deepEqual(credits.label, { en: "SMS credits per month", th: "เครดิต SMS ต่อเดือน" });
+  assert.deepEqual(credits.unit, { en: "credits", th: "เครดิต" });
+  assert.equal(credits.def, 10000);
+  assert.deepEqual(credits.help, {
+    en: "A Thai message over 70 characters uses more than one credit (up to 134 characters = 2). Links saved earlier count each message as 1 credit.",
+    th: "ข้อความภาษาไทยเกิน 70 ตัวอักษรใช้มากกว่า 1 เครดิต (ไม่เกิน 134 ตัวอักษร = 2 เครดิต) ลิงก์ที่บันทึกไว้ก่อนหน้านี้นับข้อความละ 1 เครดิต",
+  });
+  const price = PRICING.pulse8.inputs.find((i) => i.id === "smsPrice")!;
+  assert.deepEqual(price.label, { en: "SMS price per credit", th: "ราคา SMS ต่อเครดิต" });
+  assert.deepEqual(price.unit, { en: "THB", th: "บาท" });
+  assert.equal(price.def, 0.32);
+  assert.equal(price.step, 0.01);
+  assert.equal(price.max, 10);
+  assert.deepEqual(price.help, {
+    en: "Default: ThaiBulkSMS Standard, ฿30,000 package, ฿0.32 a credit before VAT. Enter your provider's price.",
+    th: "ค่าเริ่มต้น: ThaiBulkSMS Standard แพ็กเกจ ฿30,000 เครดิตละ ฿0.32 ก่อน VAT ใส่ราคาของผู้ให้บริการที่ใช้จริงได้",
+  });
+  // an old link with 10,000 SMS messages and no price: 10,000 credits × ฿0.32 = ฿3,200; an edited price survives a link
+  const old = decode(btoa(JSON.stringify({ v: 1, i: [["pulse8", 20, { sms: 10000 }, 0]] })))!;
+  assert.equal(old.items[0].inputs.smsPrice, 0.32);
+  near(costItem(old.items[0], s).lines.find((l) => l.id === "sms")!.cost * 33.5, 3200, "old link SMS row");
+  const edited = { ...newItem("pulse8", "p"), inputs: { ...newItem("pulse8", "p").inputs, smsPrice: 0.41 } };
+  assert.equal(decode(encode({ v: 1, items: [edited], s, cur: "THB", vat: false }))!.items[0].inputs.smsPrice, 0.41);
+  assert.equal(decode(btoa(JSON.stringify({ v: 1, i: [["pulse8", 20, { smsPrice: 99 }, 0]] })))!.items[0].inputs.smsPrice, 10);
+});
+
+/* Badge table (also in the report): product / row id / condition / expected badge. "estimate" rows are UNSOURCEABLE or an open
+   SPEC-QUESTION in the 2026-11-21 cost audit; every other row keeps the draft flag it had on origin/main 6f1eabb. */
+const BADGES: [string, string, Record<string, number>, string, "estimate" | "draft" | "none"][] = [
+  ["collab8", "ai", {}, "always", "estimate"],
+  ["collab8", "gcp-cloud-run-chat-and-api-", {}, "always", "estimate"],
+  ["collab8", "gcp-cloud-sql-database-", {}, "always", "estimate"],
+  ["collab8", "gcp-memorystore-realtime-", {}, "always", "estimate"],
+  ["collab8", "gcp-cloud-storage-files-", {}, "always", "estimate"],
+  ["collab8", "gcp-logging-and-other", {}, "always", "estimate"],
+  ["collab8", "gcp-sandbox", {}, "always", "estimate"],
+  ["ask8", "ai", { pack: 1 }, "AI Pack (default)", "estimate"],
+  ["ask8", "ai", { pack: 0 }, "own provider", "estimate"],
+  ["ask8", "gcp-cloud-run-widget-and-api-", {}, "always", "estimate"],
+  ["ask8", "gcp-cloud-sql-with-pgvector", {}, "always", "estimate"],
+  ["ask8", "gcp-logging-and-other", {}, "always", "estimate"],
+  ["ask8", "gcp-docs", {}, "always", "estimate"],
+  ["agent8", "ai", {}, "always", "estimate"],
+  ["agent8", "gcp-cloud-run-gateway-and-agents-", {}, "always", "estimate"],
+  ["agent8", "gcp-cloud-sql-database-and-logs-", {}, "always", "estimate"],
+  ["agent8", "gcp-memorystore-rate-limits-cache-", {}, "always", "estimate"],
+  ["agent8", "gcp-load-balancer", {}, "always", "estimate"],
+  ["agent8", "gcp-storage-logging-and-other", {}, "always", "estimate"],
+  ["connect8", "ai", {}, "always", "estimate"],
+  ["connect8", "gcp-cloud-run-workflow-engine-", {}, "always", "estimate"],
+  ["connect8", "gcp-cloud-sql-database-", {}, "always", "estimate"],
+  ["connect8", "gcp-pub-sub-and-cloud-tasks", {}, "always", "estimate"],
+  ["connect8", "gcp-storage-logging-and-other", {}, "always", "estimate"],
+  ["connect8", "gcp-users", {}, "always", "estimate"],
+  ["voice8", "gcp-nat-build-storage-and-other", { region: 1 }, "Jakarta", "estimate"],
+  ["voice8", "gcp-nat-build-storage-and-other", { region: 0 }, "Singapore (default)", "draft"],
+  ["voice8", "min", { region: 1 }, "Jakarta", "none"],
+  ["voice8", "min", { region: 0 }, "Singapore", "none"],
+  ["voice8", "gcp-cloud-run-call-runtime-business-system-engine-studio-", { region: 1 }, "Jakarta", "draft"],
+  ["voice8", "gcp-cloud-run-voice-1-instance-always-on-", { region: 1 }, "Jakarta", "draft"],
+  ["voice8", "gcp-compute-engine-asterisk-active-standby-e2-standard-2-2-", { region: 1 }, "Jakarta", "draft"],
+  ["voice8", "gcp-compute-engine-qdrant-cluster-3-vms-internal-lb-", { region: 1 }, "Jakarta", "draft"],
+  ["voice8", "gcp-memorystore-valkey-ha-", { region: 1 }, "Jakarta", "draft"],
+  ["voice8", "gcp-load-balancer-and-cloud-armor", { region: 1 }, "Jakarta", "draft"],
+  ["voice8", "gcp-voice", { region: 1 }, "Jakarta", "draft"],
+  ["voice8", "gcp-egress", { region: 1 }, "Jakarta", "draft"],
+  ["voice8", "gcp-asterisk", { region: 1, concurrent: 81 }, "Jakarta, 81 concurrent", "draft"],
+  ["voice8", "gcp-runtime", { region: 1, concurrent: 81 }, "Jakarta, 81 concurrent", "draft"],
+  ["pulse8", "gcp-cloud-run-app-and-sending-", {}, "always", "estimate"],
+  ["pulse8", "gcp-storage-logging-and-other", {}, "always", "estimate"],
+  ["pulse8", "gcp-contacts", {}, "always", "estimate"],
+  ["pulse8", "gcp-cloud-sql-database-", {}, "always", "draft"],
+  ["pulse8", "gcp-memorystore-queues-", {}, "always", "draft"],
+  ["pulse8", "email", {}, "always", "draft"],
+  ["pulse8", "sms", {}, "always", "draft"],
+  ["pulse8", "line", { linePlan: 0 }, "Basic", "draft"],
+  ["pulse8", "line", { linePlan: 1 }, "Pro (default)", "draft"],
+  ["data8", "gcp-logging-and-other", {}, "always", "estimate"],
+  ["data8", "gcp-cloud-run-app-and-pipelines-", {}, "always", "draft"],
+  ["data8", "gcp-cloud-sql-database-server-", {}, "always", "draft"],
+  ["data8", "gcp-sql-storage", {}, "always", "draft"],
+  ["space8", "gcp-compute-engine-vm-app-realtime-and-livekit-", {}, "always", "draft"],
+  ["space8", "gcp-cloud-sql-database-", {}, "always", "draft"],
+  ["space8", "gcp-gke-agents", {}, "always", "draft"],
+  ["space8", "gcp-cloud-nat-storage-and-other", {}, "always", "draft"],
+];
+const linesOf = (pid: string, inputs: Record<string, number> = {}, size: "lean" | "standard" = "lean") =>
+  costItem({ ...newItem(pid, "b"), inputs: { ...newItem(pid, "b").inputs, ...inputs }, size, setup: false }, s).lines;
+
+test("B1 badge table: estimate rows, draft rows and no badge, per row and for the folded Google Cloud group, SG and JKT", () => {
+  for (const [pid, id, inputs, when, exp] of BADGES) {
+    const row = linesOf(pid, inputs).find((l) => l.id === id);
+    assert.ok(row, `${pid} ${id} (${when}): expected the row`);
+    assert.deepEqual(badgesOf([row]), exp === "none" ? [] : [exp], `${pid} ${id} (${when})`);
+    if (row.estimate) assert.equal(row.draft, true, `${pid} ${id}: an estimate row stays a draft`);
+  }
+  // the table lists every row of the products it covers (Meet8 and Insight8 are not touched: B2 guards them)
+  for (const [pid, inputs] of [["collab8", {}], ["ask8", { pack: 0 }], ["ask8", { pack: 1 }], ["agent8", {}], ["connect8", {}], ["voice8", { region: 1, concurrent: 81 }],
+    ["pulse8", {}], ["data8", {}], ["space8", {}]] as const) {
+    const listed = new Set(BADGES.filter((b) => b[0] === pid).map((b) => b[1]));
+    for (const l of linesOf(pid, inputs)) assert.ok(listed.has(l.id), `${pid} ${l.id} is missing from the badge table`);
+  }
+  // no Meet8 or Insight8 row is an estimate, in any hosting or size
+  for (const host of [0, 1, 2]) assert.equal(linesOf("meet8", { host }).some((l) => l.estimate), false, `meet8 host ${host}`);
+  for (const size of ["lean", "standard"] as const) assert.equal(linesOf("insight8", {}, size).some((l) => l.estimate), false, `insight8 ${size}`);
+  // the folded group (≥ 3 Google Cloud rows, Calculator `Lines`, one group per payer) shows a tag for each kind among its rows,
+  // collapsed in the summary and expanded on each row
+  const group = (pid: string, inputs: Record<string, number> = {}, size: "lean" | "standard" = "lean") => {
+    const cloud = linesOf(pid, inputs, size).filter((l) => l.kind === "cloud");
+    assert.ok(cloud.length >= 3, `${pid}: folded group`);
+    return badgesOf(cloud);
+  };
+  assert.deepEqual(group("pulse8"), ["estimate", "draft"]); // Cloud Run, storage, contacts estimate; SQL, Redis draft
+  assert.deepEqual(group("data8"), ["estimate", "draft"]); // logging estimate; Cloud Run, SQL draft
+  assert.deepEqual(group("voice8", { region: 1 }), ["estimate", "draft"]); // Jakarta ops estimate; the rest draft
+  assert.deepEqual(group("voice8", { region: 0 }), ["draft"]); // Singapore: no estimate
+  for (const pid of ["collab8", "ask8", "agent8", "connect8"]) assert.deepEqual(group(pid), ["estimate"], pid);
+  assert.deepEqual(group("space8"), ["draft"]); // Space8 NAT 3 keeps "Draft price"
+  assert.deepEqual(group("meet8", { host: 0 }), ["draft"]);
+  assert.deepEqual(group("insight8", {}, "standard"), []);
+  assert.deepEqual(badgesOf([]), []);
+});
+
+test("B2 guard: draft flags outside the estimate rows, and Meet8/Insight8 rows, match origin/main 6f1eabb", () => {
+  // rows WITHOUT the draft flag on origin/main 6f1eabb (every other row of these products is a draft), and THB rows at ฿33.5
+  const nonDraft: [string, Record<string, number>, "lean" | "standard", string[]][] = [
+    ["meet8", { host: 0 }, "lean", ["gcp-cloud-run-app-and-api-", "gcp-cloud-sql-database-size-s-", "gcp-memorystore-2-redis-", "gcp-compute-engine-chat-runner-",
+      "gcp-load-balancer", "gcp-cloud-armor", "gcp-nat-build-and-other"]],
+    ["meet8", { host: 1 }, "lean", []],
+    ["meet8", { host: 2 }, "lean", []],
+    ["insight8", {}, "lean", []],
+    ["insight8", {}, "standard", ["gcp-cloud-run-studio-2-vcpu-2-gib-", "gcp-cloud-run-gvisor-sandbox-2-vcpu-4-gib-always-on-", "gcp-cloud-run-agent-tools-",
+      "gcp-cloud-run-jobs-refresh-pulse-", "gcp-cloud-sql-2-vcpu-8-gb-", "gcp-cloud-sql-storage", "gcp-networking", "gcp-other"]],
+    ["voice8", { region: 0, concurrent: 81 }, "lean", ["min"]],
+    ["voice8", { region: 1, concurrent: 81 }, "lean", ["min"]],
+    ["agent8", {}, "lean", []], ["connect8", {}, "lean", []], ["space8", {}, "lean", []], ["pulse8", {}, "lean", []],
+    ["collab8", {}, "lean", []], ["ask8", { pack: 0 }, "lean", []], ["ask8", { pack: 1 }, "lean", []], ["data8", {}, "lean", []],
+  ];
+  for (const [pid, inputs, size, exp] of nonDraft) {
+    assert.deepEqual(linesOf(pid, inputs, size).filter((l) => !l.draft).map((l) => l.id), exp, `${pid} ${JSON.stringify(inputs)} ${size}`);
+  }
+  // Meet8 and Insight8 rows one by one in THB at ฿33.5, as on origin/main 6f1eabb
+  const rows = (pid: string, inputs: Record<string, number>, size: "lean" | "standard", st = s) =>
+    displayGrid(totals([{ ...newItem(pid, "g"), inputs: { ...newItem(pid, "g").inputs, ...inputs }, size, setup: false }], st), thb, st).items[0].lines.map((l) => l.sell);
+  assert.deepEqual(rows("meet8", { host: 0 }, "lean"), [3551, 965, 2647, 992, 2472, 3183, 874, 670, 536, 1340, 268]);
+  assert.deepEqual(rows("meet8", { host: 0 }, "lean", { ...s, cud: true }), [3551, 965, 2197, 992, 1854, 3183, 874, 670, 536, 1340, 268]);
+  assert.deepEqual(rows("meet8", { host: 1 }, "lean"), [4261, 1158, 3176, 1190, 2966, 3819, 1049, 804, 643, 1608, 322]);
+  assert.deepEqual(rows("meet8", { host: 2 }, "lean"), [14660]);
+  assert.deepEqual(rows("insight8", {}, "lean"), [16080, 2348, 2020, 1528, 531, 2344, 253, 543, 204]);
+  assert.deepEqual(rows("insight8", {}, "lean", { ...s, cud: true }), [16080, 1949, 1677, 1268, 531, 1758, 253, 543, 204]);
+  assert.deepEqual(rows("insight8", {}, "standard"), [16080, 4648, 5020, 1528, 531, 4744, 253, 543, 204]);
+  assert.deepEqual(rows("insight8", {}, "standard", { ...s, cud: true }), [16080, 3858, 4167, 1268, 531, 3558, 253, 543, 204]);
+  // Voice8 rows SG and JKT at 81 concurrent (amounts unchanged by the badge work)
+  assert.deepEqual(rows("voice8", { region: 0, concurrent: 81 }, "lean"), [65727, 6965, 4226, 4405, 3936, 1853, 1685, 402, 30999, 1476, 2255, 168]);
+  assert.deepEqual(rows("voice8", { region: 1, concurrent: 81 }, "lean"), [65727, 6965, 4226, 4807, 4311, 2020, 1685, 419, 30999, 1476, 2456, 267]);
+  // committed-use discounts and the Voice8 plan prices on its product page (EN and TH), unchanged
+  assert.deepEqual(CUD, { run: 0.17, runInstance: 0.28, sql: 0.25 });
+  const page = readFileSync(new URL("../app/[lang]/voice8/content.ts", import.meta.url), "utf8");
+  for (const prices of ['["฿50,000", "฿125,000", "฿350,000"]', '["฿82,500", "฿162,500", "฿435,000"]', '["฿37,500", "฿112,500", "฿375,000"]']) {
+    assert.equal(page.split(prices).length - 1, 2, `Voice8 plan prices ${prices} in EN and TH`);
+  }
+});
+
+test("R1 Collab8 + Space8: agent runtime counted once; more sessions add only Collab8's per-session rows", () => {
+  const est = (sessions: number) => {
+    const items = [{ ...newItem("collab8", "c"), inputs: { ...newItem("collab8", "c").inputs, sessions }, setup: false }, { ...newItem("space8", "s"), setup: false }];
+    return { g: displayGrid(totals(items, s), thb, s), c: items.map((it) => costItem(it, s).lines) };
+  };
+  const [a, b] = [est(20), est(40)];
+  // Space8 rows are the same either way: ฿2,173 + 2,472 + 4,098 + 101 = ฿8,844 (Q5)
+  assert.deepEqual(a.g.items[1].lines.map((l) => l.sell), [2173, 2472, 4098, 101]);
+  assert.deepEqual(b.g.items[1].lines.map((l) => l.sell), [2173, 2472, 4098, 101]);
+  // Collab8 20 users: sessions 20 → 40. Agent workspaces 20 × 20 × 0.02 = 8 → 16 (฿268 → ฿536); AI 20 × 20 × 0.15 = 60 → 120
+  // (฿2,010 → ฿4,020); every other row the same
+  const changed = a.c[0].filter((l, k) => l.sell !== b.c[0][k].sell).map((l) => l.id);
+  assert.deepEqual(changed, ["ai", "gcp-sandbox"]);
+  assert.equal(a.g.items[0].lines.find((l) => l.id === "gcp-sandbox")!.sell, 268);
+  assert.equal(b.g.items[0].lines.find((l) => l.id === "gcp-sandbox")!.sell, 536);
+  // Google Cloud rises only by the agent workspaces row: +฿268; the whole month by +268 + 2,010 = +฿2,278
+  assert.equal(b.g.hosting.total.cloud - a.g.hosting.total.cloud, 268);
+  assert.equal(b.g.monthly - a.g.monthly, 2278);
+  // no Collab8 row prices the always-on runtime that Space8's GKE row prices, and the texts say which side holds what
+  assert.equal(a.c[0].some((l) => /GKE|cluster/i.test(l.label.en)), false);
+  assert.deepEqual(a.c[0].find((l) => l.id === "gcp-sandbox")!.detail, {
+    en: "20 users × 20 sessions × US$0.02 · per-session pods; the always-on runtime is in Space8",
+    th: "20 คน × 20 session × US$0.02 · pod ต่อ session ส่วนระบบที่เปิดตลอดอยู่ใน Space8",
+  });
+  assert.deepEqual(PRICING.collab8.notes[1], {
+    en: "Agent runtime is counted once: the always-on part (GKE cluster, runner and egress pods) is priced in Space8; the agent workspaces row here covers only the pods each session starts, which Space8 leaves out.",
+    th: "ค่าระบบรัน agent นับครั้งเดียว: ส่วนที่เปิดตลอด (GKE cluster, pod runner และ egress) คิดใน Space8 ส่วนแถวพื้นที่ทำงานของ Agent ที่นี่คิดเฉพาะ pod ที่แต่ละ session เปิด ซึ่ง Space8 ไม่ได้รวม",
+  });
+  // Collab8 alone keeps its defaults total (guard above) and the Slack note
+  assert.deepEqual(PRICING.collab8.notes[0], { en: "Compare: Slack about US$9 per user per month.", th: "เทียบ: Slack ราว US$9 ต่อผู้ใช้ต่อเดือน" });
 });

@@ -78,6 +78,7 @@ test("Agent8 and Pulse8: every monthly line is paid directly; AI model line is a
   const g = displayGrid(totals([a8, p8], s), { cur: "THB", rate: 33.5, vat: false }, s);
   // cloud at ฿33.5: Agent8 300 × 33.5 = 10,050 + Pulse8 4,020 + SQL 1,278 (38.15) + Redis 1,590 (47.45) + 1,005 + 3,350 = 21,293
   // (was 23,450 with SQL 110 and Redis 40, re-priced 2026-11-21)
-  // other = Pulse8 email 335 + SMS 2,513 + LINE OA Pro plan 1,780 = 4,628 (was 4,858 with LINE 2,010)
-  assert.deepEqual(g.hosting.total, { cloud: 21293, ai: 4020, other: 4628, total: 29941 });
+  // other = Pulse8 email 335 + SMS 10,000 credits × ฿0.32 = 3,200 + LINE OA Pro plan 1,780 = 5,315 (was 4,628 with SMS 2,513)
+  // total 21,293 + AI 4,020 + 5,315 = 30,628
+  assert.deepEqual(g.hosting.total, { cloud: 21293, ai: 4020, other: 5315, total: 30628 });
 });
