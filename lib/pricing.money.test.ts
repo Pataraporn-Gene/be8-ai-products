@@ -1020,11 +1020,13 @@ test("L2 Pulse8 LINE OA Basic: ฿1,280 with 15,000 messages, ฿0.1 each after;
     { en: "Pro: ฿1,780 a month, 35,000 messages included", th: "Pro: ฿1,780 ต่อเดือน รวม 35,000 ข้อความ" },
   ]);
   assert.equal(newItem("pulse8", "p").inputs.linePlan, PRO);
-  // a link saved before the plan choice (no linePlan) opens as Pro at ฿1,780; out-of-range values clamp to Pro; Basic survives a link
+  // a link saved before the plan choice (no linePlan) opens as Pro at ฿1,780; out-of-range values clamp like every choice (M7):
+  // above the last plan → Pro, below 0 → Basic; Basic survives a link
   const old = decode(btoa(JSON.stringify({ v: 1, i: [["pulse8", 20, { contacts: 50000, email: 100000, sms: 10000, line: 20000 }, 0]] })))!;
   assert.equal(old.items[0].inputs.linePlan, PRO);
   near(costItem(old.items[0], s).lines.find((l) => l.id === "line")!.cost * 33.5, 1780, "old link LINE row");
   assert.equal(decode(btoa(JSON.stringify({ v: 1, i: [["pulse8", 20, { linePlan: 7 }, 0]] })))!.items[0].inputs.linePlan, PRO);
+  assert.equal(decode(btoa(JSON.stringify({ v: 1, i: [["pulse8", 20, { linePlan: -1 }, 0]] })))!.items[0].inputs.linePlan, BASIC);
   const basic = { ...newItem("pulse8", "p"), inputs: { ...newItem("pulse8", "p").inputs, linePlan: BASIC } };
   const back = decode(encode({ v: 1, items: [basic], s, cur: "THB", vat: false }))!;
   assert.equal(back.items[0].inputs.linePlan, BASIC);
