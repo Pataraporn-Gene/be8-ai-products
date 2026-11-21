@@ -1309,13 +1309,14 @@ test("R1 Collab8 + Space8: agent runtime counted once; more sessions add only Co
    US$122.32); with any Space8 in the estimate, Space8 carries it and Collab8's row is ฿0. 5 LINE OA Pro overage ฿0.06 unchanged
    (source comment only). Expected values worked out by hand. ---- */
 
-// The row's cost back in satang, unrounded: it must be the whole satang (only the float division by the rate may leave a hair),
-// so a cost still carrying a fraction of a satang (1 × ฿0.004999 kept as ฿0.004999) fails instead of being rounded away here.
+// The row's cost back in satang, unrounded: it must be the whole satang, give or take the float error of ÷ rate × rate (a few
+// ulps, under 1e-15 relative; the allowance is 1e-14, so 0.00005 satang at 5 billion satang), so a cost still carrying a fraction
+// of a satang (1 × ฿0.004999 kept as ฿0.004999, or 5,050,009,949.4999 satang) fails instead of being rounded away here.
 const smsAt = (sms: number, smsPrice: number, rate: number) => {
   const p = pulse8With({ sms, smsPrice }, rate);
   const raw = p.row("sms").cost * rate * 100;
   const satang = Math.round(raw);
-  return { satang: Math.abs(raw - satang) <= 1e-9 * Math.max(1, satang) ? satang : raw, shown: p.thb.lines.find((l) => l.id === "sms")!.sell };
+  return { satang: Math.abs(raw - satang) <= 1e-14 * Math.max(1, satang) ? satang : raw, shown: p.thb.lines.find((l) => l.id === "sms")!.sell };
 };
 
 test("F1 SMS rounding: credits × full price, half up to the satang, then whole baht half up, at ฿33.5 and ฿36", () => {
