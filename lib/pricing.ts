@@ -123,11 +123,12 @@ const VOICE8 = {
   idleTail: 0.25, // instances stay ~15 min after the last call
   warmUp: 1 / 6, // outbound only: pre-warmed ~10 min before calling starts
   mbPerMin: 0.5,
-  egressGb: 0.12,
-  /** Region list prices. Singapore = prod bill (docs/cost.md) with Asterisk on e2-standard-2; Jakarta = Cloud Billing Catalog 2026-11-09. */
+  /** Region list prices. Singapore = prod bill (docs/cost.md) with Asterisk on e2-standard-2; Jakarta = Cloud Billing Catalog 2026-11-09.
+   *  egressGb = Premium internet egress per GB, first-TiB tier, Cloud Billing Catalog 2026-11-21: Singapore to APAC
+   *  (excl. Korea, Indonesia) 0.12 (SKU 400E-0B94-6FB4); Jakarta 0.19 to APAC (13AA-71ED-4A85) and to Indonesia (8827-24AC-FFAC) alike (was 0.12). */
   region: {
-    sg: { asterisk: 131.5, qdrant: 117.5, valkey: 55.3, ops: 12, asteriskVm: 67.3 },
-    jkt: { asterisk: 143.5, qdrant: 128.7, valkey: 60.3, ops: 12.5, asteriskVm: 73.3 },
+    sg: { asterisk: 131.5, qdrant: 117.5, valkey: 55.3, ops: 12, asteriskVm: 67.3, egressGb: 0.12 },
+    jkt: { asterisk: 143.5, qdrant: 128.7, valkey: 60.3, ops: 12.5, asteriskVm: 73.3, egressGb: 0.19 },
   },
 };
 
@@ -416,8 +417,8 @@ export const PRICING: Record<string, ProductPricing> = {
           gcpUsage("gcp-asterisk", "Compute Engine (extra Asterisk VMs)", "Compute Engine (Asterisk VM ที่เพิ่ม)", tierExtra * R.asteriskVm,
             L(`${tierExtra} × US$${R.asteriskVm} · ${V.callsPerAsterisk} calls per VM`, `${tierExtra} × US$${R.asteriskVm} · ${V.callsPerAsterisk} สายต่อ VM`)),
         ] : []),
-        gcpUsage("gcp-egress", "Network egress (call audio)", "Network egress (เสียงออก internet)", minutes * V.mbPerMin / 1000 * V.egressGb,
-          L(`${n(minutes)} min × ${V.mbPerMin} MB × US$${V.egressGb}/GB`, `${n(minutes)} นาที × ${V.mbPerMin} MB × US$${V.egressGb}/GB`)),
+        gcpUsage("gcp-egress", "Network egress (call audio)", "Network egress (เสียงออก internet)", minutes * V.mbPerMin / 1000 * R.egressGb,
+          L(`${n(minutes)} min × ${V.mbPerMin} MB × US$${R.egressGb}/GB`, `${n(minutes)} นาที × ${V.mbPerMin} MB × US$${R.egressGb}/GB`)),
       ];
     },
     notes: [],
@@ -504,9 +505,12 @@ export const PRICING: Record<string, ProductPricing> = {
       { id: "online", label: L("People online at the same time", "สัดส่วนคนออนไลน์พร้อมกัน"), unit: L("%", "%"), def: 40, max: 100, step: 5 },
     ],
     lines: (v, users) => [
+      // Cloud SQL re-priced 2026-11-21 from the Cloud Billing Catalog (asia-southeast1, on-demand, × 730 h) for the Space8 prod
+      // database (gcloud 2026-11-21: db-custom-1-3840 zonal + 20 GB SSD): 1 × 0.0578 (DE86-B401-E60F) × 730 + 3.75 GiB × 0.0098
+      // (EF83-F6A8-8EA7) × 730 + 20 × 0.238 (45B3-606F-EE91) = 42.194 + 26.8275 + 4.76 = 73.78 (was 50); backups are usage, not included.
       ...gcp([
         ["Cloud Run (app and realtime)", "Cloud Run (แอปและ realtime)", 60, "run"],
-        ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 50, "sql"],
+        ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 73.78, "sql"],
         ["Storage, logging and other", "Storage, logging และอื่นๆ", 40],
       ], 1, true),
       gcpUsage("gcp-media", "Compute Engine (voice and video)", "Compute Engine (เสียงและวิดีโอ)", users * (v.online / 100) * 1.5,
@@ -533,10 +537,14 @@ export const PRICING: Record<string, ProductPricing> = {
         detail: L(`${n(v.sms)} messages × US$0.0075 (≈฿0.25)`, `${n(v.sms)} ข้อความ × US$0.0075 (≈฿0.25)`) },
       { id: "line", label: L("LINE OA messages", "ค่าส่ง LINE OA"), payer: "direct", kind: "telco", sell: v.line * 0.003, cost: v.line * 0.003, draft: true,
         detail: L(`${n(v.line)} messages × US$0.003 (≈฿0.10)`, `${n(v.line)} ข้อความ × US$0.003 (≈฿0.10)`) },
+      // Cloud SQL and Memorystore re-priced 2026-11-21 from the Cloud Billing Catalog (asia-southeast1, on-demand, × 730 h)
+      // for the Pulse8 prod stack (gcloud 2026-11-21: Cloud SQL db-g1-small zonal + 10 GB SSD, Redis Basic 1 GB):
+      // sql 0.049/h (FB2B-BC59-824D) × 730 + 10 GB × 0.238 (45B3-606F-EE91) = 35.77 + 2.38 = 38.15 (was 110), backups
+      // (0.112/GiB-mo, 5C0F-D226-757F) are usage and not included; redis 1 GiB × 0.065/h (D7B2-9EA7-8B11) × 730 = 47.45 (was 40).
       ...gcp([
         ["Cloud Run (app and sending)", "Cloud Run (แอปและระบบส่ง)", 120, "run"],
-        ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 110, "sql"],
-        ["Memorystore (queues)", "Memorystore (คิว)", 40],
+        ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 38.15, "sql"],
+        ["Memorystore (queues)", "Memorystore (คิว)", 47.45],
         ["Storage, logging and other", "Storage, logging และอื่นๆ", 30],
       ], 1, true),
       gcpUsage("gcp-contacts", "Cloud SQL (per 100,000 contacts)", "Cloud SQL (ทุก 100,000 รายชื่อ)", blocks(v.contacts, 100000) * 100,
@@ -620,9 +628,14 @@ export const PRICING: Record<string, ProductPricing> = {
       { id: "events", label: L("Events per month", "event ต่อเดือน"), unit: L("events", "event"), def: 1000000, max: 10000000000, step: 100000 },
     ],
     lines: (v) => [
+      // Cloud Run and Cloud SQL re-priced 2026-11-21 from the Cloud Billing Catalog (asia-southeast1, on-demand, × 730 h) for the
+      // Data8 prod stack (gcloud 2026-11-21, Data8 infra main.tf): Cloud Run 1 vCPU / 1 GiB, min = max 1, CPU always allocated
+      // (instance-based) = 2,628,000 s × (2.16e-05 CPU 4D3C-D63E-1DF1 + 2.4e-06 GiB 7550-6D11-4653) = 56.77 + 6.31 = 63.07 (was 60);
+      // Cloud SQL db-g1-small zonal + 10 GB SSD = 0.049/h (FB2B-BC59-824D) × 730 + 10 × 0.238 (45B3-606F-EE91) = 38.15 (was 90),
+      // backups and PITR logs are usage and not included.
       ...gcp([
-        ["Cloud Run (app and pipelines)", "Cloud Run (แอปและ pipeline)", 60, "run"],
-        ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 90, "sql"],
+        ["Cloud Run (app and pipelines)", "Cloud Run (แอปและ pipeline)", 63.07, "run"],
+        ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 38.15, "sql"],
         ["Logging and other", "Logging และอื่นๆ", 50],
       ], 1, true),
       gcpUsage("gcp-bq-store", "BigQuery storage (per 100,000 profiles)", "BigQuery พื้นที่เก็บ (ทุก 100,000 โปรไฟล์)", blocks(v.profiles, 100000) * 80,

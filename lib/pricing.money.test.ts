@@ -546,3 +546,82 @@ test("M12 size L and XL Cloud SQL from the same SKUs; L/XL stay draft; LB/Armor 
   assert.match(note.th, /Load Balancer และ Cloud Armor/);
   assert.match(note.th, /production ของ Meet8 เองไม่ได้ใช้/);
 });
+
+// O1–O5: rows re-priced 2026-11-21 from the Cloud Billing Catalog (asia-southeast1/2, on-demand, 730 h) for specs read
+// from each product's prod with gcloud. Expected values are worked out by hand from the SKU prices in the comments.
+const dbRow = (pid: string, id: string) => costItem({ ...newItem(pid, "o"), setup: false }, s).lines.find((l) => l.id === id)!;
+const onScreen = (pid: string, inputs: Record<string, number> = {}) =>
+  displayGrid(totals([{ ...newItem(pid, "o"), inputs: { ...newItem(pid, "o").inputs, ...inputs }, setup: false }], s), { cur: "THB", rate: 33.5, vat: false }, s);
+const monthRow = (pid: string, id: string, usd: number) => {
+  const l = dbRow(pid, id);
+  assert.equal(l.cost, usd, `${pid} ${id} cost`);
+  assert.equal(l.sell, usd, `${pid} ${id} sell (paid direct)`);
+  assert.equal(l.payer, "direct");
+  assert.equal(l.draft, true);
+  assert.deepEqual(l.detail, { en: `US$${usd} / month`, th: `US$${usd} ต่อเดือน` });
+};
+
+test("O1 Pulse8 Cloud SQL 38.15 and Memorystore 47.45 at list prices (prod db-g1-small + 10 GB SSD, Redis Basic 1 GB)", () => {
+  near(0.049 * 730 + 10 * 0.238, 38.15, "SQL: g1-small 0.049/h × 730 = 35.77 + 10 GB × 0.238 = 2.38 (was 110)");
+  near(1 * 0.065 * 730, 47.45, "Redis Basic M1 1 GiB × 0.065/h × 730 (was 40)");
+  monthRow("pulse8", "gcp-cloud-sql-database-", 38.15);
+  monthRow("pulse8", "gcp-memorystore-queues-", 47.45);
+  // defaults 50,000 contacts, 100,000 emails, 10,000 SMS, 20,000 LINE, direct per month:
+  // email 10 + SMS 75 + LINE 60 + Cloud Run 120 + SQL 38.15 + Redis 47.45 + storage 30 + contacts 100 = 480.60 (was 545)
+  near(costItem({ ...newItem("pulse8", "p"), setup: false }, s).monthlyDirect, 480.6, "direct per month");
+  // ฿33.5 each row half up: 335 + 2,513 (2,512.5) + 2,010 + 4,020 + 1,278 (1,278.025) + 1,590 (1,589.575) + 1,005 + 3,350 = ฿16,101
+  const g = onScreen("pulse8");
+  assert.deepEqual(g.items[0].lines.map((l) => l.sell), [335, 2513, 2010, 4020, 1278, 1590, 1005, 3350]);
+  assert.equal(g.monthly, 16101);
+});
+
+test("O2 Data8 Cloud Run 63.07 and Cloud SQL 38.15 at list prices (prod 1 vCPU / 1 GiB always on, db-g1-small + 10 GB SSD)", () => {
+  near(730 * 3600 * (0.0000216 + 0.0000024), 63.072, "Cloud Run instance-based 2,628,000 s × (CPU + 1 GiB) = 56.7648 + 6.3072 (was 60)");
+  monthRow("data8", "gcp-cloud-run-app-and-pipelines-", 63.07);
+  monthRow("data8", "gcp-cloud-sql-database-", 38.15);
+  assert.equal(dbRow("data8", "gcp-cloud-run-app-and-pipelines-").cud, 0.17);
+  assert.equal(dbRow("data8", "gcp-cloud-sql-database-").cud, 0.25);
+  // defaults 100,000 profiles, 1M events: 63.07 + 38.15 + logging 50 + BigQuery 80 + 15 = 246.22 (was 295)
+  near(costItem({ ...newItem("data8", "d"), setup: false }, s).monthlyDirect, 246.22, "direct per month");
+  // ฿33.5 half up: 2,113 (2,112.845) + 1,278 (1,278.025) + 1,675 + 2,680 + 503 (502.5) = ฿8,249
+  const g = onScreen("data8");
+  assert.deepEqual(g.items[0].lines.map((l) => l.sell), [2113, 1278, 1675, 2680, 503]);
+  assert.equal(g.monthly, 8249);
+});
+
+test("O3 Voice8 egress per GB follows the region: Singapore US$0.12, Jakarta US$0.19", () => {
+  const egress = (region: number) => costItem({ ...newItem("voice8", "v"), inputs: { region }, setup: false }, s).lines.find((l) => l.id === "gcp-egress")!;
+  // defaults 1,000 calls × 3 min × 30 days = 90,000 min × 0.5 MB = 45 GB
+  const sg = egress(0), jkt = egress(1);
+  near(sg.sell, 5.4, "Singapore 45 × 0.12");
+  near(sg.cost, 5.4, "Singapore cost");
+  near(jkt.sell, 8.55, "Jakarta 45 × 0.19 (was 5.4)");
+  near(jkt.cost, 8.55, "Jakarta cost");
+  assert.deepEqual(sg.detail, { en: "90,000 min × 0.5 MB × US$0.12/GB", th: "90,000 นาที × 0.5 MB × US$0.12/GB" });
+  assert.deepEqual(jkt.detail, { en: "90,000 min × 0.5 MB × US$0.19/GB", th: "90,000 นาที × 0.5 MB × US$0.19/GB" });
+  // on screen at ฿33.5: 8.55 × 33.5 = 286.425 → ฿286; Singapore 5.4 × 33.5 = 180.9 → ฿181
+  assert.equal(onScreen("voice8", { region: 1 }).items[0].lines.find((l) => l.id === "gcp-egress")!.sell, 286);
+  assert.equal(onScreen("voice8", { region: 0 }).items[0].lines.find((l) => l.id === "gcp-egress")!.sell, 181);
+});
+
+test("O4 Voice8 per-minute price at defaults is unchanged: US$0.0218 a minute, 90,000 min = US$1,962 billed by Beryl8", () => {
+  assert.equal(PRICING.voice8.perMinute, 0.0218);
+  assert.equal(PRICING.voice8.inputs.find((i) => i.id === "aiMin")!.def, 0.0218);
+  for (const region of [0, 1]) {
+    const m = costItem({ ...newItem("voice8", "v"), inputs: { region }, setup: false }, s).lines.find((l) => l.id === "min")!;
+    near(m.sell, 1962, "sell 90,000 × 0.0218");
+    near(m.cost, 1962, "cost");
+    assert.equal(m.payer, "beryl8");
+  }
+});
+
+test("O5 Space8 Cloud SQL 73.78 at list prices (prod db-custom-1-3840 + 20 GB SSD)", () => {
+  near(1 * 0.0578 * 730 + 3.75 * 0.0098 * 730 + 20 * 0.238, 73.7815, "42.194 + 26.8275 + 4.76 (was 50)");
+  monthRow("space8", "gcp-cloud-sql-database-", 73.78);
+  // defaults 20 users, 40% online: Cloud Run 60 + SQL 73.78 + other 40 + media 20 × 40% × 1.50 = 12 → 185.78 (was 162)
+  near(costItem({ ...newItem("space8", "o"), setup: false }, s).monthlyDirect, 185.78, "direct per month");
+  // ฿33.5 half up: 2,010 + 2,472 (2,471.63) + 1,340 + 402 = ฿6,224
+  const g = onScreen("space8");
+  assert.deepEqual(g.items[0].lines.map((l) => l.sell), [2010, 2472, 1340, 402]);
+  assert.equal(g.monthly, 6224);
+});
