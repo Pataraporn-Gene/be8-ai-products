@@ -98,8 +98,9 @@ export type ProductPricing = {
   /** Implementation man-days worked out from the inputs; overrides `setupDays`. */
   setupDaysFor?: (v: Record<string, number>) => number;
   inputs: Input[];
-  /** `rate` = THB per US$ (Settings.rate), for rows priced in baht such as the LINE OA plan. */
-  lines: (v: Record<string, number>, users: number, size: Size, rate: number) => Line[];
+  /** `rate` = THB per US$ (Settings.rate), for rows priced in baht such as the LINE OA plan. `pids` = every product in the same
+   *  estimate (this one included), for Collab8's agent runtime base, which Space8 carries when it is there. */
+  lines: (v: Record<string, number>, users: number, size: Size, rate: number, pids: readonly string[]) => Line[];
   /** A red warning under the inputs when they cannot work together, e.g. more call minutes than the lines can carry. */
   warning?: (v: Record<string, number>) => Localized | null;
   /** Products with a measured cheaper server setup offer a size choice. */
@@ -275,6 +276,17 @@ function meet8Gcp(users: number, conc: number, hours: number, markup?: number): 
 
 /** Space8 GKE Autopilot agent runtime, US$ a month: cluster fee and the always-on runner + egress pods (sources at the row). */
 const SPACE8_GKE = { clusterFee: 73, pods: 49.32 };
+
+/** The always-on GKE Autopilot agent runtime row: Space8's, and Collab8's when sold without Space8 (decision 2026-11-21, final five
+ *  item 4: the same base, cluster fee + runner/egress pods = US$122.32, sources at Space8's row). `inSpace8`: Space8 is in the same
+ *  estimate and carries it, so this row is US$0 and says so. */
+function gkeAgentsRow(inSpace8 = false): Line {
+  return gcpUsage("gcp-gke-agents", "GKE Autopilot (agent runtime)", "GKE Autopilot (ระบบรัน agent)", inSpace8 ? 0 : roundPrice(SPACE8_GKE.clusterFee + SPACE8_GKE.pods),
+    inSpace8
+      ? L("included in Space8: one always-on runtime for both products", "รวมอยู่ใน Space8: ระบบที่เปิดตลอดชุดเดียวใช้ร่วมกันทั้งสอง product")
+      : L(`cluster fee US$${SPACE8_GKE.clusterFee} + always-on runner and egress pods US$${SPACE8_GKE.pods} / month`,
+        `ค่า cluster US$${SPACE8_GKE.clusterFee} + pod runner และ egress ที่เปิดตลอด US$${SPACE8_GKE.pods} ต่อเดือน`));
+}
 /** Cloud SQL storage limits for a shared-core machine, GiB (sources at the Data8 input). */
 const SQL_SHARED_CORE_GIB = { min: 10, max: 3054 };
 /** Cloud SQL disks are whole GB, so a typed size is rounded up and held at the 10 GiB minimum. */
@@ -286,8 +298,11 @@ const billedSqlGiB = (gib: number) => Math.max(SQL_SHARED_CORE_GIB.min, Math.cei
    35,000 messages, then ฿0.06 per message; Free 300 messages; "ราคาที่ระบุในตาราง ยังไม่รวมภาษีมูลค่าเพิ่ม (VAT) 7%". The Help Center
    https://lineforbusiness.com/th/helpcenter/line-oa (read 2026-11-21) gives the Pro overage as "0.6 บาท/ข้อความ" ("ประมาณ 600 บาท
    ต่อ 1,000 ข้อความ") and Basic's as 0.1; neither page is dated.
-   Pro ฿0.06 is used (decision 2026-11-21 under คุณเมิน's rule "recommended = do"): the pricing table is LINE's price page, a higher
-   tier normally has a lower overage than Basic's ฿0.1, and the default 20,000 messages has no overage either way.
+   Pro overage ฿0.06 per message beyond 35,000 a month, before 7% VAT (decision 2026-11-21, final five item 5, GPT-6.2 Astra on
+   คุณเมิน's behalf). Sources, both checked 2026-11-21: the price table above (Pro "0.06 บาท/ข้อความ") and LINE's package-change
+   notice https://lineforbusiness.com/th/news/20240619_1 ("แจ้งปรับเปลี่ยนแพ็กเกจรายเดือน LINE Official Account", dated 18 มิ.ย. 2024:
+   Pro "1,780 บาทต่อเดือน", "35,000 ข้อความต่อเดือน", overage "จากเดิม 0.04 บาทต่อข้อความเป็น 0.06 บาทต่อข้อความ"). The Help Center's
+   ฿0.6 was judged an error: it disagrees with both LINE price pages and would be 6 times Basic's ฿0.1.
    Messages count per recipient (Help Center: Target Reach, active followers who have not blocked the account; broadcasts, step
    messages and Push/Multicast/Broadcast API count; chats, auto-replies, AI replies, greetings and Reply API do not).
    Net of VAT like every other row: the page adds VAT once, on the totals. Index order = the `linePlan` choices. */
@@ -319,13 +334,27 @@ function lineOaRow(messages: number, rate: number, plan: number): Line {
    134 characters = 2 credits, English 160 = 1, mixed Thai and English counts as Thai. Was US$0.0075 a message, which had no source. The input keeps its id `sms`, so a link saved with messages reads them as 1 credit each. */
 const SMS_THB_PER_CREDIT = 0.32;
 
+/** credits × baht per credit in satang, half up, exact (decision 2026-11-21, final five item 1: credits × the full-precision price,
+ *  half up to the satang; the page then shows whole baht half up). The price is taken in its shortest decimal form, the one the
+ *  formula on screen prints (`String`), and multiplied in BigInt, so no digit is dropped before the rounding: `roundPrice` keeps
+ *  only 12 significant digits (99,999,999 × ฿0.505001 = 50,500,099.494999 became ฿50,500,099.50 there instead of .49), and a
+ *  12-decimal read would make 1,000 × ฿0.0124949999996 = ฿12.4949999996 ฿12.50. Inputs are clamped to 0 or more. */
+function smsSatang(credits: number, thbPerCredit: number): number {
+  const [mantissa, exp = "0"] = String(thbPerCredit).split("e");
+  const [int, frac = ""] = mantissa.split(".");
+  const scale = frac.length - Number(exp); // price = digits × 10^-scale
+  const digits = BigInt(int + frac + "0".repeat(Math.max(0, -scale)));
+  const den = BigInt("1" + "0".repeat(Math.max(0, scale)));
+  return Number((BigInt(credits) * digits * BigInt(200) + den) / (den * BigInt(2))); // floor(credits × price × 100 + 1/2)
+}
+
 /** Pulse8's SMS row: credits × the baht price per credit, divided by the user's rate like the LINE row, before VAT.
  *  Credits are whole, as providers sell them: a typed 10,000.5 bills 10,001. The baht amount is rounded to the satang (0.01)
- *  first: a typed price with many decimals could otherwise land on a ...x.49995 amount that the US$ round trip and the page's
- *  12-digit rounding turn into a different whole baht at different rates. */
+ *  first (`smsSatang`): a typed price with many decimals could otherwise land on a ...x.49995 amount that the US$ round trip and
+ *  the page's 12-digit rounding turn into a different whole baht at different rates. */
 function smsRow(credits: number, thbPerCredit: number, rate: number): Line {
   const c = Math.ceil(credits);
-  const usd = roundPrice(c * thbPerCredit) / rate;
+  const usd = smsSatang(c, thbPerCredit) / 100 / rate;
   return {
     id: "sms", label: L("SMS (your provider)", "ค่าส่ง SMS (ผู้ให้บริการของคุณ)"), payer: "direct", kind: "telco", sell: usd, cost: usd, draft: true,
     // The price as typed (String, not `n`, which rounds to 4 decimals): the formula on screen must multiply out to the row.
@@ -626,9 +655,9 @@ export const PRICING: Record<string, ProductPricing> = {
       // does and are not here. GKE free tier: US$74.40 a month per billing account, about one free Autopilot or zonal cluster
       // (cloud.google.com/kubernetes-engine/pricing, read 2026-11-21); Space8's doc says another cluster on its billing account
       // already uses it. Not subtracted: a customer's own billing account may or may not have it free.
-      // Counted once with Collab8: this row is the always-on runtime only; Collab8's gcp-sandbox row prices the per-session pods.
-      gcpUsage("gcp-gke-agents", "GKE Autopilot (agent runtime)", "GKE Autopilot (ระบบรัน agent)", roundPrice(SPACE8_GKE.clusterFee + SPACE8_GKE.pods),
-        L(`cluster fee US$${SPACE8_GKE.clusterFee} + always-on runner and egress pods US$${SPACE8_GKE.pods} / month`, `ค่า cluster US$${SPACE8_GKE.clusterFee} + pod runner และ egress ที่เปิดตลอด US$${SPACE8_GKE.pods} ต่อเดือน`)),
+      // Counted once with Collab8: this row is the always-on runtime only; Collab8's gcp-sandbox row prices the per-session pods,
+      // and Collab8's own base row is US$0 while a Space8 is in the estimate.
+      gkeAgentsRow(),
       // Cloud NAT, Cloud Storage, Artifact Registry and Secret Manager: ~3 a month at small volumes (Space8 docs/architecture.md
       // cost table, list prices 2026-11-09); was "Storage, logging and other" 40 with no source. The GKE row above holds the rest.
       ...gcp([["Cloud NAT, storage and other", "Cloud NAT, storage และอื่นๆ", 3]], 1, true),
@@ -699,29 +728,41 @@ export const PRICING: Record<string, ProductPricing> = {
     ],
     // Every Collab8 row is UNSOURCEABLE or an open SPEC-QUESTION (audit 2026-11-21): no Collab8 prod to measure; kept as a labelled
     // draft (decision 6).
-    // Agent runtime is counted once with Space8 (checked 2026-11-21): Space8's gcp-gke-agents is the cluster fee + always-on runner and
-    // egress pods and leaves session pods out (Space8 docs/architecture.md); gcp-sandbox here is per session only. No row of one prices
-    // a cost of the other, so no amount changed.
-    lines: (v, users) => [
-      { id: "ai", label: L("AI model for agent sessions", "ค่าโมเดล AI สำหรับ session ของ Agent"), payer: "direct", kind: "ai", sell: users * v.sessions * 0.15, cost: users * v.sessions * 0.15, draft: true, estimate: true,
-        detail: L(`${n(users)} users × ${n(v.sessions)} sessions × US$0.15`, `${n(users)} คน × ${n(v.sessions)} session × US$0.15`) },
-      ...gcp([
-        ["Cloud Run (chat and API)", "Cloud Run (แชตและ API)", 130, "run"],
-        ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 110, "sql"],
-        ["Memorystore (realtime)", "Memorystore (realtime)", 40],
-        ["Cloud Storage (files)", "Cloud Storage (ไฟล์)", 30],
-        ["Logging and other", "Logging และอื่นๆ", 40],
-      ], 1, true).map(unverified),
-      // GKE Autopilot, not Cloud Run: each session's workspace is a gVisor pod on the agent cluster (Space8 docs/architecture.md;
-      // Collab8 docs/DEPLOY.md). Label fixed 2026-11-21; the amount is unchanged.
-      unverified(gcpUsage("gcp-sandbox", "GKE Autopilot (agent workspaces)", "GKE Autopilot (พื้นที่ทำงานของ Agent)", users * v.sessions * 0.02,
-        L(`${n(users)} users × ${n(v.sessions)} sessions × US$0.02 · per-session pods; the always-on runtime is in Space8`,
-          `${n(users)} คน × ${n(v.sessions)} session × US$0.02 · pod ต่อ session ส่วนระบบที่เปิดตลอดอยู่ใน Space8`))),
-    ],
+    // Agent runtime (Space8 docs/architecture.md): the always-on part is the cluster fee + runner and egress pods, priced as Space8's
+    // gcp-gke-agents; gcp-sandbox here is the per-session pods only. Decision 2026-11-21 (final five, item 4): Collab8 sold without
+    // Space8 carries that same base itself, one per Collab8 item ("one set of servers per product"); with any Space8 item in the
+    // estimate, Space8 carries it and Collab8's row is US$0, so the base is never counted twice.
+    // Cloud SQL (item 3): sold with Space8, both products keep a Cloud SQL row for now (not under-quoted) until the team confirms
+    // a shared database (see the note).
+    lines: (v, users, _size, _rate, pids) => {
+      const inSpace8 = pids.includes("space8");
+      return [
+        { id: "ai", label: L("AI model for agent sessions", "ค่าโมเดล AI สำหรับ session ของ Agent"), payer: "direct", kind: "ai", sell: users * v.sessions * 0.15, cost: users * v.sessions * 0.15, draft: true, estimate: true,
+          detail: L(`${n(users)} users × ${n(v.sessions)} sessions × US$0.15`, `${n(users)} คน × ${n(v.sessions)} session × US$0.15`) },
+        ...gcp([
+          ["Cloud Run (chat and API)", "Cloud Run (แชตและ API)", 130, "run"],
+          ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 110, "sql"],
+          ["Memorystore (realtime)", "Memorystore (realtime)", 40],
+          ["Cloud Storage (files)", "Cloud Storage (ไฟล์)", 30],
+          ["Logging and other", "Logging และอื่นๆ", 40],
+        ], 1, true).map(unverified),
+        unverified(gkeAgentsRow(inSpace8)),
+        // GKE Autopilot, not Cloud Run: each session's workspace is a gVisor pod on the agent cluster (Space8 docs/architecture.md;
+        // Collab8 docs/DEPLOY.md). Label fixed 2026-11-21; the amount is unchanged.
+        unverified(gcpUsage("gcp-sandbox", "GKE Autopilot (agent workspaces)", "GKE Autopilot (พื้นที่ทำงานของ Agent)", users * v.sessions * 0.02,
+          inSpace8
+            ? L(`${n(users)} users × ${n(v.sessions)} sessions × US$0.02 · per-session pods; the always-on runtime is in Space8`,
+              `${n(users)} คน × ${n(v.sessions)} session × US$0.02 · pod ต่อ session ส่วนระบบที่เปิดตลอดอยู่ใน Space8`)
+            : L(`${n(users)} users × ${n(v.sessions)} sessions × US$0.02 · per-session pods; the always-on runtime is in the agent runtime row`,
+              `${n(users)} คน × ${n(v.sessions)} session × US$0.02 · pod ต่อ session ส่วนระบบที่เปิดตลอดอยู่ในแถวระบบรัน agent`))),
+      ];
+    },
     notes: [
       L("Compare: Slack about US$9 per user per month.", "เทียบ: Slack ราว US$9 ต่อผู้ใช้ต่อเดือน"),
-      L("Agent runtime is counted once: the always-on part (GKE cluster, runner and egress pods) is priced in Space8; the agent workspaces row here covers only the pods each session starts, which Space8 leaves out.",
-        "ค่าระบบรัน agent นับครั้งเดียว: ส่วนที่เปิดตลอด (GKE cluster, pod runner และ egress) คิดใน Space8 ส่วนแถวพื้นที่ทำงานของ Agent ที่นี่คิดเฉพาะ pod ที่แต่ละ session เปิด ซึ่ง Space8 ไม่ได้รวม"),
+      L("Agent runtime, always-on part (GKE cluster, runner and egress pods): each Collab8 carries its own when the estimate has no Space8; with Space8 in the estimate, Space8 carries it and Collab8's row is 0. The agent workspaces row covers only the pods each session starts.",
+        "ระบบรัน agent ส่วนที่เปิดตลอด (GKE cluster, pod runner และ egress): ถ้าใบประมาณการไม่มี Space8 Collab8 แต่ละชุดคิดของตัวเอง ถ้ามี Space8 จะคิดใน Space8 และแถวนี้ของ Collab8 เป็น 0 ส่วนแถวพื้นที่ทำงานของ Agent คิดเฉพาะ pod ที่แต่ละ session เปิด"),
+      L("With Space8 in the same estimate, Cloud SQL is counted in both products for now. Once the team confirms a shared database, it will be counted once, in Space8, sized for both.",
+        "ถ้าใบประมาณการมี Space8 ด้วย ตอนนี้ยังคิด Cloud SQL ทั้งสอง product เมื่อทีมยืนยันว่าใช้ฐานข้อมูลร่วมกัน จะคิดครั้งเดียวใน Space8 โดยกำหนดขนาดให้รองรับทั้งสอง product"),
     ],
   },
   ask8: {
@@ -748,10 +789,13 @@ export const PRICING: Record<string, ProductPricing> = {
       const model = questions * perQuestion("cost");
       // Every Ask8 row is UNSOURCEABLE or an open SPEC-QUESTION (audit 2026-11-21): the cost per question has no token mix behind it
       // ("estimate until measured") and there is no Ask8 prod; prices kept as drafts (decision 7).
+      // AI Pack only (decision 2026-11-21, final five item 2): the row keeps its label and "Estimate" badge and says the credits are
+      // the expected number; the shared notes and the pay-your-provider row do not mention credits.
       const ai: Line = choiceIndex(v.pack) === 1
         ? { id: "ai", label: L("AI Pack (≈฿4 per credit at ฿33.5/US$)", "AI Pack (≈฿4 ต่อ credit ที่ ฿33.5/US$)"), payer: "beryl8", kind: "usage", draft: true, estimate: true,
             sell: questions * perQuestion("credits") * ASK8.creditSell, cost: model + questions * ASK8.infra,
-            detail: L(`${n(users)} users × ${n(v.asks)} questions × ${n(perQuestion("credits"))} credits · answers/data/actions ${mix}`, `${n(users)} คน × ${n(v.asks)} คำถาม × ${n(perQuestion("credits"))} credit · ถามตอบ/ดึงข้อมูล/สั่งงาน ${mix}`) }
+            detail: L(`${n(users)} users × ${n(v.asks)} questions × ${n(perQuestion("credits"))} credits · answers/data/actions ${mix} · Estimated from the expected number of credits`,
+              `${n(users)} คน × ${n(v.asks)} คำถาม × ${n(perQuestion("credits"))} credit · ถามตอบ/ดึงข้อมูล/สั่งงาน ${mix} · ประมาณจากจำนวนเครดิตที่คาดว่าจะใช้`) }
         : { id: "ai", label: L("AI model for answers (your provider)", "ค่าโมเดล AI สำหรับคำตอบ (ผู้ให้บริการของคุณ)"), payer: "direct", kind: "ai", draft: true, estimate: true,
             sell: model, cost: model,
             detail: L(`${n(users)} users × ${n(v.asks)} questions · answers/data/actions ${mix}`, `${n(users)} คน × ${n(v.asks)} คำถาม · ถามตอบ/ดึงข้อมูล/สั่งงาน ${mix}`) };
@@ -858,15 +902,15 @@ export type ItemCost = {
   years: { beryl8: number; direct: number }[];
 };
 
-/** All money in USD. */
-export function costItem(item: Item, s: Settings): ItemCost {
+/** All money in USD. `pids`: the products in the same estimate (`totals` passes them); on its own an item is priced as sold alone. */
+export function costItem(item: Item, s: Settings, pids: readonly string[] = [item.pid]): ItemCost {
   const p = PRICING[item.pid];
   const users = billedUsers(item);
   const listLicense = (licenseOf(item) ?? 0) * users;
   const license = listLicense * (1 - clamp(s.discount, 0, 100, 0) / 100);
   const ma = license * MA_RATE;
   const setup = item.setup && !p.noSetup?.(values(item)) ? (setupDaysOf(item) * s.dayRate) / s.rate : 0;
-  const lines = p.lines(values(item), users, item.size === "standard" ? "standard" : "lean", s.rate).map((l) => {
+  const lines = p.lines(values(item), users, item.size === "standard" ? "standard" : "lean", s.rate, pids).map((l) => {
     const k = s.cud && l.cud ? 1 - l.cud : 1;
     const detail = k !== 1 && l.detail ? L(`${l.detail.en} − ${Math.round(l.cud! * 100)}% committed use`, `${l.detail.th} − ส่วนลดผูกสัญญา ${Math.round(l.cud! * 100)}%`) : l.detail;
     return { ...l, detail, sell: Math.max(0, l.sell * k), cost: Math.max(0, l.cost * k) };
@@ -891,7 +935,9 @@ export type Totals = {
 };
 
 export function totals(items: Item[], s: Settings): Totals {
-  const rows = items.filter((i) => isPriced(i.pid)).map((item) => ({ item, cost: costItem(item, s) }));
+  const priced = items.filter((i) => isPriced(i.pid));
+  const pids = priced.map((i) => i.pid);
+  const rows = priced.map((item) => ({ item, cost: costItem(item, s, pids) }));
   const years = Array.from({ length: YEARS }, (_, y) => {
     const beryl8 = rows.reduce((a, r) => a + r.cost.years[y].beryl8, 0);
     const direct = rows.reduce((a, r) => a + r.cost.years[y].direct, 0);
