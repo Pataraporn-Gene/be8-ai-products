@@ -124,10 +124,10 @@ const VOICE8 = {
   warmUp: 1 / 6, // outbound only: pre-warmed ~10 min before calling starts
   mbPerMin: 0.5, // MB (10^6 bytes) of call audio per minute: G.711 64 kbps = 0.48 MB payload
   /** Region list prices. Singapore = prod bill (docs/cost.md) with Asterisk on e2-standard-2; Jakarta = Cloud Billing Catalog 2026-11-09,
-   *  except jkt.ops 12.5, an estimate with no itemised source (Singapore 12 scaled up).
+   *  except jkt.ops 12.5, an estimate with no itemised source.
    *  egressGiB = Premium internet egress per GiB (the SKU unit), first-TiB tier, Cloud Billing Catalog 2026-11-21: Singapore to APAC
    *  (excl. Korea, Indonesia) 0.12 (SKU 400E-0B94-6FB4); Jakarta 0.19 to APAC (13AA-71ED-4A85) and to Indonesia (8827-24AC-FFAC) alike (was 0.12).
-   *  ponytail: one tier only; above 1 TiB a month (about 2.1M call minutes) Google charges 0.11 / 0.18, so the row runs slightly high there. */
+   *  ponytail: one tier only; from 1 to 10 TiB a month (1 TiB is about 2.2M call minutes at 0.5 MB) Google charges 0.11 / 0.18 on that part, so the row runs slightly high there. */
   region: {
     sg: { asterisk: 131.5, qdrant: 117.5, valkey: 55.3, ops: 12, asteriskVm: 67.3, egressGiB: 0.12 },
     jkt: { asterisk: 143.5, qdrant: 128.7, valkey: 60.3, ops: 12.5, asteriskVm: 73.3, egressGiB: 0.19 },
@@ -510,7 +510,7 @@ export const PRICING: Record<string, ProductPricing> = {
     lines: (v, users) => [
       // Cloud SQL re-priced 2026-11-21 from the Cloud Billing Catalog (asia-southeast1, on-demand, × 730 h) for the Space8 prod
       // database (gcloud 2026-11-21: db-custom-1-3840 zonal + 20 GB SSD): 1 × 0.0578 (DE86-B401-E60F) × 730 + 3.75 GiB × 0.0098
-      // (EF83-F6A8-8EA7) × 730 + 20 × 0.238 (45B3-606F-EE91) = 42.194 + 26.8275 + 4.76 = 73.78 (was 50); backups are usage, not included.
+      // (EF83-F6A8-8EA7) × 730 + 20 GiB × 0.238/GiB-mo (45B3-606F-EE91) = 42.194 + 26.8275 + 4.76 = 73.78 (was 50); backups are usage, not included.
       ...gcp([
         ["Cloud Run (app and realtime)", "Cloud Run (แอปและ realtime)", 60, "run"],
         ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 73.78, "sql"],
@@ -542,7 +542,7 @@ export const PRICING: Record<string, ProductPricing> = {
         detail: L(`${n(v.line)} messages × US$0.003 (≈฿0.10)`, `${n(v.line)} ข้อความ × US$0.003 (≈฿0.10)`) },
       // Cloud SQL and Memorystore re-priced 2026-11-21 from the Cloud Billing Catalog (asia-southeast1, on-demand, × 730 h)
       // for the Pulse8 prod stack (gcloud 2026-11-21: Cloud SQL db-g1-small zonal + 10 GB SSD, Redis Basic 1 GB):
-      // sql 0.049/h (FB2B-BC59-824D) × 730 + 10 GB × 0.238 (45B3-606F-EE91) = 35.77 + 2.38 = 38.15 (was 110), backups
+      // sql 0.049/h (FB2B-BC59-824D) × 730 + 10 GiB × 0.238/GiB-mo (45B3-606F-EE91) = 35.77 + 2.38 = 38.15 (was 110), backups
       // (0.112/GiB-mo, 5C0F-D226-757F) are usage and not included; redis 1 GiB × 0.065/h (D7B2-9EA7-8B11) × 730 = 47.45 (was 40).
       // No Cloud SQL committed-use discount: shared-core tiers (db-g1-small) are not eligible
       // (docs.cloud.google.com/sql/docs/postgres/cud, read 2026-11-21).
@@ -636,7 +636,7 @@ export const PRICING: Record<string, ProductPricing> = {
       // Cloud Run and Cloud SQL re-priced 2026-11-21 from the Cloud Billing Catalog (asia-southeast1, on-demand, × 730 h) for the
       // Data8 prod stack (gcloud 2026-11-21, Data8 infra main.tf): Cloud Run 1 vCPU / 1 GiB, min = max 1, CPU always allocated
       // (instance-based) = 2,628,000 s × (2.16e-05 CPU 4D3C-D63E-1DF1 + 2.4e-06 GiB 7550-6D11-4653) = 56.7648 + 6.3072 = 63.072
-      // → 63.07 (was 60); Cloud SQL db-g1-small zonal + 10 GB SSD = 0.049/h (FB2B-BC59-824D) × 730 + 10 × 0.238 (45B3-606F-EE91)
+      // → 63.07 (was 60); Cloud SQL db-g1-small zonal + 10 GB SSD = 0.049/h (FB2B-BC59-824D) × 730 + 10 GiB × 0.238/GiB-mo (45B3-606F-EE91)
       // = 38.15 (was 90), backups and PITR logs are usage and not included. No Cloud SQL committed-use discount: shared-core
       // tiers (db-g1-small) are not eligible (docs.cloud.google.com/sql/docs/postgres/cud, read 2026-11-21).
       ...gcp([
