@@ -122,13 +122,15 @@ const VOICE8 = {
   runtimeHour: 0.0864, // 1 vCPU / 1 GiB always-on
   idleTail: 0.25, // instances stay ~15 min after the last call
   warmUp: 1 / 6, // outbound only: pre-warmed ~10 min before calling starts
-  mbPerMin: 0.5,
-  /** Region list prices. Singapore = prod bill (docs/cost.md) with Asterisk on e2-standard-2; Jakarta = Cloud Billing Catalog 2026-11-09.
-   *  egressGb = Premium internet egress per GB, first-TiB tier, Cloud Billing Catalog 2026-11-21: Singapore to APAC
-   *  (excl. Korea, Indonesia) 0.12 (SKU 400E-0B94-6FB4); Jakarta 0.19 to APAC (13AA-71ED-4A85) and to Indonesia (8827-24AC-FFAC) alike (was 0.12). */
+  mbPerMin: 0.5, // MB (10^6 bytes) of call audio per minute: G.711 64 kbps = 0.48 MB payload
+  /** Region list prices. Singapore = prod bill (docs/cost.md) with Asterisk on e2-standard-2; Jakarta = Cloud Billing Catalog 2026-11-09,
+   *  except jkt.ops 12.5, an estimate with no itemised source (Singapore 12 scaled up).
+   *  egressGiB = Premium internet egress per GiB (the SKU unit), first-TiB tier, Cloud Billing Catalog 2026-11-21: Singapore to APAC
+   *  (excl. Korea, Indonesia) 0.12 (SKU 400E-0B94-6FB4); Jakarta 0.19 to APAC (13AA-71ED-4A85) and to Indonesia (8827-24AC-FFAC) alike (was 0.12).
+   *  ponytail: one tier only; above 1 TiB a month (about 2.1M call minutes) Google charges 0.11 / 0.18, so the row runs slightly high there. */
   region: {
-    sg: { asterisk: 131.5, qdrant: 117.5, valkey: 55.3, ops: 12, asteriskVm: 67.3, egressGb: 0.12 },
-    jkt: { asterisk: 143.5, qdrant: 128.7, valkey: 60.3, ops: 12.5, asteriskVm: 73.3, egressGb: 0.19 },
+    sg: { asterisk: 131.5, qdrant: 117.5, valkey: 55.3, ops: 12, asteriskVm: 67.3, egressGiB: 0.12 },
+    jkt: { asterisk: 143.5, qdrant: 128.7, valkey: 60.3, ops: 12.5, asteriskVm: 73.3, egressGiB: 0.19 },
   },
 };
 
@@ -393,6 +395,7 @@ export const PRICING: Record<string, ProductPricing> = {
       const voiceDay = outbound ? halfUp(v.hours + V.warmUp + V.idleTail) : dayHours;
       const voiceHours = voiceDay * v.days;
       const tierExtra = Math.max(0, Math.ceil(v.concurrent / V.callsPerAsterisk) - 1);
+      const egressGiB = (minutes * V.mbPerMin * 1e6) / 2 ** 30; // MB → GiB, the unit Google bills egress in
       return [
         { id: "min", label: L("AI conversation minutes", "นาทีสนทนา AI"), payer: "beryl8", kind: "ai",
           sell: minutes * v.aiMin, cost: minutes * v.aiMin,
@@ -417,8 +420,8 @@ export const PRICING: Record<string, ProductPricing> = {
           gcpUsage("gcp-asterisk", "Compute Engine (extra Asterisk VMs)", "Compute Engine (Asterisk VM ที่เพิ่ม)", tierExtra * R.asteriskVm,
             L(`${tierExtra} × US$${R.asteriskVm} · ${V.callsPerAsterisk} calls per VM`, `${tierExtra} × US$${R.asteriskVm} · ${V.callsPerAsterisk} สายต่อ VM`)),
         ] : []),
-        gcpUsage("gcp-egress", "Network egress (call audio)", "Network egress (เสียงออก internet)", minutes * V.mbPerMin / 1000 * R.egressGb,
-          L(`${n(minutes)} min × ${V.mbPerMin} MB × US$${R.egressGb}/GB`, `${n(minutes)} นาที × ${V.mbPerMin} MB × US$${R.egressGb}/GB`)),
+        gcpUsage("gcp-egress", "Network egress (call audio)", "Network egress (เสียงออก internet)", egressGiB * R.egressGiB,
+          L(`${n(minutes)} min × ${V.mbPerMin} MB = ${n(roundPrice(egressGiB))} GiB × US$${R.egressGiB}/GiB`, `${n(minutes)} นาที × ${V.mbPerMin} MB = ${n(roundPrice(egressGiB))} GiB × US$${R.egressGiB}/GiB`)),
       ];
     },
     notes: [],
@@ -541,9 +544,11 @@ export const PRICING: Record<string, ProductPricing> = {
       // for the Pulse8 prod stack (gcloud 2026-11-21: Cloud SQL db-g1-small zonal + 10 GB SSD, Redis Basic 1 GB):
       // sql 0.049/h (FB2B-BC59-824D) × 730 + 10 GB × 0.238 (45B3-606F-EE91) = 35.77 + 2.38 = 38.15 (was 110), backups
       // (0.112/GiB-mo, 5C0F-D226-757F) are usage and not included; redis 1 GiB × 0.065/h (D7B2-9EA7-8B11) × 730 = 47.45 (was 40).
+      // No Cloud SQL committed-use discount: shared-core tiers (db-g1-small) are not eligible
+      // (docs.cloud.google.com/sql/docs/postgres/cud, read 2026-11-21).
       ...gcp([
         ["Cloud Run (app and sending)", "Cloud Run (แอปและระบบส่ง)", 120, "run"],
-        ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 38.15, "sql"],
+        ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 38.15],
         ["Memorystore (queues)", "Memorystore (คิว)", 47.45],
         ["Storage, logging and other", "Storage, logging และอื่นๆ", 30],
       ], 1, true),
@@ -630,12 +635,13 @@ export const PRICING: Record<string, ProductPricing> = {
     lines: (v) => [
       // Cloud Run and Cloud SQL re-priced 2026-11-21 from the Cloud Billing Catalog (asia-southeast1, on-demand, × 730 h) for the
       // Data8 prod stack (gcloud 2026-11-21, Data8 infra main.tf): Cloud Run 1 vCPU / 1 GiB, min = max 1, CPU always allocated
-      // (instance-based) = 2,628,000 s × (2.16e-05 CPU 4D3C-D63E-1DF1 + 2.4e-06 GiB 7550-6D11-4653) = 56.77 + 6.31 = 63.07 (was 60);
-      // Cloud SQL db-g1-small zonal + 10 GB SSD = 0.049/h (FB2B-BC59-824D) × 730 + 10 × 0.238 (45B3-606F-EE91) = 38.15 (was 90),
-      // backups and PITR logs are usage and not included.
+      // (instance-based) = 2,628,000 s × (2.16e-05 CPU 4D3C-D63E-1DF1 + 2.4e-06 GiB 7550-6D11-4653) = 56.7648 + 6.3072 = 63.072
+      // → 63.07 (was 60); Cloud SQL db-g1-small zonal + 10 GB SSD = 0.049/h (FB2B-BC59-824D) × 730 + 10 × 0.238 (45B3-606F-EE91)
+      // = 38.15 (was 90), backups and PITR logs are usage and not included. No Cloud SQL committed-use discount: shared-core
+      // tiers (db-g1-small) are not eligible (docs.cloud.google.com/sql/docs/postgres/cud, read 2026-11-21).
       ...gcp([
         ["Cloud Run (app and pipelines)", "Cloud Run (แอปและ pipeline)", 63.07, "run"],
-        ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 38.15, "sql"],
+        ["Cloud SQL (database)", "Cloud SQL (ฐานข้อมูล)", 38.15],
         ["Logging and other", "Logging และอื่นๆ", 50],
       ], 1, true),
       gcpUsage("gcp-bq-store", "BigQuery storage (per 100,000 profiles)", "BigQuery พื้นที่เก็บ (ทุก 100,000 โปรไฟล์)", blocks(v.profiles, 100000) * 80,
