@@ -52,6 +52,8 @@ type Fmt = {
   /** Small per-unit rates such as US$0.076 per minute. */
   unit: (usd: number) => string;
   num: (n: number) => string;
+  /** A typed input value with its decimals (e.g. ฿0.32 per SMS credit), for the field's keep / over-maximum messages. */
+  input: (n: number) => string;
 };
 
 /** Rows are always shown before VAT; VAT is added once, on the totals. */
@@ -60,6 +62,7 @@ function makeFmt(cur: Cur, rate: number, lang: Locale): Fmt {
   const loc = lang === "th" ? "th-TH" : "en-US";
   const nf = new Intl.NumberFormat(loc, { maximumFractionDigits: 0 });
   const nf2 = new Intl.NumberFormat(loc, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const nfInput = new Intl.NumberFormat(loc, { maximumFractionDigits: 6 });
   const nfUnit = new Intl.NumberFormat(loc, { minimumFractionDigits: 2, maximumFractionDigits: cur === "USD" ? 3 : 2 });
   const sign = cur === "THB" ? "฿" : "$";
   const whole = (n: number) => sign + nf.format(n);
@@ -73,6 +76,7 @@ function makeFmt(cur: Cur, rate: number, lang: Locale): Fmt {
     },
     unit: (usd) => sign + nfUnit.format(toDisplay(usd, d)),
     num: (n) => nf.format(n),
+    input: (n) => nfInput.format(n),
   };
 }
 
@@ -849,8 +853,8 @@ function ItemCard(props: {
               suffix={inp.unit[lang]}
               hint={inp.help?.[lang]}
               invalid={c.invalid}
-              keep={(v) => c.keep(`${f.num(v)} ${inp.unit[lang]}`.trim())}
-              overMax={(v) => c.overMax(`${f.num(v)} ${inp.unit[lang]}`.trim())}
+              keep={(v) => c.keep(`${f.input(v)} ${inp.unit[lang]}`.trim())}
+              overMax={(v) => c.overMax(`${f.input(v)} ${inp.unit[lang]}`.trim())}
               onChange={(v) => props.onChange({ inputs: { ...item.inputs, [inp.id]: v } })}
             />
           ))}

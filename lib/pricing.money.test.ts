@@ -1069,6 +1069,13 @@ test("S1 Pulse8 SMS per credit in baht at any rate: 10,000 credits × ฿0.32 = 
   const fine = pulse8With({ sms: 1000000, smsPrice: 1.02175 }, 33.5).row("sms");
   near(fine.cost * 33.5, 1021750, "1,000,000 credits × ฿1.02175");
   assert.deepEqual(fine.detail, { en: "1,000,000 credits × ฿1.02175 · excl. 7% VAT", th: "1,000,000 เครดิต × ฿1.02175 · ไม่รวม VAT 7%" });
+  // a long typed price at a high volume: 31,208,637 × 0.32135 = ฿10,028,895.49995, rounded to the satang = ฿10,028,895.50, so the
+  // row shows ฿10,028,896 (half up) at every rate instead of 896 at ฿33.5 and 895 at ฿36 (Astra round 2)
+  for (const rate of [33.5, 36, 40]) {
+    const p = pulse8With({ sms: 31208637, smsPrice: 0.32135 }, rate);
+    near(p.row("sms").cost * rate, 10028895.5, `long price at ฿${rate}: THB`);
+    assert.equal(p.thb.lines.find((l) => l.id === "sms")!.sell, 10028896, `long price at ฿${rate}: row on screen`);
+  }
   // the rate field's limits: still ฿3,200 on screen
   for (const rate of [1, 1000]) assert.equal(pulse8With({}, rate).thb.lines.find((l) => l.id === "sms")!.sell, 3200, `defaults at ฿${rate}`);
   // credits are whole: 10,000.5 bills 10,001 × 0.32 = 3,200.32

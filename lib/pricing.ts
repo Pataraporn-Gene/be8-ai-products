@@ -320,10 +320,12 @@ function lineOaRow(messages: number, rate: number, plan: number): Line {
 const SMS_THB_PER_CREDIT = 0.32;
 
 /** Pulse8's SMS row: credits × the baht price per credit, divided by the user's rate like the LINE row, before VAT.
- *  Credits are whole, as providers sell them: a typed 10,000.5 bills 10,001. */
+ *  Credits are whole, as providers sell them: a typed 10,000.5 bills 10,001. The baht amount is rounded to the satang (0.01)
+ *  first: a typed price with many decimals could otherwise land on a ...x.49995 amount that the US$ round trip and the page's
+ *  12-digit rounding turn into a different whole baht at different rates. */
 function smsRow(credits: number, thbPerCredit: number, rate: number): Line {
   const c = Math.ceil(credits);
-  const usd = (c * thbPerCredit) / rate;
+  const usd = roundPrice(c * thbPerCredit) / rate;
   return {
     id: "sms", label: L("SMS (your provider)", "ค่าส่ง SMS (ผู้ให้บริการของคุณ)"), payer: "direct", kind: "telco", sell: usd, cost: usd, draft: true,
     // The price as typed (String, not `n`, which rounds to 4 decimals): the formula on screen must multiply out to the row.
