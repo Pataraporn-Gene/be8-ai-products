@@ -1,7 +1,7 @@
 // Run: node --test lib/pricing.test.ts
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_SETTINGS, PRICING, costItem, decode, encode, newItem, totals, type Item } from "./pricing.ts";
+import { DEFAULT_SETTINGS, PRICING, costItem, decode, displayGrid, encode, newItem, totals, type Item } from "./pricing.ts";
 
 const s = DEFAULT_SETTINGS;
 const close = (a: number, b: number) => assert.ok(Math.abs(a - b) < 1e-6, `${a} != ${b}`);
@@ -63,4 +63,18 @@ test("share link round-trips and rejects junk", () => {
   assert.equal(evil.items[0].inputs.hours, 0);
   assert.equal(evil.items[0].inputs.asks, 10000);
   assert.ok(evil.s.rate >= 1);
+});
+
+test("Agent8 and Pulse8: every monthly line is paid directly; AI model line is a draft; display totals at defaults", () => {
+  const a8 = newItem("agent8", "a");
+  const p8 = newItem("pulse8", "p");
+  assert.equal(costItem(a8, s).lines.find((l) => l.id === "ai")?.draft, true);
+  for (const item of [a8, p8]) {
+    const c = costItem(item, s);
+    assert.ok(c.lines.length > 0);
+    for (const l of c.lines) assert.equal(l.payer, "direct", `${item.pid} ${l.id}`);
+    assert.equal(c.monthlyBeryl8, 0);
+  }
+  const g = displayGrid(totals([a8, p8], s), { cur: "THB", rate: 33.5, vat: false }, s);
+  assert.deepEqual(g.hosting.total, { cloud: 23450, ai: 4020, other: 4858, total: 32328 });
 });
