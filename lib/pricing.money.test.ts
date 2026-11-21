@@ -550,9 +550,13 @@ test("M12 size L and XL Cloud SQL from the same SKUs; L/XL stay draft; LB/Armor 
 
 // O1–O3, O5: rows re-priced 2026-11-21 from the Cloud Billing Catalog (asia-southeast1/2, on-demand, 730 h) for specs read
 // from each product's prod with gcloud; O4 guards the published Voice8 per-minute price (conversational-ai docs/cost.md:
-// ฿0.731 ÷ 33.56 ≈ US$0.0218). Monthly totals also include rows that keep their earlier draft values (e.g. Data8 BigQuery).
+// ฿0.731 ÷ 33.56 ≈ US$0.0218). Monthly totals also include rows that keep their earlier draft values (e.g. Data8 Logging and other).
 // Expected values are worked out by hand from the SKU prices in the comments.
-const dbRow = (pid: string, id: string) => costItem({ ...newItem(pid, "o"), setup: false }, s).lines.find((l) => l.id === id)!;
+const dbRow = (pid: string, id: string) => {
+  const l = costItem({ ...newItem(pid, "o"), setup: false }, s).lines.find((x) => x.id === id);
+  assert.ok(l, `${pid}: expected a row ${id}`);
+  return l;
+};
 const onScreen = (pid: string, inputs: Record<string, number> = {}) =>
   displayGrid(totals([{ ...newItem(pid, "o"), inputs: { ...newItem(pid, "o").inputs, ...inputs }, setup: false }], s), { cur: "THB", rate: 33.5, vat: false }, s);
 const monthRow = (pid: string, id: string, usd: number) => {
@@ -633,7 +637,8 @@ test("Q1 Voice8 extra Asterisk VM every 60 concurrent calls (load test 2026-11-1
   const rows = (concurrent: number) => costItem({ ...newItem("voice8", "v"), inputs: { concurrent }, setup: false }, s).lines;
   const row = (concurrent: number, id: string) => rows(concurrent).find((l) => l.id === id);
   const asterisk = (concurrent: number, vms: number) => {
-    const l = row(concurrent, "gcp-asterisk")!;
+    const l = row(concurrent, "gcp-asterisk");
+    assert.ok(l, `${concurrent} calls: expected ${vms} extra Asterisk VM row`);
     near(l.cost, vms * 67.3, `${concurrent} calls: ${vms} extra Asterisk VM cost`);
     near(l.sell, vms * 67.3, `${concurrent} calls: sell = cost (paid direct)`);
     assert.equal(l.payer, "direct");
@@ -809,7 +814,11 @@ test("guard: Meet8/Insight8 totals, license, MA, markup, setup days, package pri
 });
 
 test("Q4 Data8 storage stays inside Cloud SQL limits for db-g1-small: 10 GiB minimum, 3,054 GiB maximum", () => {
-  const st = (sqlGiB: number) => costItem({ ...newItem("data8", "d"), inputs: { sqlGiB }, setup: false }, s).lines.find((l) => l.id === "gcp-sql-storage")!;
+  const st = (sqlGiB: number) => {
+    const l = costItem({ ...newItem("data8", "d"), inputs: { sqlGiB }, setup: false }, s).lines.find((x) => x.id === "gcp-sql-storage");
+    assert.ok(l, `${sqlGiB} GiB: expected a Cloud SQL storage row`);
+    return l;
+  };
   // 0 GiB is billed as the 10 GiB minimum: 10 × 0.238 = 2.38
   near(st(0).sell, 2.38, "0 GiB → 10 GiB");
   assert.equal(st(0).detail!.en, "10 GiB × US$0.238 per GiB-month · growth per profile not measured");
